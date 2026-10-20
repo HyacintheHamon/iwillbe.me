@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "iwillbe.me",
+    "slug": "iwillbe-me",
+    "version": "0.1.0",
+    "scheme": "iwillbe",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "me.iwillbe.app",
+      "infoPlist": { "ITSAppUsesNonExemptEncryption": false }
+    },
+    "android": {
+      "package": "me.iwillbe.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#F7F3EA"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/icon.png",
+      "name": "iwillbe.me"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/icon.png",
+          "imageWidth": 120,
+          "backgroundColor": "#F7F3EA"
+        }
+      ],
+      ["expo-notifications", { "color": "#AF812C" }]
+    ],
+    "experiments": { "typedRoutes": true }
+  }
+}
