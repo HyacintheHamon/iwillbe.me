@@ -39,7 +39,7 @@ export default function ResetPassword() {
           <Body>Your password has been updated.</Body>
           <Button
             label="Back to my practice"
-            onPress={() => router.replace("/")}
+            onPress={() => router.replace("/account")}
           />
         </>
       ) : session ? (

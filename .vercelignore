@@ -1,0 +1,11 @@
+node_modules/
+.expo/
+dist/
+.env*
+.git/
+docs/
+test-results/
+supabase/
+tests/
+ios/
+android/

@@ -2,6 +2,9 @@ import React from "react";
 import {
   ActivityIndicator,
   Image,
+  KeyboardAvoidingView,
+  Platform,
+  useWindowDimensions,
   Modal,
   Pressable,
   ScrollView,
@@ -21,16 +24,17 @@ import { StarFourIcon as StarFour } from "phosphor-react-native/src/icons/StarFo
 import { XIcon as X } from "phosphor-react-native/src/icons/X";
 import { router } from "expo-router";
 export const C = {
-  paper: "#F4EFE4",
-  navy: "#11162B",
-  ink: "#444B61",
-  gold: "#AF812C",
-  goldLight: "#ECD7A7",
-  line: "#DED8CC",
-  muted: "#78796F",
-  white: "#FFFCF6",
-  blue: "#DCE7EC",
-  clay: "#DFC1AA",
+  paper: "#0D0E20",
+  navy: "#F1F0F8",
+  ink: "#D1D2E3",
+  gold: "#F4C96D",
+  goldDecorative: "#F4C96D",
+  goldLight: "#F4C96D",
+  line: "#333750",
+  muted: "#A6ABC3",
+  white: "#191B34",
+  blue: "#7FB3FF",
+  clay: "#DF9EAC",
 };
 export const F = {
   serif: "Fraunces_500Medium",
@@ -38,12 +42,6 @@ export const F = {
   sans: "DMSans_400Regular",
   medium: "DMSans_500Medium",
   strong: "DMSans_600SemiBold",
-};
-export const art = {
-  morning: require("../assets/illustrations/morning-orbit.png"),
-  evening: require("../assets/illustrations/evening-reflection.png"),
-  explore: require("../assets/illustrations/exploration.png"),
-  icon: require("../assets/icon.png"),
 };
 export function Body({
   children,
@@ -111,7 +109,7 @@ export function Button({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={secondary ? C.navy : C.white} />
+        <ActivityIndicator color={secondary ? C.navy : C.paper} />
       ) : (
         <>
           <Text style={[s.buttonText, secondary && { color: C.navy }]}>
@@ -120,7 +118,7 @@ export function Button({
           {icon && (
             <ArrowRight
               size={22}
-              color={secondary ? C.navy : C.goldLight}
+              color={secondary ? C.navy : C.paper}
               weight="light"
             />
           )}
@@ -164,11 +162,14 @@ export function Chip({
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ selected }}
+      {...(Platform.OS === "web" && selected !== undefined
+        ? { "aria-pressed": selected }
+        : {})}
       accessibilityLabel={label}
       onPress={onPress}
       style={[
         s.chip,
-        selected && { borderColor: C.gold, backgroundColor: "#EFE3C9" },
+        selected && { borderColor: C.gold, backgroundColor: "#363044" },
       ]}
     >
       {selected && <Check size={15} color={C.gold} />}
@@ -188,7 +189,7 @@ export function Field({
       <TextInput
         accessibilityLabel={label || props.placeholder}
         {...props}
-        placeholderTextColor="#88887F"
+        placeholderTextColor={C.muted}
         style={[
           s.input,
           props.multiline && { minHeight: 110, textAlignVertical: "top" },
@@ -207,14 +208,15 @@ export function Notice({
 }) {
   return text ? (
     <View
-      accessibilityRole="alert"
-      style={[s.notice, tone === "error" && { backgroundColor: "#F4E6DE" }]}
+      accessibilityRole={tone === "error" ? "alert" : "status"}
+      accessibilityLiveRegion="polite"
+      style={[s.notice, tone === "error" && { backgroundColor: "#3B2332" }]}
     >
       <Body
         style={{
           fontSize: 13,
           lineHeight: 20,
-          color: tone === "error" ? "#883F2D" : C.ink,
+          color: tone === "error" ? "#FFB7B0" : C.ink,
         }}
       >
         {text}
@@ -234,7 +236,10 @@ export function Page({
   contentStyle?: ViewStyle;
 }) {
   return (
-    <View style={{ flex: 1, backgroundColor: C.paper }}>
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: C.paper }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
       {header}
       <ScrollView
         keyboardShouldPersistTaps="handled"
@@ -243,18 +248,20 @@ export function Page({
       >
         {children}
       </ScrollView>
-      {footer}
-    </View>
+      {footer && <View style={s.footer}>{footer}</View>}
+    </KeyboardAvoidingView>
   );
 }
 export function TopBar({
   title,
   right,
   back = true,
+  onBack,
 }: {
   title?: string;
   right?: React.ReactNode;
   back?: boolean;
+  onBack?: () => void;
 }) {
   return (
     <View style={s.topbar}>
@@ -262,8 +269,9 @@ export function TopBar({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Go back"
-          onPress={() =>
-            router.canGoBack() ? router.back() : router.replace("/")
+          onPress={
+            onBack ||
+            (() => (router.canGoBack() ? router.back() : router.replace("/")))
           }
           style={s.iconButton}
         >
@@ -284,12 +292,13 @@ export function Illustration({
   source: ImageSourcePropType;
   height?: number;
 }) {
+  const { height: viewport } = useWindowDimensions();
   return (
     <Image
       accessibilityIgnoresInvertColors
       source={source}
       resizeMode="contain"
-      style={{ width: "100%", height }}
+      style={{ width: "100%", height: Math.min(height, viewport * 0.22) }}
     />
   );
 }
@@ -297,7 +306,7 @@ export function ChloeMark({ small = false }: { small?: boolean }) {
   return (
     <View
       style={{
-        backgroundColor: "#F1E3C6",
+        backgroundColor: "#363044",
         padding: small ? 6 : 12,
         borderRadius: 40,
         alignSelf: "flex-start",
@@ -384,25 +393,34 @@ export const s = StyleSheet.create({
   body: { fontFamily: F.sans, fontSize: 15, lineHeight: 23, color: C.ink },
   title: {
     fontFamily: F.serif,
-    fontSize: 36,
-    lineHeight: 43,
+    fontSize: 30,
+    lineHeight: 37,
     color: C.navy,
     letterSpacing: -1,
   },
   eyebrow: {
     fontFamily: F.medium,
-    fontSize: 10,
-    letterSpacing: 2.7,
+    fontSize: 12,
+    letterSpacing: 1.5,
     color: C.gold,
     textTransform: "uppercase",
     lineHeight: 18,
+  },
+  footer: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    gap: 8,
+    borderTopWidth: 1,
+    borderColor: C.line,
+    backgroundColor: C.paper,
   },
   page: { padding: 24, paddingBottom: 36, gap: 20 },
   button: {
     minHeight: 58,
     borderRadius: 30,
-    backgroundColor: C.navy,
-    paddingHorizontal: 24,
+    backgroundColor: C.gold,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -413,7 +431,13 @@ export const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: C.line,
   },
-  buttonText: { fontFamily: F.medium, fontSize: 18, color: C.white },
+  buttonText: {
+    fontFamily: F.medium,
+    fontSize: 17,
+    textAlign: "center",
+    flexShrink: 1,
+    color: C.paper,
+  },
   textButton: {
     padding: 12,
     minHeight: 44,
@@ -435,10 +459,11 @@ export const s = StyleSheet.create({
     fontFamily: F.sans,
     fontSize: 16,
     lineHeight: 24,
-    borderBottomWidth: 1,
+    borderWidth: 1,
+    borderRadius: 14,
     borderColor: C.line,
     paddingVertical: 14,
-    paddingHorizontal: 4,
+    paddingHorizontal: 14,
     color: C.navy,
     backgroundColor: "transparent",
   },
@@ -448,7 +473,7 @@ export const s = StyleSheet.create({
     color: C.muted,
     letterSpacing: 0.4,
   },
-  notice: { padding: 14, borderRadius: 16, backgroundColor: "#EEE8DD" },
+  notice: { padding: 14, borderRadius: 16, backgroundColor: C.white },
   topbar: {
     height: 60,
     paddingHorizontal: 16,
@@ -471,6 +496,6 @@ export const s = StyleSheet.create({
     borderRadius: 22,
     gap: 16,
     borderWidth: 1,
-    borderColor: "#E8E0D3",
+    borderColor: C.line,
   },
 });

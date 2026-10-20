@@ -1,3 +1,4 @@
+import type { Entry, Energy, Planet, ValueChoice } from "./journey";
 export type Outcome = "yes" | "partly" | "not_yet";
 export type Profile = {
   display_name: string;
@@ -14,6 +15,14 @@ export type Intention = {
   day: string;
   action: string;
   value: string;
+  interest?: string;
+  interest_id?: string | null;
+  value_id?: string | null;
+  planet?: Planet;
+  kind?: "action" | "be";
+  when_context?: string;
+  place?: string;
+  with_person?: string;
   person: string;
   created_at: string;
 };
@@ -21,6 +30,8 @@ export type CheckIn = {
   intention_id: string;
   outcome: Outcome;
   reflection: string;
+  energy?: Energy | null;
+  value_choice?: ValueChoice | null;
   created_at: string;
 };
 export type Memory = {
@@ -41,6 +52,7 @@ export type Practice = {
   checkIns: CheckIn[];
   memories: Memory[];
   messages: Message[];
+  entries: Entry[];
 };
 export const VALUES = [
   "Patience",
@@ -63,6 +75,58 @@ export const INTERESTS = [
 export function localDay(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
+export function shiftDay(day: string, offset: number) {
+  const date = new Date(`${day}T12:00:00`);
+  date.setDate(date.getDate() + offset);
+  return localDay(date);
+}
+export function dayLabel(day: string) {
+  return new Date(`${day}T12:00:00`).toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+export function nextIntentionDay(practice: Practice, today = localDay()) {
+  const intention = practice.intentions.find((i) => i.day === today);
+  return intention &&
+    practice.checkIns.some((c) => c.intention_id === intention.id)
+    ? shiftDay(today, 1)
+    : today;
+}
+export type Dimension = "value" | "interest" | "person";
+export function matchesDimension(
+  i: Intention,
+  dimension: Dimension,
+  label: string,
+) {
+  // Older versions stored interests in the value field. Preserve their meaning.
+  if (dimension === "interest")
+    return (
+      i.interest === label ||
+      (!i.interest && INTERESTS.includes(i.value) && i.value === label)
+    );
+  if (dimension === "value")
+    return !INTERESTS.includes(i.value) && i.value === label;
+  return i.person === label;
+}
+export function importConflicts(local: Practice, account: Practice) {
+  return local.intentions.filter((i) =>
+    account.intentions.some((a) => a.day === i.day && a.id !== i.id),
+  );
+}
+export function hasPractice(practice: Practice) {
+  return !!(
+    practice.entries?.length ||
+    practice.intentions.length ||
+    practice.memories.length ||
+    practice.profile.onboarded ||
+    practice.profile.display_name ||
+    practice.profile.values.length ||
+    practice.profile.interests.length
+  );
+}
 export function emptyPractice(): Practice {
   return {
     profile: {
@@ -79,6 +143,7 @@ export function emptyPractice(): Practice {
     checkIns: [],
     memories: [],
     messages: [],
+    entries: [],
   };
 }
 export function activityCount(practice: Practice, label: string) {

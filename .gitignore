@@ -45,3 +45,16 @@ yarn-error.*
 .env.*
 !.env.example
 supabase/.temp/
+
+# Local browser regression artifacts
+test-results/
+
+# Local Vercel project configuration
+.vercel/
+
+# Local research source copies and audit exports (not product source)
+docs/audit/
+docs/plans/2026-10-19-refonte/*.html
+docs/plans/2026-10-19-refonte/*.pdf
+docs/plans/2026-10-19-refonte/*.png
+docs/plans/2026-10-19-refonte/verification.json

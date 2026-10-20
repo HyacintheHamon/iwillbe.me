@@ -1,6 +1,15 @@
 import { Platform } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
-export async function scheduleReminders(morning: string, evening: string) {
+import type { Practice } from "./domain";
+import { localDay } from "./domain";
+const KEY = "iwillbe.reminders.v2";
+let pending: Promise<void> = Promise.resolve();
+export async function scheduleReminders(
+  morning: string,
+  evening: string,
+  practice?: Practice,
+) {
   if (Platform.OS === "web")
     throw new Error("Reminders are available in the iOS and Android app.");
   for (const time of [morning, evening])
@@ -16,28 +25,64 @@ export async function scheduleReminders(morning: string, evening: string) {
     throw new Error(
       "Allow notifications in your phone settings to receive reminders.",
     );
-  await Notifications.cancelAllScheduledNotificationsAsync();
-  for (const [time, title, body] of [
-    [
-      morning,
-      "A little more you.",
-      "Take two minutes to choose what matters today.",
-    ],
-    [evening, "A moment to look back.", "How did your intention feel today?"],
-  ]) {
-    const [hour, minute] = time.split(":").map(Number);
-    await Notifications.scheduleNotificationAsync({
-      content: { title, body, data: { url: "/" } },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DAILY,
-        hour,
-        minute,
-        channelId: "rituals",
-      },
+  await AsyncStorage.setItem(KEY, JSON.stringify({ morning, evening }));
+  await syncReminders(practice);
+}
+export function syncReminders(practice?: Practice) {
+  if (Platform.OS === "web") return Promise.resolve();
+  pending = pending
+    .catch(() => {})
+    .then(async () => {
+      const stored = await AsyncStorage.getItem(KEY);
+      if (!stored) return;
+      const { morning, evening } = JSON.parse(stored);
+      await Notifications.cancelAllScheduledNotificationsAsync();
+      for (let offset = 0; offset < 14; offset++)
+        for (const [time, title, body, url] of [
+          [
+            morning,
+            "A little more you.",
+            "Make room for one small thing today.",
+            "/ritual",
+          ],
+          [
+            evening,
+            "A moment to look back.",
+            "Did it light you up?",
+            "/reflect",
+          ],
+        ]) {
+          const when = new Date();
+          when.setDate(when.getDate() + offset);
+          const [hour, minute] = time.split(":").map(Number);
+          when.setHours(hour, minute, 0, 0);
+          if (when.getTime() <= Date.now()) continue;
+          const intention = practice?.intentions.find(
+            (i) => i.day === localDay(when),
+          );
+          if (url === "/ritual" && intention) continue;
+          if (
+            url === "/reflect" &&
+            intention &&
+            practice?.checkIns.some((c) => c.intention_id === intention.id)
+          )
+            continue;
+          await Notifications.scheduleNotificationAsync({
+            content: { title, body, data: { url } },
+            trigger: {
+              type: Notifications.SchedulableTriggerInputTypes.DATE,
+              date: when,
+              channelId: "rituals",
+            },
+          });
+        }
     });
-  }
+  return pending;
 }
 export async function cancelReminders() {
-  if (Platform.OS !== "web")
+  if (Platform.OS !== "web") {
+    await AsyncStorage.removeItem(KEY);
+    await pending.catch(() => {});
     await Notifications.cancelAllScheduledNotificationsAsync();
+  }
 }

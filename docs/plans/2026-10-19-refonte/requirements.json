@@ -1,0 +1,480 @@
+{
+  "source": "iwillbe-me-concept-brief.pdf",
+  "sourcePages": 23,
+  "dateLocal": "2026-10-19",
+  "timezone": "America/New_York",
+  "columns": [
+    "id",
+    "subject",
+    "briefPages",
+    "current",
+    "target",
+    "release",
+    "lots",
+    "acceptance"
+  ],
+  "requirements": [
+    {
+      "id": "R01",
+      "subject": "Promesse et univers visuel",
+      "briefPages": "2–4, 8, 10, 12",
+      "current": "Identité crème/céramique ; structure à trois onglets.",
+      "target": "Adopter la direction cosmique nocturne des maquettes, avec vocabulaire explicatif et contenu orienté vie réelle.",
+      "release": "A",
+      "lots": "L0–L1",
+      "acceptance": "Écrans clés validés avant intégration ; les utilisateurs expliquent la promesse sans aide."
+    },
+    {
+      "id": "R02",
+      "subject": "Spark sort",
+      "briefPages": "5–6",
+      "current": "Absent ; choix dans Settings ; six intérêts prédéfinis.",
+      "target": "Catalogue d’environ 30 cartes illustrées, Curious / Already love / Not for me ; retour, annulation, reprise, passer.",
+      "release": "A",
+      "lots": "L1–L3",
+      "acceptance": "Chaque choix produit une préférence traçable ; aucune activité accomplie n’est inventée."
+    },
+    {
+      "id": "R03",
+      "subject": "Trois histoires, croissance, premier why",
+      "briefPages": "5–6",
+      "current": "Onboarding redirigé vers /ritual ; aucun why.",
+      "target": "Questions concrètes et sautables ; extractions proposées par Chloe ; why « encore en formation » autorisé.",
+      "release": "A",
+      "lots": "L2–L3",
+      "acceptance": "L’utilisateur confirme ou corrige chaque interprétation ; reprise après fermeture."
+    },
+    {
+      "id": "R04",
+      "subject": "Baseline Full Moon",
+      "briefPages": "6, 14",
+      "current": "Absente.",
+      "target": "Trois réponses 0–10 facultatives, formulées exactement comme dans les suivis ; version de questionnaire et date.",
+      "release": "A",
+      "lots": "L2–L3",
+      "acceptance": "Les réponses sautées restent nulles ; baseline distincte des bilans ultérieurs."
+    },
+    {
+      "id": "R05",
+      "subject": "Cinq planètes et Surprise",
+      "briefPages": "4, 8–10",
+      "current": "Aucune planète ; valeur obligatoire.",
+      "target": "Be, People, Causes, Passions, Grow et Surprise ; proposition expliquée de Chloe et choix libre.",
+      "release": "A",
+      "lots": "L2–L4",
+      "acceptance": "Tous les chemins aboutissent à une seule intention ; « pour moi » est une réponse complète."
+    },
+    {
+      "id": "R06",
+      "subject": "Intention contextualisée",
+      "briefPages": "1, 10, 13",
+      "current": "Action + jour + valeur + intérêt facultatif + personne.",
+      "target": "Ajouter moment ou contexte, lieu facultatif, action / manière d’être, planète, bénéficiaire et éventuellement accompagnant.",
+      "release": "A",
+      "lots": "L2–L4",
+      "acceptance": "Carte explicite avant sauvegarde ; une valeur n’est pas imposée à chaque action."
+    },
+    {
+      "id": "R07",
+      "subject": "Rythme personnel / season setting",
+      "briefPages": "8–10",
+      "current": "Heures de rappels seulement.",
+      "target": "Rester dans une orbite, varier, ou laisser Chloe proposer ; proposition par défaut modifiable.",
+      "release": "A",
+      "lots": "L2–L4",
+      "acceptance": "L’utilisateur qui choisit une orbite n’est jamais poussé hors de celle-ci."
+    },
+    {
+      "id": "R08",
+      "subject": "Bilan action / énergie / valeur",
+      "briefPages": "1, 7–8",
+      "current": "Réalisation yes / partly / not_yet + note.",
+      "target": "Dissocier réalisation, énergie ressentie et envie de rechoisir une valeur ; intérêt découvert facultatif.",
+      "release": "A",
+      "lots": "L2–L4",
+      "acceptance": "Une activité énergisante et une valeur exigeante peuvent recevoir des réponses différentes."
+    },
+    {
+      "id": "R09",
+      "subject": "Why et versions",
+      "briefPages": "6, 10–11",
+      "current": "Absent ; ne pas confondre avec north_star.",
+      "target": "Centre de la galaxie, état en formation, propositions avec sources, versions acceptées et historique.",
+      "release": "A puis B",
+      "lots": "L2–L5, L7",
+      "acceptance": "Aucune réécriture automatique ; revenir à une version antérieure est possible."
+    },
+    {
+      "id": "R10",
+      "subject": "Forces et personnes inspirantes",
+      "briefPages": "6, 11",
+      "current": "Valeurs et noms libres uniquement.",
+      "target": "Distinguer forces de caractère, valeurs choisies, personnes admirées, intérêts et pratiques.",
+      "release": "A puis B",
+      "lots": "L2–L5",
+      "acceptance": "Une personne importante n’est pas automatiquement classée comme modèle admiré."
+    },
+    {
+      "id": "R11",
+      "subject": "États des intérêts et Craft",
+      "briefPages": "6–8",
+      "current": "Comptage de pas.",
+      "target": "Spark / Glow / Blaze / Ember ; Craft comme choix d’approfondissement, avec historique et provenance.",
+      "release": "A",
+      "lots": "L2–L5",
+      "acceptance": "Aucun passage automatique vers Ember après une absence ; pas de Blaze calculé sur un nombre de taps."
+    },
+    {
+      "id": "R12",
+      "subject": "États des valeurs",
+      "briefPages": "6–8",
+      "current": "Liste de valeurs sélectionnées.",
+      "target": "Flicker / Steady / Drift, indépendants des états des intérêts et fondés sur des choix explicites.",
+      "release": "A",
+      "lots": "L2–L5",
+      "acceptance": "Un bilan « fait » ne suffit pas à déclarer une valeur Steady."
+    },
+    {
+      "id": "R13",
+      "subject": "Exploration et fiche d’essai",
+      "briefPages": "7, 12",
+      "current": "Suggestions fixes et quelques intérêts ; pas de fiche.",
+      "target": "Domaines de vie, possibilités proches, description, expérience d’une heure, temps/coût indicatifs et premier pas.",
+      "release": "A limitée puis B",
+      "lots": "L5, L7",
+      "acceptance": "Trois sorties : essayer, garder comme Spark, pas pour moi ; aucun lieu ou prix local inventé."
+    },
+    {
+      "id": "R14",
+      "subject": "Chloe et mémoire durable",
+      "briefPages": "1, 5, 12–13, 22",
+      "current": "Chat réel ; 7 intentions, 7 bilans, 8 notes et 12 messages dans le contexte.",
+      "target": "Modes de session, mémoire structurée, résumés et récupération de faits pertinents ; prompt maître versionné.",
+      "release": "A",
+      "lots": "L0, L2–L4",
+      "acceptance": "Une observation de Chloe renvoie à des faits existants, peut être contestée et corrigée."
+    },
+    {
+      "id": "R15",
+      "subject": "Open Questions",
+      "briefPages": "12",
+      "current": "Absent.",
+      "target": "Historique des questions sautées, relance espacée, possibilité de ne plus les proposer.",
+      "release": "A",
+      "lots": "L2–L4",
+      "acceptance": "Une question sautée ne revient jamais au tour suivant."
+    },
+    {
+      "id": "R16",
+      "subject": "Meaning To",
+      "briefPages": "13",
+      "current": "Intention de demain uniquement.",
+      "target": "Liste de choses remises à plus tard, choix faire / reporter / abandonner, relance après deux semaines ou trois passages.",
+      "release": "B",
+      "lots": "L2, L7",
+      "acceptance": "Abandonner clôt l’élément sans pénalité ni relance automatique."
+    },
+    {
+      "id": "R17",
+      "subject": "Rendez-vous du dimanche",
+      "briefPages": "8, 11–12",
+      "current": "Absent.",
+      "target": "Question courte sur le why et mini-bilan ; exploration de dix minutes en version complète.",
+      "release": "A courte puis B",
+      "lots": "L2, L5, L7",
+      "acceptance": "Peut être différé ; ne bloque pas le rituel quotidien ; fin de session explicite."
+    },
+    {
+      "id": "R18",
+      "subject": "Télescope proche / lointain",
+      "briefPages": "9–10",
+      "current": "Absent.",
+      "target": "Vision à un an et regard en fin de vie ; première visite le dimanche ; versions séparées.",
+      "release": "B",
+      "lots": "L2, L7",
+      "acceptance": "Tweak / Still true / Something changed conservent les versions et ne remplacent pas le why."
+    },
+    {
+      "id": "R19",
+      "subject": "Full Moon mensuel",
+      "briefPages": "8–9, 14",
+      "current": "Absent.",
+      "target": "Même questionnaire, retour en mots, chiffres sur demande, question produit distincte et volontaire.",
+      "release": "A",
+      "lots": "L2, L6",
+      "acceptance": "Un seul rendez-vous par période ; aucune cible chiffrée ni conclusion causale automatique."
+    },
+    {
+      "id": "R20",
+      "subject": "Session saisonnière du why",
+      "briefPages": "8, 10–12",
+      "current": "Absente.",
+      "target": "Toutes les trois pleines lunes ou à la demande après un changement ; preuves et proposition à confirmer.",
+      "release": "B",
+      "lots": "L7",
+      "acceptance": "Fonctionne avec peu de données en reconnaissant le manque de recul ; aucune synthèse forcée."
+    },
+    {
+      "id": "R21",
+      "subject": "North Star quotidien et partage",
+      "briefPages": "13",
+      "current": "Personne facultative dans l’intention ; préférence globale.",
+      "target": "Bénéficiaire par jour, privé par défaut ; message de partage préparé et envoyé seulement par l’utilisateur.",
+      "release": "A privé puis B partage",
+      "lots": "L2–L4, L8",
+      "acceptance": "Ne partage aucune réflexion ni autre personne par défaut."
+    },
+    {
+      "id": "R22",
+      "subject": "Comets",
+      "briefPages": "13, 17, 20",
+      "current": "Absent.",
+      "target": "Lien reçu sans compte, petit essai, accepter aujourd’hui / garder / passer ; consentement, blocage et limite de réception.",
+      "release": "B prioritaire",
+      "lots": "L8",
+      "acceptance": "Aucun reçu « ignoré/refusé », aucun compteur ; le destinataire contrôle la réception."
+    },
+    {
+      "id": "R23",
+      "subject": "Constellation",
+      "briefPages": "13",
+      "current": "Personnes et nombre de pas par personne.",
+      "target": "Carte privée de moments datés où l’on s’est montré présent, sans classement de relations.",
+      "release": "A",
+      "lots": "L2, L5",
+      "acceptance": "Les personnes ne sont jamais ordonnées ou dimensionnées par fréquence."
+    },
+    {
+      "id": "R24",
+      "subject": "Ask a friend",
+      "briefPages": "6",
+      "current": "Absent.",
+      "target": "Lien de suggestions d’intérêts avec réception privée et validation avant ajout.",
+      "release": "C ou extension B",
+      "lots": "L8",
+      "acceptance": "Pas d’ajout automatique au profil ; invitation indépendante d’une inscription."
+    },
+    {
+      "id": "R25",
+      "subject": "Verrou personnel",
+      "briefPages": "5",
+      "current": "Auth, RLS et cache ; aucun verrou local.",
+      "target": "Réauthentification web adaptée ; biométrie/verrou sur versions natives avec protection du retour d’arrière-plan.",
+      "release": "A web / B natif",
+      "lots": "L6, L8",
+      "acceptance": "Ne pas confondre écran verrouillé et journal chiffré ; traiter récupération et appareils partagés."
+    },
+    {
+      "id": "R26",
+      "subject": "Mesure et feedback",
+      "briefPages": "14, 23",
+      "current": "Pas de mesure produit ni canal de feedback intégré.",
+      "target": "Activation, retour D7/D30, actions réelles déclarées, scores personnels ; feedback consenti distinct du journal.",
+      "release": "A",
+      "lots": "L2, L6",
+      "acceptance": "Les événements de mesure ne contiennent ni messages, ni noms, ni notes privées."
+    },
+    {
+      "id": "R27",
+      "subject": "Gratuit / payant",
+      "briefPages": "19–23",
+      "current": "Pas de paiement ; app gratuite.",
+      "target": "Bêta gratuite ; droits d’accès prêts pour rituels gratuits, exploration payante et offres sponsorisées ultérieures.",
+      "release": "C",
+      "lots": "L9",
+      "acceptance": "Le quota technique ne devient pas un paywall masqué ; export et suppression restent accessibles."
+    },
+    {
+      "id": "R28",
+      "subject": "Partenaires et coachs",
+      "briefPages": "18–19",
+      "current": "Absent.",
+      "target": "Codes d’éligibilité, accès sponsorisé, statistiques agrégées, partage choisi par client et résumé coach.",
+      "release": "C",
+      "lots": "L9",
+      "acceptance": "Aucun accès employeur au journal ; révocation du partage et agrégats non identifiants."
+    },
+    {
+      "id": "R29",
+      "subject": "Distribution bêta",
+      "briefPages": "18, 20, 23",
+      "current": "Web Vercel disponible ; app Expo sans binaire signé.",
+      "target": "Web mobile installable d’abord, puis build Expo de test pour notifications et biométrie.",
+      "release": "A puis B",
+      "lots": "L6, L8",
+      "acceptance": "Connexion réelle depuis boîte mail et reprise vérifiées sur les appareils retenus."
+    },
+    {
+      "id": "R30",
+      "subject": "Acquisition hors app",
+      "briefPages": "17",
+      "current": "Pas de site marketing ni outil Find your why dédiés.",
+      "target": "Landing page et outil public à périmétrer après la boucle principale ; liens sociaux et partenaires.",
+      "release": "C",
+      "lots": "L9",
+      "acceptance": "Les promesses publiques reflètent les fonctions livrées, pas la totalité du brief."
+    }
+  ],
+  "steps": [
+    {
+      "capture": "01-home",
+      "description": "Première visite",
+      "health": "Base saine, promesse à enrichir",
+      "finding": "L’action principale est claire et accessible sans compte. Le premier écran ne fait découvrir ni les intérêts possibles ni la galaxie personnelle. Il conduit directement au formulaire.",
+      "accessibility": "Le CTA visible et les onglets nommés sont à conserver. La compréhension de la promesse doit être testée avec de nouveaux utilisateurs."
+    },
+    {
+      "capture": "02-morning",
+      "description": "Rituel du matin",
+      "health": "Refonte majeure",
+      "finding": "Une action libre et huit valeurs remplacent aujourd’hui le choix de planète et la question de Chloe. Presence est présélectionnée dans le code ; le formulaire impose une valeur même pour une exploration personnelle.",
+      "accessibility": "Conserver les libellés et états sélectionnés. Une rangée de cinq planètes devra rester lisible à 320 px et utilisable sans distinguer leurs couleurs."
+    },
+    {
+      "capture": "03-commitment",
+      "description": "Confirmation de l’engagement",
+      "health": "À compléter",
+      "finding": "La confirmation est explicite et modifiable. L’engagement ne porte ni moment, ni lieu, ni planète ; la personne, la valeur et l’intérêt sont de simples textes.",
+      "accessibility": "Ne pas densifier cette carte avec tous les champs possibles : montrer le nécessaire et permettre de modifier chaque donnée."
+    },
+    {
+      "capture": "04-today",
+      "description": "Aujourd’hui après enregistrement",
+      "health": "Base saine, orchestration à revoir",
+      "finding": "L’intention enregistrée est visible et le bilan du soir est accessible. L’écran reste un récapitulatif identique dans la journée ; il ne gère pas les rythmes hebdomadaires ou mensuels.",
+      "accessibility": "Le bouton principal fixe est réutilisable. Tester la place de l’action face aux messages de confirmation et aux grandes illustrations."
+    },
+    {
+      "capture": "05-night",
+      "description": "Bilan du soir",
+      "health": "Écart critique",
+      "finding": "Le titre demande comment cela s’est ressenti, mais les choix répondent seulement « fait / un peu / pas cette fois ». L’énergie et le choix d’une valeur ne sont pas enregistrés.",
+      "accessibility": "Séparer trois questions courtes et conditionnelles. Chaque réponse doit avoir un libellé explicite ; l’absence de réponse ne vaut jamais une réponse négative."
+    },
+    {
+      "capture": "06-completed",
+      "description": "Fin du rituel",
+      "health": "À réorienter",
+      "finding": "Les deux suites proposées ramènent dans l’app. Le brief demande une vraie fin : une phrase utile et la liberté de poser le téléphone.",
+      "accessibility": "Un bouton « Terminer pour ce soir » doit fermer le parcours, sans dépendre de la possibilité technique de fermer un onglet web."
+    },
+    {
+      "capture": "07-galaxy",
+      "description": "Galaxie",
+      "health": "Refonte majeure",
+      "finding": "Une carte à positions fixes, centrée sur « You », sépare valeurs, intérêts et personnes et affiche des nombres de pas. Elle ne représente ni why, ni états d’exploration, ni forces de caractère.",
+      "accessibility": "Une galaxie ne peut devenir le seul moyen d’accéder aux données. Prévoir une vue liste, des libellés d’état, le clavier, un focus visible et une option de mouvement réduit."
+    },
+    {
+      "capture": "08-chloe",
+      "description": "Entrée dans Chloe",
+      "health": "À intégrer aux rituels",
+      "finding": "Chloe est aujourd’hui un espace séparé, bloqué avant connexion, avec un brouillon local facultatif. Le brief en fait le guide du matin, du soir et des rendez-vous longs.",
+      "accessibility": "Conserver le brouillon et l’explication du traitement par l’IA. Définir le moment de connexion après une première valeur démontrée."
+    },
+    {
+      "capture": "09-auth",
+      "description": "Connexion",
+      "health": "À conserver et fiabiliser",
+      "finding": "L’entrée par lien email explique la raison de se connecter et permet de rester sur l’appareil. Le retour contextuel et l’import consenti sont déjà présents dans le code.",
+      "accessibility": "Les écrans de saisie, erreur, renvoi et retour devront couvrir le nouveau parcours. La délivrabilité réelle des emails n’est pas testée dans cet audit."
+    },
+    {
+      "capture": "10-settings",
+      "description": "Personnalisation et préférences",
+      "health": "À redistribuer",
+      "finding": "Les valeurs et intérêts se choisissent dans les réglages ; North Star désigne une personne. La configuration actuelle ne contient pas de why, de rythme d’exploration ou de verrou local.",
+      "accessibility": "Garder ici les préférences, la confidentialité, l’export et la suppression. Déplacer la découverte de soi vers le parcours et la galaxie."
+    }
+  ],
+  "phaseColumns": [
+    "id",
+    "name",
+    "effort",
+    "scope",
+    "deliverable",
+    "dependency"
+  ],
+  "phases": [
+    {
+      "id": "L0",
+      "name": "Cadrage et règles produit",
+      "effort": "2–3 j",
+      "scope": "Récupérer le prompt maître, la banque de questions et les notes Explorer mentionnés p. 22 ; classer décisions du brief / observations utilisateurs / hypothèses. Fixer vocabulaire, états, premier groupe et budget IA.",
+      "deliverable": "Glossaire, règles de transition, parcours et périmètre A/B/C ; décisions D1–D9 documentées.",
+      "dependency": "Aucune migration avant accord sur les états et la signification des données."
+    },
+    {
+      "id": "L1",
+      "name": "Design et contenu",
+      "effort": "4–6 j",
+      "scope": "Extraire la direction des maquettes ; dessiner onboarding, matin, soir, galaxie et fiche d’intérêt avec états vides/erreur. Créer le catalogue de cartes et le guide de ton.",
+      "deliverable": "Prototype des cinq parcours, composants et contenus relus ; test de compréhension avec cinq personnes.",
+      "dependency": "Précède l’intégration visuelle ; aucun besoin de recréer la stack."
+    },
+    {
+      "id": "L2",
+      "name": "Modèle de données et migration",
+      "effort": "4–6 j",
+      "scope": "Identités stables, événements, nouvelles réponses nullable, versions du why, sessions Chloe, baseline ; migration invitée et cloud, import consenti, exports.",
+      "deliverable": "Migration répétable testée sur copie ; pas de perte ni d’inférence historique inventée ; isolation RLS vérifiée.",
+      "dependency": "Dépend de L0 ; prépare tous les parcours."
+    },
+    {
+      "id": "L3",
+      "name": "Premier parcours et premier moment utile",
+      "effort": "4–6 j",
+      "scope": "Spark sort, questions sautables, premières étoiles, why en formation, baseline, connexion progressive et reprise.",
+      "deliverable": "Un nouvel utilisateur comprend sa carte et choisit une action ; peut passer et reprendre sans perte.",
+      "dependency": "Dépend L1–L2 ; n’exige pas l’explorateur complet."
+    },
+    {
+      "id": "L4",
+      "name": "Matin, soir et Chloe intégrée",
+      "effort": "5–8 j",
+      "scope": "Planètes, rythme choisi, engagement contextualisé ; bilan séparant action/énergie/valeur ; modes IA et mémoire pertinente ; fin de rituel.",
+      "deliverable": "Chaîne complète depuis la proposition jusqu’au bilan et à la mise à jour expliquée d’une étoile ; panne IA gérée.",
+      "dependency": "Dépend L2 ; utilise les composants L1."
+    },
+    {
+      "id": "L5",
+      "name": "Galaxie et première continuité",
+      "effort": "4–6 j",
+      "scope": "Why central, intérêts et valeurs distincts, constellation de moments, fiches avec preuves, vue liste ; mini-session du dimanche.",
+      "deliverable": "Aucun classement de personnes ; états accessibles autrement que par couleur ; carte stable et utilisable à 320 px.",
+      "dependency": "Dépend des événements L2 et des réponses L4."
+    },
+    {
+      "id": "L6",
+      "name": "Bêta A prête à apprendre",
+      "effort": "4–6 j",
+      "scope": "Full Moon minimal, feedback volontaire, instrumentation sans contenu, SMTP, reprise réseau, manifest web et parcours d’installation ; QA mobile.",
+      "deliverable": "Tests d’acceptation ci-dessous ; groupe pilote équipé ; suivi D7/D30 défini.",
+      "dependency": "Dépend L3–L5. Estimer à nouveau après le prototype."
+    },
+    {
+      "id": "L7",
+      "name": "Profondeur B",
+      "effort": "6–10 j",
+      "scope": "Exploration par domaines, fiches générées contrôlées, Meaning To, télescope et session saisonnière ; historique complet des propositions.",
+      "deliverable": "Suggestions liées aux faits ; frontières du contenu généré lisibles ; chaque session aboutit à une décision concrète.",
+      "dependency": "Après retour initial A ; bénéficie des vrais événements collectés."
+    },
+    {
+      "id": "L8",
+      "name": "Relation et distribution B",
+      "effort": "6–10 j",
+      "scope": "Comets et partage North Star ; consentement, réception limitée, blocage, liens invités ; build natif et protection locale.",
+      "deliverable": "Test expéditeur/destinataire sans compte ; aucun statut social exposé ; tests sur téléphones réels.",
+      "dependency": "Dépend L2–L6 ; le choix du contrôle « une par jour » doit être résolu avant livraison."
+    },
+    {
+      "id": "L9",
+      "name": "Revenus et partenaires C",
+      "effort": "À chiffrer après A/B",
+      "scope": "Droits gratuits/payants, paiement, sponsoring, éligibilité, coach et agrégats ; marketing public.",
+      "deliverable": "Rituels gratuits préservés, consentement vérifiable, gestion de fin de sponsoring ; coûts et volonté de payer mesurés.",
+      "dependency": "Pas de paywall dans la bêta ; ne pas construire le dashboard coach avant validation."
+    }
+  ]
+}

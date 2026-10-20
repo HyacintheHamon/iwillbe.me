@@ -1,71 +1,51 @@
-# Design QA — iwillbe.me MVP
+# Design QA — concept-brief refactor, 0.2.0
 
 **final result: passed**
 
-This result covers visual fidelity and the verified guest practice. It does not certify signed native builds, live email authentication, or Claude responses; those configuration-dependent checks remain open in README.md.
+This pass covers the compiled web beta and the interactions below. It does not certify signed native builds, physical-device biometrics, notification delivery, real email delivery, or research acceptance by end users.
 
-## Evidence
+## Evidence and normalization
 
-- Source visual truth: `docs/design/approved-reference.png`, 853 × 1844 px.
-- First browser implementation: `docs/design/home-before.jpg`, 480 × 936 px.
-- Revised browser implementation: `docs/design/home-final.jpg`, 430 × 936 px.
-- Full-view comparisons: `docs/design/comparison-before.jpg` and `docs/design/comparison-final.jpg`.
-- Focused typography comparison: `docs/design/typography-comparison.jpg`.
-- Additional rendered states: `docs/design/reflection-final.jpg`, `docs/design/galaxy-final.jpg`.
-- Browser viewport: 1363 × 936 CSS px. App viewport: 430 × 936 CSS px, captured at 1 image pixel per CSS pixel. The app is cropped from the centered browser viewport, without browser chrome or a simulated device frame.
-- Normalization: the source was downsampled to 430 × 930 px for the final comparison; its six-pixel height difference is recorded, not treated as a layout defect. Source and implementation were composed into one side-by-side input and visually inspected together.
-- State: light theme, guest, no intention yet. The reference is a first-visit state; the final capture has an already-onboarded guest with no intention, whose visible home state is identical. Settings access is an intentional functional addition.
+- Source: `iwillbe-me-concept-brief.pdf`, pages 8 and 10. Local rendered sources are `docs/audit/2026-10-19-concept/pdf/page-08.png` and `page-10.png`, 1100 × 1423 px. Raw source copies are intentionally excluded from Git.
+- Browser-rendered implementation: `docs/design/redesign-galaxy.png`, `redesign-reflection.png`, and `redesign-telescope.png`. Captured from the production export at `http://localhost:4173`, Chrome, 390 × 844 CSS px, device scale 1.
+- Combined source/implementation inputs: `test-results/release/comparisons/galaxy.png`, `reflection.png`, and `telescope.png`, each 820 × 890 px. Each combined image was opened and inspected after the final capture.
+- Source app crops: galaxy `(118,113,274,591)`, reflection `(708,113,274,591)`, telescope `(555,102,435,944)`. Crops are normalized to 390 px width, preserving aspect ratio, inside an 844 px-high region. The galaxy/reflection crop is about three pixels shorter after normalization. Device surrounds and PDF annotations are excluded.
+- States: galaxy with an accepted why and two selected interests; a reflection with completion, energy and value selected; telescope with a saved one-year vision. The reference contains illustrative activities and a fuller history. The implementation uses fictional test data and does not fabricate extra history to fill the image.
+- Additional captures: `test-results/release/home-320.png`, `home-390.png`, `small-settings.png`, `spark-sort.png`, `commitment.png`, `explorer.png`, `why.png`, `rhythms.png`, `connections.png`, and `desktop.png` (1440 × 900).
+- Full-view comparison was sufficient to assess the typography, map, lens and persistent controls at native capture resolution; no separate magnified region was needed.
 
-## Findings and iterations
+## Findings and correction history
 
-1. Initial comparison: **blocked**.
-   - [P2] The 480px implementation canvas was wider relative to its height than the reference, weakening the mobile composition. Fixed by using a 430px web maximum while keeping native/full-small-screen width responsive.
-   - [P2] The main headline was too small relative to the source. Increased the homepage display size from 44/49 to 52/55px and kept the intended two-line wrap.
-   - [P2] Hero scale and background transition made the illustration read as a separate rectangle. Matched the paper token to the illustration's warm ivory edge, increased the hero region, and used a controlled cover crop.
-   - [P2] Supporting text and the primary action needed more presence. Increased subtitle, Chloe helper, and button typography. Removed an unnecessary additional section from the no-intention state.
-2. Revised comparison: **passed**. The final full-view and focused comparisons were opened after the changes. The headline, primary action, illustration, and persistent navigation are legible and visible. No actionable P0/P1/P2 visual findings remain in the compared state.
+1. **P2 — image intrinsic dimensions distorted the galaxy.** Earlier renders used an image background that retained an oversized intrinsic height. The rendered map and glow pushed content away from the intended mobile composition. Replaced it with an explicitly sized image and container, bounded the map height to 300 px, and recaptured the final galaxy.
+2. **P2 — primary galaxy action was below the fold.** Moved “Try one today” into the persistent footer. The final combined capture shows the action above the three-tab navigation. Secondary content remains scrollable.
+3. **P2 — telescope lacked the circular visual focus of the brief.** Added a circular image-backed lens around the saved vision and retained visible reaffirm/change actions in the footer. The final telescope comparison confirms the lens, near/far choices and actions.
+4. **P2 — web keyboard focus could be overridden by inline styles.** Added an explicit focus-visible outline in the export shell. A browser keyboard check verifies a solid 2 px outline; the reflection capture also shows the active field boundary.
+5. **Test synchronization correction.** The compiled navigation changes screens faster than the development server. The browser regression now waits for the onboarding heading before clicking its similarly named action. The full compiled-export regression then passed.
 
-## Required fidelity surfaces
+The final combined comparisons contain no remaining actionable P0/P1/P2 visual findings in these tested states.
 
-- **Typography:** Fraunces provides the soft high-contrast display character and DM Sans the supporting UI. The headline retains the same wording and two-line hierarchy. The generated target has no deterministic font specification; small letterform differences are an accepted implementation choice. Fonts load from bundled files rather than a live font CDN.
-- **Spacing:** the revised viewport restores the intended mobile proportions. The hero and primary action occupy comparable regions. The navigation is fixed outside the scrolling content. System safe areas are supplied by the native platform, not baked into the artwork.
-- **Colors:** warm ivory, deep navy, ochre gold, muted blue, and clay follow the reference. The uniform UI paper surface is intentionally flatter than the raster mock's texture. Text and controls remain separate native UI elements.
-- **Images:** the standalone generated illustration preserves the bowl, paper note, coffee, sprig, stones, gold star, and orbital composition. It is a newly generated asset rather than an exact crop of the mock; the blank note and slight arrangement differences are accepted to keep illustration text out of the asset. Other ritual illustrations follow the same material and lighting direction. No raster artwork was replaced by hand-drawn code approximations. The galaxy itself is an interactive data visualization.
-- **Copy:** the home headline, subtitle, Chloe helper and main CTA match the approved direction. Other screens use concise English, explicit confirmation, and non-punitive reflection language. Literal backslash-newline strings found in development were corrected.
-- **Icons:** one Phosphor family, light strokes, navy inactive and gold selected states. Sun / constellation graph / speech bubble reflect the selected version-2 navigation direction. The exact graph silhouette differs slightly from the image-generated constellation; accepted standard-library equivalent.
+## Fidelity decisions
 
-## Interaction verification
+- **Typography:** retained the established bundled Fraunces/DM Sans family, using serif display headings and clear sans-serif controls. This is the implemented design direction, rather than a claim to reproduce every raster letterform.
+- **Palette:** midnight background, indigo surfaces, warm gold primary actions, pale text and quieter secondary labels follow the brief.
+- **Assets:** generated cosmic imagery and five domain illustrations are real compressed raster assets. Phosphor supplies consistent interactive icons. Galaxy nodes represent user data and have a complete accessible list.
+- **Layout:** the app remains a narrow, centred mobile surface on desktop. Persistent footers preserve primary actions; scroll areas accommodate editable production content and smaller viewports. Layer chips scroll horizontally.
+- **Content:** retained separate completion, energy and value questions. The reference's predicted star growth is omitted until sufficient explicit evidence exists. Two selected interests remain two stars. Telescope planet notes appear only when supplied. Extra production navigation, explanatory text and empty states are intentional.
+- **Motion:** no required animated interaction; the export respects reduced motion.
 
-Verified in the browser using fictional guest data:
+## Interaction and technical verification
 
-- Start → three-step onboarding → values/interests/north-star saved.
-- Choose an inspiration → review intention → explicit confirmation → today's card.
-- Galaxy shows zero steps after planning alone.
-- Evening reflection with “A little” → confirmation → one step on the correct value.
-- Reload → the intention, reflection and galaxy count remain present.
-- Open a galaxy value → correct action history and suggestions.
-- Chloe guest state → clear account requirement and a route to self-guided practice.
-- Add a memory explicitly → confirmation and saved note.
-- Export → downloaded JSON contains the saved intention, reflection and memory.
-- Settings correctly disables native reminders on web.
+- Guest discovery: start, sort, undo, reload/resume, optional stories/baseline, why and galaxy.
+- Practice: planet/value selection, intention context, explicit save, completion/energy/value reflection and persistence.
+- Exploration and identity: save a Spark, explicit Craft choice, why versions, telescope versions/reaffirmation, monthly reflection, backlog release, season choice and dated shared moments.
+- Authentication: contextual return, draft retention, explicit import consent, retry, conflict preservation and account-cache clearing. This suite uses mocked email/auth responses.
+- Real backend verification separately exercised an authentication callback, a displayed Chloe response, owned message/why persistence, guest Comet saving and private friend suggestions with a temporary account. No email was sent, and fixtures were deleted.
+- Compiled browser suite passed with zero application page errors. Responsive checks cover 320 px and 390 px widths; desktop has no horizontal overflow. Keyboard focus and manifest icon responses passed.
+- TypeScript, ESLint, ten domain tests, transactional SQL checks and web/iOS/Android exports passed.
 
-Runtime defects caught and fixed during development: a stale/invalid icon import bundle, UUID generation on the HTTP development origin, and raw newline text in titles. The final browser route sequence rendered without app error overlays. Console review found browser-extension metadata errors; these are outside the application. Native keyboard, notification permission and email-link behavior require device verification.
+## Follow-up polish and external checks
 
-## Implementation checklist
-
-- [x] Compare source and actual browser output together.
-- [x] Fix P2 typography, proportions and hero presentation; recapture.
-- [x] Inspect focused typography and persistent navigation.
-- [x] Verify the core guest loop and persistence.
-- [x] Verify explicit memory save and JSON export.
-- [x] Pass TypeScript, lint, domain tests and web/iOS/Android bundle export.
-- [x] Run transactional Supabase ownership/quota checks.
-- [ ] Owner adds Anthropic secret and tests a real authenticated conversation.
-- [ ] Owner configures allowed email redirects and tests email confirmation/reset.
-- [ ] Link Expo, build and test on physical iOS/Android devices.
-
-## Follow-up polish
-
-- [P3] Consider richer star transitions after the first device beta.
-- [P3] A subtle paper texture across UI surfaces could move even closer to the raster concept.
-- Small-device and large accessibility-font visual checks remain part of the native beta acceptance pass.
+- P3: tune star density and spacing after observing larger real galaxies; keep the list as the complete representation.
+- P3: validate the retained typography and explanatory copy with beta users.
+- Physical-device font scaling, signed builds, biometrics, reminders and native links still require device testing.
+- SMTP delivery, paid billing and sponsor provisioning remain explicit external activation work in `README.md` and the implementation trace.

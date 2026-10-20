@@ -20,6 +20,8 @@ import { SunIcon as Sun } from "phosphor-react-native/src/icons/Sun";
 import { GraphIcon as Graph } from "phosphor-react-native/src/icons/Graph";
 import { ChatCircleIcon as ChatCircle } from "phosphor-react-native/src/icons/ChatCircle";
 import { PracticeProvider } from "../src/practice";
+import { NotificationRouting } from "../src/notification-routing";
+import { PrivacyLock } from "../src/privacy-lock";
 import { C, F } from "../src/ui";
 export default function Layout() {
   const [loaded, error] = useFonts({
@@ -47,70 +49,76 @@ export default function Layout() {
   return (
     <SafeAreaProvider>
       <PracticeProvider>
-        <View style={styles.outer}>
-          <SafeAreaView style={styles.app} edges={["top", "bottom"]}>
-            <StatusBar style="dark" />
-            <View style={{ flex: 1 }}>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: C.paper },
-                  animation: "fade",
-                  animationDuration: 180,
-                }}
-              />
-            </View>
-            {tabs && (
-              <View style={styles.tabs}>
-                {(
-                  [
-                    { path: "/", label: "Today", Icon: Sun },
-                    { path: "/galaxy", label: "Galaxy", Icon: Graph },
-                    { path: "/chloe", label: "Chloe", Icon: ChatCircle },
-                  ] as const
-                ).map(({ path: to, label, Icon }) => (
-                  <Pressable
-                    accessibilityRole="tab"
-                    accessibilityLabel={label}
-                    accessibilityState={{ selected: path === to }}
-                    onPress={() => router.replace(to)}
-                    key={to}
-                    style={styles.tab}
-                  >
-                    <Icon
-                      size={28}
-                      weight="light"
-                      color={path === to ? C.gold : C.ink}
-                    />
-                    <Text
-                      style={{
-                        fontFamily: F.medium,
-                        fontSize: 12,
-                        color: path === to ? C.gold : C.ink,
-                      }}
-                    >
-                      {label}
-                    </Text>
-                    <View
-                      style={{
-                        height: 3,
-                        width: 22,
-                        borderRadius: 2,
-                        backgroundColor: path === to ? C.gold : "transparent",
-                      }}
-                    />
-                  </Pressable>
-                ))}
+        <PrivacyLock>
+          <NotificationRouting />
+          <View style={styles.outer}>
+            <SafeAreaView style={styles.app} edges={["top", "bottom"]}>
+              <StatusBar style="light" />
+              <View style={{ flex: 1 }}>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: C.paper },
+                    animation: "none",
+                    animationDuration: 180,
+                  }}
+                />
               </View>
-            )}
-          </SafeAreaView>
-        </View>
+              {tabs && (
+                <View style={styles.tabs} accessibilityRole="tablist">
+                  {(
+                    [
+                      { path: "/", label: "Today", Icon: Sun },
+                      { path: "/galaxy", label: "Galaxy", Icon: Graph },
+                      { path: "/chloe", label: "Chloe", Icon: ChatCircle },
+                    ] as const
+                  ).map(({ path: to, label, Icon }) => (
+                    <Pressable
+                      accessibilityRole="tab"
+                      accessibilityLabel={label}
+                      accessibilityState={{ selected: path === to }}
+                      {...(Platform.OS === "web"
+                        ? { "aria-selected": path === to }
+                        : {})}
+                      onPress={() => router.replace(to)}
+                      key={to}
+                      style={styles.tab}
+                    >
+                      <Icon
+                        size={28}
+                        weight="light"
+                        color={path === to ? C.gold : C.ink}
+                      />
+                      <Text
+                        style={{
+                          fontFamily: F.medium,
+                          fontSize: 12,
+                          color: path === to ? C.gold : C.ink,
+                        }}
+                      >
+                        {label}
+                      </Text>
+                      <View
+                        style={{
+                          height: 3,
+                          width: 22,
+                          borderRadius: 2,
+                          backgroundColor: path === to ? C.gold : "transparent",
+                        }}
+                      />
+                    </Pressable>
+                  ))}
+                </View>
+              )}
+            </SafeAreaView>
+          </View>
+        </PrivacyLock>
       </PracticeProvider>
     </SafeAreaProvider>
   );
 }
 const styles = StyleSheet.create({
-  outer: { flex: 1, backgroundColor: "#E9E5DC", alignItems: "center" },
+  outer: { flex: 1, backgroundColor: "#080912", alignItems: "center" },
   app: {
     flex: 1,
     width: "100%",

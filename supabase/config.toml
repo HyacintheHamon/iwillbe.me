@@ -2,3 +2,6 @@ project_id = "iwillbe-me"
 
 [functions.chloe]
 verify_jwt = true
+
+[functions.connections]
+verify_jwt = false

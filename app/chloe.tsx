@@ -10,27 +10,61 @@ import {
 } from "react-native";
 import { ArrowUpIcon as ArrowUp } from "phosphor-react-native/src/icons/ArrowUp";
 import { BookmarkSimpleIcon as BookmarkSimple } from "phosphor-react-native/src/icons/BookmarkSimple";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import { draftKey, useDraft } from "../src/drafts";
 import { usePractice } from "../src/practice";
 import { supabase } from "../src/supabase";
 import {
   Body,
+  Chip,
   Button,
   C,
   ChloeMark,
   Eyebrow,
   F,
   Notice,
+  Page,
+  Field,
   TextButton,
   Title,
   TopBar,
   s,
 } from "../src/ui";
-type Suggestion = { action: string; value: string; person: string };
+import { entryInput, type EntryKind } from "../src/journey";
+type Suggestion = {
+  action: string;
+  value: string;
+  person: string;
+  interest?: string;
+  planet?: string;
+  when_context?: string;
+  with_person?: string;
+};
 export default function Chloe() {
-  const { data, session, addMessages, remember } = usePractice();
-  const [input, setInput] = useState(""),
-    [busy, setBusy] = useState(false),
+  const { data, session, addMessages, remember, putEntry } = usePractice();
+  const params = useLocalSearchParams<{ mode?: string; question?: string }>();
+  const [discovery, setDiscovery] = useState<{
+    kind: EntryKind;
+    title: string;
+    body: string;
+    source_ids: string[];
+  } | null>(null);
+  const [mode, setMode] = useState(params.mode || "morning");
+  const [question, setQuestion] = useState<string | null>(null),
+    [whyProposal, setWhyProposal] = useState<{
+      text: string;
+      source_ids: string[];
+    } | null>(null);
+  const { draft, update, ready, draftError } = useDraft(
+    draftKey("chloe", session?.user.id),
+    { input: params.question || "" },
+  );
+  const input = draft.input;
+  const incoming = useDraft(draftKey("chloe.incoming", session?.user.id), {
+    input: "",
+  });
+  const setInput = (input: string) => update({ input });
+  const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [suggestion, setSuggestion] = useState<Suggestion | null>(null),
     [memory, setMemory] = useState<string | null>(null),
@@ -48,10 +82,9 @@ export default function Chloe() {
     setBusy(true);
     setError("");
     setPending(text);
-    setInput("");
     try {
       const { data: reply, error } = await supabase.functions.invoke("chloe", {
-        body: { action: "chat", message: text },
+        body: { action: "chat", message: text, mode },
       });
       if (error) {
         let message =
@@ -66,8 +99,12 @@ export default function Chloe() {
         throw new Error(message);
       }
       await addMessages(reply.messages, session.user.id);
+      setInput("");
       setSuggestion(reply.suggested_intention);
       setMemory(reply.memory_suggestion);
+      setQuestion(reply.question || null);
+      setDiscovery(reply.discovery || null);
+      setWhyProposal(reply.why_proposal || null);
       setPending("");
     } catch (e) {
       setError((e as Error).message);
@@ -77,12 +114,88 @@ export default function Chloe() {
       setBusy(false);
     }
   };
+  if (!ready)
+    return <ActivityIndicator accessibilityLabel="Restoring your message" />;
+  if (!session)
+    return (
+      <Page header={<TopBar back={false} title="A moment with Chloe" />}>
+        <ChloeMark />
+        <Eyebrow>YOUR SPACE TO THINK</Eyebrow>
+        <Title>Let’s find one small step.</Title>
+        <Body>
+          Choose an intention on your own now, or connect an account for a
+          personal conversation with Chloe.
+        </Body>
+        <Button
+          label="Choose an intention"
+          onPress={() => router.push("/ritual")}
+        />
+        <View style={s.section}>
+          <Title style={{ fontSize: 24, lineHeight: 30 }}>
+            Talk it through with Chloe
+          </Title>
+          <Body>
+            Chloe uses your saved values and reflections. Messages are processed
+            by our AI provider. A conversation needs an account.
+          </Body>
+          <Field
+            label="DRAFT FOR CHLOE · OPTIONAL"
+            placeholder="What’s on your mind?"
+            multiline
+            value={input}
+            onChangeText={setInput}
+            maxLength={2000}
+          />
+          <Body style={{ fontSize: 13 }}>
+            Your draft stays on this device. Nothing is sent until you connect
+            and press Send.
+          </Body>
+          <Button
+            secondary
+            label="Connect and continue with Chloe"
+            onPress={() =>
+              router.push({
+                pathname: "/account",
+                params: { returnTo: "/chloe", reason: "chloe" },
+              })
+            }
+          />
+          <Notice text={draftError} tone="error" />
+        </View>
+      </Page>
+    );
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: C.paper }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <TopBar back={false} title="A moment with Chloe" />
+      <ScrollView
+        horizontal
+        contentContainerStyle={{
+          gap: 8,
+          paddingHorizontal: 20,
+          paddingBottom: 10,
+        }}
+        style={{ flexGrow: 0, flexShrink: 0 }}
+      >
+        {(
+          [
+            ["morning", "Today"],
+            ["night", "Tonight"],
+            ["discovery", "Discover"],
+            ["explore", "Explore"],
+            ["why", "My why"],
+          ] as const
+        ).map(([id, label]) => (
+          <Chip
+            key={id}
+            label={label}
+            selected={mode === id}
+            onPress={() => setMode(id)}
+          />
+        ))}
+      </ScrollView>
       <ScrollView
         ref={scroll}
         contentContainerStyle={{ padding: 24, gap: 19, paddingBottom: 30 }}
@@ -100,21 +213,9 @@ export default function Chloe() {
               Bring a thought, a feeling, or something you’d like to do
               differently. We’ll find one small step together.
             </Body>
-            {!session && (
-              <>
-                <Notice text="Chloe uses your saved values and reflections to make the conversation personal. Connect an account to begin." />
-                <Button
-                  secondary
-                  label="Connect my account"
-                  onPress={() => router.push("/account")}
-                />
-              </>
-            )}
             <TextButton
               label="Choose an intention on my own"
-              onPress={() =>
-                router.push(data.profile.onboarded ? "/ritual" : "/onboarding")
-              }
+              onPress={() => router.push("/ritual")}
             />
           </View>
         )}
@@ -124,7 +225,7 @@ export default function Chloe() {
             style={{
               maxWidth: "90%",
               alignSelf: m.role === "user" ? "flex-end" : "flex-start",
-              backgroundColor: m.role === "user" ? C.navy : "#EEE7D8",
+              backgroundColor: m.role === "user" ? "#2D315B" : C.white,
               borderRadius: 22,
               borderBottomRightRadius: m.role === "user" ? 6 : 22,
               borderBottomLeftRadius: m.role === "assistant" ? 6 : 22,
@@ -133,7 +234,7 @@ export default function Chloe() {
           >
             <Body
               style={{
-                color: m.role === "user" ? C.white : C.navy,
+                color: C.navy,
                 fontSize: 15,
                 lineHeight: 23,
               }}
@@ -200,7 +301,156 @@ export default function Chloe() {
             <TextButton label="Not now" onPress={() => setMemory(null)} />
           </View>
         )}
-        <Notice text={error} tone="error" />
+        {!!incoming.draft.input && (
+          <View style={s.card}>
+            <Eyebrow>ANOTHER SAVED DRAFT</Eyebrow>
+            <Body>{incoming.draft.input}</Body>
+            <Body>
+              Choose which draft to continue. Switching keeps the other draft
+              here; your original device copy remains saved.
+            </Body>
+            <TextButton
+              label="Use this draft"
+              onPress={() => {
+                const previous = input;
+                setInput(incoming.draft.input);
+                incoming.update({ input: previous });
+              }}
+            />
+            <TextButton
+              label="Keep my current draft"
+              onPress={() => incoming.update({ input: "" })}
+            />
+          </View>
+        )}
+        <Notice
+          text={error || draftError || incoming.draftError}
+          tone="error"
+        />
+        {discovery ? (
+          <View style={s.card}>
+            <Eyebrow>
+              A possible {discovery.kind} · does this feel like you?
+            </Eyebrow>
+            <Title style={{ fontSize: 24, lineHeight: 30 }}>
+              {discovery.title}
+            </Title>
+            <Body>{discovery.body}</Body>
+            <Button
+              label="Yes, add this to my galaxy"
+              onPress={async () => {
+                try {
+                  await putEntry(
+                    entryInput(discovery.kind, discovery.title, {
+                      body: discovery.body,
+                      state: "spark",
+                      source: "Proposed by Chloe · confirmed by you",
+                      source_ids: discovery.source_ids,
+                    }),
+                  );
+                  setDiscovery(null);
+                } catch (e) {
+                  setError((e as Error).message);
+                }
+              }}
+            />
+            <TextButton
+              label="Not quite"
+              onPress={() => {
+                setInput(`Not quite: ${discovery.title}. `);
+                setDiscovery(null);
+              }}
+            />
+            <TextButton
+              label="Leave this for now"
+              onPress={() => setDiscovery(null)}
+            />
+          </View>
+        ) : null}
+        {question ? (
+          <View style={s.card}>
+            <Body>{question}</Body>
+            <TextButton
+              label="Save this question for later"
+              onPress={async () => {
+                try {
+                  await putEntry(
+                    entryInput("question", question, {
+                      state: "open",
+                      source: "Chloe · deferred by you",
+                    }),
+                  );
+                  setQuestion(null);
+                  setInput("Ask me something different, please.");
+                } catch (e) {
+                  setError((e as Error).message);
+                }
+              }}
+            />
+            <TextButton
+              label="Stop asking this question"
+              onPress={async () => {
+                try {
+                  await putEntry(
+                    entryInput("question", question, {
+                      state: "stopped",
+                      source: "Chloe · stopped by you",
+                    }),
+                  );
+                  setQuestion(null);
+                } catch (e) {
+                  setError((e as Error).message);
+                }
+              }}
+            />
+          </View>
+        ) : null}
+        {whyProposal ? (
+          <View style={s.card}>
+            <Eyebrow>A possible next version · for you to decide</Eyebrow>
+            <Body>{whyProposal.text}</Body>
+            <Button
+              label="Keep this as my why"
+              onPress={async () => {
+                try {
+                  await putEntry(
+                    entryInput("why", "My why", {
+                      body: whyProposal.text,
+                      state: "accepted",
+                      source: "Proposed by Chloe · accepted by you",
+                      source_ids: whyProposal.source_ids,
+                    }),
+                  );
+                  setWhyProposal(null);
+                } catch (e) {
+                  setError((e as Error).message);
+                }
+              }}
+            />
+            <TextButton
+              label="Shape it in my words"
+              onPress={async () => {
+                try {
+                  await putEntry(
+                    entryInput("why", "A possible why", {
+                      body: whyProposal.text,
+                      state: "proposed",
+                      source: "Proposed by Chloe",
+                      source_ids: whyProposal.source_ids,
+                    }),
+                  );
+                  router.push("/why");
+                } catch (e) {
+                  setError((e as Error).message);
+                }
+              }}
+            />
+            <TextButton
+              label="Keep my current why"
+              onPress={() => setWhyProposal(null)}
+            />
+          </View>
+        ) : null}
       </ScrollView>
       <View
         style={{
@@ -216,6 +466,7 @@ export default function Chloe() {
           accessibilityLabel="Message Chloe"
           placeholder="What’s on your mind?"
           placeholderTextColor={C.muted}
+          editable={!busy}
           value={input}
           onChangeText={setInput}
           maxLength={2000}
@@ -225,7 +476,7 @@ export default function Chloe() {
             fontFamily: F.sans,
             fontSize: 15,
             color: C.navy,
-            backgroundColor: "#EEE9DF",
+            backgroundColor: C.white,
             borderRadius: 24,
             paddingHorizontal: 18,
             paddingVertical: 14,
@@ -242,7 +493,7 @@ export default function Chloe() {
             width: 48,
             height: 48,
             borderRadius: 24,
-            backgroundColor: busy || !input.trim() ? "#D8D1C3" : C.navy,
+            backgroundColor: busy || !input.trim() ? C.line : C.gold,
             alignItems: "center",
             justifyContent: "center",
           }}

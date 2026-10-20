@@ -1,102 +1,100 @@
 # iwillbe.me
 
-A small daily practice for becoming a little more yourself. Expo / React Native app for iOS, Android, and a browser preview, with an optional Supabase account and Chloe, an AI guide.
+An Expo app for discovering what matters, trying one small thing, and reflecting on what to keep. React Native for iOS/Android and Expo web, with optional Supabase accounts and Chloe, an Anthropic-powered guide.
 
-## Included in this MVP
+## Run locally
 
-- Three-step onboarding: values, a personal north star, and interests.
-- A morning intention, explicit confirmation, and an evening reflection.
-- An interactive galaxy that grows from reported real-world actions. Planning, chatting, and opening the app never add progress. No streak penalties.
-- Local practice without an account. Email/password accounts have separate cloud-backed practice.
-- Chloe conversation interface, server-side context, proposed intentions, and memories saved only after confirmation.
-- Preferences, local device reminders, memory management, full JSON export, sign-out and account deletion.
-- Generated paper-and-ceramic illustrations, Fraunces + DM Sans, navy/ivory/gold palette, and consistent Phosphor tab icons.
-
-The conversation endpoint is deployed, but **Chloe needs an `ANTHROPIC_API_KEY` configured on Supabase before it can reply**. Email redirects and signed mobile builds also need the owner configuration below. This is a development MVP, not an App Store release.
-
-## Run
-
-Use Node 22 or 24 and npm.
+Use Node 22 or 24 and npm:
 
 ```sh
 npm ci
 cp .env.example .env.local
-npm start
+npm run web
 ```
 
-Use `npm run web` for the browser, `npm run ios` / `npm run android` with a simulator, or open the development server from an SDK-compatible Expo app. A native development build is needed to fully validate notification and deep-link behavior. `npm run dev -- --port 4173` starts the shared browser preview.
-
-The included Supabase URL and publishable key are public client configuration. They grant no anonymous journal access. Never put a service-role or Anthropic key in `EXPO_PUBLIC_*` variables.
-
-## Owner configuration still needed
-
-### 1. Activate Chloe
-
-In the Supabase project `mvhqovdznrzoduntyryh`, add an Edge Function secret named `ANTHROPIC_API_KEY`. Optionally set `ANTHROPIC_MODEL` to another Claude model that supports structured JSON output; the current default is `claude-sonnet-5-5`. Keep secrets out of the app, repository, and chat.
-
-The deployed `chloe` function authenticates the user through Supabase Auth, reads only that user's context, reserves a limit of 30 requests per hour, calls Anthropic, validates the response, and saves the conversation. It returns one complete reply; streaming, voice, embeddings, and autonomous actions are outside this version.
-
-### 2. Configure email authentication
-
-In Supabase Authentication → URL Configuration, set the final web app URL and allow these exact callback URLs for the environments being used:
-
-```text
-iwillbe://account
-iwillbe://reset-password
-http://localhost:8081/account
-http://localhost:8081/reset-password
-```
-
-Add the deployed web origin's `/account` and `/reset-password` routes before testing web email links. The temporary Work preview uses `http://terminal.local:4173`; its callbacks need explicit allow-list entries if used for email testing. Never add a broad wildcard for unrelated origins. Configure a production email provider before opening the beta to arbitrary addresses; the default Supabase email service has restrictions.
-
-Account confirmation and password-reset routes are implemented. Their email delivery and native deep links have not been tested with a real account in this environment. Guest notes deliberately remain separate when signing in; there is no automatic migration of local notes into a cloud account.
-
-### 3. Build for a phone
-
-An Expo account/organization is required to link the project and create signed builds. Apple Developer access is needed for iOS distribution.
+The client configuration contains only the Supabase URL and publishable key. Never put Anthropic or service-role credentials in `EXPO_PUBLIC_*` variables. For a production-like local preview:
 
 ```sh
-npx eas-cli login
-npx eas-cli init
-npx eas-cli build --profile preview --platform android
-npx eas-cli build --profile preview --platform ios
+npm run build
+npm run preview
+# http://localhost:4173
 ```
 
-`eas.json` includes development, preview, and production profiles. The bundle identifier is `me.iwillbe.app`. Test notifications, keyboard behavior, cold-start email links, background/foreground transitions, and account deletion on real devices before distribution. No signed native binary has been built here.
+## The practice
+
+- Discover 30 possibilities through an optional Spark Sort, with undo, skip, saved progress, three personal stories, a first why and optional baseline questions. Five original editorial illustrations represent the catalog's domains.
+- Choose a planet: Be, People, Causes, Passions, Grow or Surprise. Keep one intention per day with optional time/context, place, beneficiary and companion. A value is optional. Choose a steady orbit, variety or guidance.
+- Reflect separately on completion, energy and whether a value is worth choosing again. An old reflection with no energy remains unknown. No streaks or penalties for absence.
+- Explore a galaxy of interests, values, strengths and people around a versioned why. Spark/Glow/Blaze describe curiosity and explicit positive experiences; Ember and Craft are deliberate choices. Completed actions alone never establish joy or conviction. Every map also has an accessible list.
+- Explore practical try-ons, save sparks, follow related possibilities and keep a “Meaning to…” list that can be released. Generic costs/access information never implies an available local booking.
+- Keep near/far telescope pictures with versions and optional details by planet. Review weekly, monthly (“Full Moon”, a calendar-month reflection), and revisit the why every third completed monthly reflection or after a life change. Monthly questions use the same versioned wording as the baseline; scores stay hidden until requested.
+- Talk with Chloe in discovery, morning, night, exploration, Sunday, Full Moon or why modes. Intentions, discoveries, memory notes and why revisions require confirmation. Deferred/stopped questions are retained as explicit context.
+- Send Comet, Ask a Friend and coach invitation links through the device share sheet. Guests can open links without accounts. A sender cannot see a Comet recipient's acceptance, pass or silence. Friend suggestions require the owner's approval. Coach links grant no journal access; weekly action titles can be shared after preview.
+- Export the complete practice, revoke invitation links, delete memory and delete the account. Optional usage events contain no journal text or scores; explicitly sent product feedback is separate from private reflections.
+
+## Persistence and migration
+
+Guest storage is versioned (`iwillbe.practice.v2.guest`). Existing v1 practice is read, converted, and retained as a backup until explicitly cleared. Account data uses the same structure with owner-scoped caching. Account writes require connectivity; there is no offline write queue or automatic resolution of concurrent edits to the same entry. Mutations from one client are serialized.
+
+After sign-in, importing the guest practice requires explicit consent. The SQL function runs atomically with the caller's RLS and never overwrites account days, profiles, reflections or existing entries. Same-day conflicts remain in the guest backup. Drafts survive navigation; a Chloe draft is never sent automatically after authentication.
+
+All new entities have stable UUIDs and provenance. Intentions link to interest/value identities while retaining historical labels. Legacy labels become unconfirmed entries, never fabricated Blaze/Steady states. Existing North Star names remain beneficiaries rather than becoming a why or an admired person automatically. Historical accepted why text remains a user-owned version when its source changes.
 
 ## Backend
 
-The SQL migrations have been applied to the connected project, and the `chloe` Edge Function is deployed with JWT verification enabled. For another environment:
+Connected project: `mvhqovdznrzoduntyryh`. Migrations in `supabase/migrations/` match its applied history.
 
 ```sh
-npx supabase login
-npx supabase link --project-ref YOUR_PROJECT_REF
-npx supabase db push
-npx supabase functions deploy chloe
+supabase link --project-ref YOUR_PROJECT_REF
+supabase db push
+supabase functions deploy chloe --use-api
+supabase functions deploy connections --use-api
 ```
 
-Tables: `profiles`, `intentions`, `check_ins`, `memories`, `messages`, and `ai_usage`. Row Level Security is enabled on every table. Clients cannot create assistant messages or change quota counters. A composite foreign key prevents a reflection from pointing to another user's intention. An intention cannot change meaning after a reflection is saved. Deleting an account cascades to its practice rows.
+Chloe uses `ANTHROPIC_API_KEY` and `ANTHROPIC_MODEL` in Supabase secrets. The prompt is versioned in `supabase/functions/chloe/prompt.ts`; it implements the concept brief. No separate author-supplied master prompt was available. Replies are validated structured proposals, with bounded recent history and saved journey context. No streaming, autonomous actions or bookings are performed.
 
-`ai_usage` intentionally has no client policies and is service-only. This produces an informational [RLS-enabled/no-policy advisory](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy). New indexes may also be reported as [unused](https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index) until traffic exists. Review [Auth connection allocation](https://supabase.com/docs/guides/deployment/going-into-prod) when resizing the database. The missing composite foreign-key index reported during development was added in the second migration.
+The `connections` function permits anonymous token-based reads/replies but authenticates creation/redemption itself. Invitation tokens contain 256 bits of randomness; only their hashes are stored. Public responses contain only the explicitly shared message, chosen sender name, kind and opaque sender key. Links expire after 30 days and can be revoked. Friend replies are bounded and deduplicated. Comet choices are never stored on sender-readable tables. Before sign-in, recipient limits and blocking are device-local and can be reset by clearing browser storage; this is not a verified-person abuse limit.
 
-## Data behavior
+Every exposed table uses RLS and explicit grants. `ai_usage` and `sponsor_codes` are service-only. Clients cannot forge assistant messages, quota counters, entitlements or cross-owner references. Deleting an account cascades to its data and invitations after revoking sessions. Device storage is not a separately encrypted journal vault.
 
-Guest practice is stored in app storage on that device/browser. Account writes require a working connection and are committed to the UI only after Supabase succeeds. Cached account practice can be read offline; there is no offline write queue or multi-device conflict resolution in this MVP. Signing out removes the previous account's practice cache. Authentication sessions use the Supabase React Native storage pattern. Device storage is not a separately encrypted journal vault.
+## Beta access and sponsors
 
-Chloe receives the saved profile, up to seven recent intentions and reflections, eight explicitly confirmed memory notes, and twelve recent messages. Removing a memory removes that note from future prompts; a corresponding fact can still exist in recent conversation history. Export retrieves all owned conversation rows, not only the recent messages displayed on screen.
+The beta remains free, with no checkout, trial countdown or automatic charge. The concept's proposed paid prices and employer/coach dashboards are not activated. A server-controlled `entitlements` table and atomic seat-limited sponsor redemption are ready for provisioned codes. Sponsors receive no practice access or individual engagement API. Future billing must use verified server webhooks rather than client-writable flags.
+
+Provision codes with a trusted administrative process: generate at least 20 random characters, uppercase/trim the code, SHA-256 hash it, then insert only the hash, label, seat count and expiration in `sponsor_codes`. Distribute the original code privately. There are no sample production codes or fabricated subscriptions in this repository. Any sponsor reporting should be aggregate-only and suppress small groups; no employer reporting dashboard is shipped.
+
+## Distribution and owner configuration
+
+The existing public web origin is `https://iwillbe-me.vercel.app`, Vercel project `snag-live/iwillbe-me`. The previous web release was deployed by CLI; pushing this repository does not configure automatic Vercel deployment. To publish a verified working copy:
+
+```sh
+npm run check
+npm run build
+vercel deploy --prod --scope snag-live
+```
+
+`vercel.json` exports Expo and serves `dist` with SPA routing. The export includes an installable web manifest and 192/512 pixel icons. There is no service-worker claim of full offline operation. The private Anthropic variable also exists as a sensitive Production variable in Vercel at the owner's request; the SPA does not consume it, since Chloe runs in Supabase.
+
+Custom SMTP still needs a provider configuration and real delivery verification. Supabase's default email sender restricts delivery. The existing exact redirect allow-list includes the canonical/secondary Vercel `/account` and `/reset-password` routes, localhost:8081 callbacks and the `iwillbe://` native scheme. Add exact callbacks when introducing another domain. Magic-link entry, password fallback and reset are implemented; no six-digit code is promised.
+
+`eas.json` contains development, preview and production profiles. Signed builds require the owner's Expo/Apple/Google credentials. Device lock uses Expo Local Authentication with the phone's biometric/device authentication; reminders use a rolling 14-day schedule, skip already completed rituals and link to the intended screen. Signed builds, Face ID, reminders and native cold-start links must be tested on real devices before distribution. On the web, sign-out removes the account cache; a retained guest backup still belongs to that browser.
 
 ## Verification
 
 ```sh
 npm run check
 npm run build
-npx expo export --platform all
+npm run test:browser
+supabase db query --linked --file tests/rls.sql
+supabase db query --linked --file tests/import.sql
+supabase db query --linked --file tests/journey.sql
+supabase db advisors --linked --type security --level warn
 ```
 
-`tests/domain.test.ts` covers action-based progress and local calendar-day boundaries. `tests/rls.sql` is a transactional integration check for ownership, cross-user writes, reflection integrity, forged messages, anonymous access, and server-only quotas; it rolls back its temporary rows. It was run successfully against the connected project. The browser flow and visual comparison are recorded in `design-qa.md`.
+The domain tests cover timezone boundaries, import conflicts, separate energy/value signals, explicit star states, review deduplication and accepted why selection. SQL tests roll back all fixtures and check ownership, immutable reflected intentions, legacy/new imports, retries, anonymous denial and server-only functions.
 
-AI responses, live email authentication, signed mobile binaries, and device reminders remain unverified until the owner configuration above is completed.
+The browser suite exercises the full guest discovery-to-reflection flow, exploration, why/telescope versions, monthly reflection, backlog, season, narrow screens, contextual auth and drafts. Auth tests mock email and failure cases. Screenshots/results are local in `test-results/`; use `UI_BASE_URL` and `UI_ARTIFACT_DIR` to test an export or deployment.
 
-## Source map
+A separate live check verified real authentication, a displayed Chloe response, persisted messages and why, guest Comet acceptance, and private friend suggestions. No email was sent; the temporary account and session were removed afterward. Supabase advisors report no database security errors; leaked-password protection remains an Auth configuration warning. The current npm audit also reports upstream Expo-toolchain advisories; its suggested automatic fix downgrades Expo and was not applied. The app's direct UUID dependency was removed in favour of Expo Crypto.
 
-`app/` contains Expo Router screens. `src/` contains shared UI, domain rules, account/local persistence, reminders, and export. `assets/` contains the generated artwork. `supabase/` contains the schema and Edge Function. `docs/design/` holds the accepted visual target and implementation evidence.
+`docs/plans/2026-10-19-refonte/requirements.json` preserves the requirements trace. `implementation.json` maps the delivery and remaining external activation work. `design-qa.md` records the visual check. Raw research PDF copies and local audit exports remain outside Git.

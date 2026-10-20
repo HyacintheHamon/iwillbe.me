@@ -1,314 +1,391 @@
 import React, { useState } from "react";
-import { Pressable, View, StyleSheet } from "react-native";
-import Svg, { Circle, Line } from "react-native-svg";
-import { GraphIcon as Graph } from "phosphor-react-native/src/icons/Graph";
-import { StarFourIcon as StarFour } from "phosphor-react-native/src/icons/StarFour";
-import { InfoIcon as Info } from "phosphor-react-native/src/icons/Info";
+import {
+  Image,
+  Pressable,
+  View,
+  useWindowDimensions,
+  ScrollView,
+} from "react-native";
 import { router } from "expo-router";
+import { StarFourIcon } from "phosphor-react-native/src/icons/StarFour";
 import { usePractice } from "../src/practice";
-import { activityCount, INTERESTS, SUGGESTIONS } from "../src/domain";
+import {
+  currentWhy,
+  entriesOf,
+  entryInput,
+  interestState,
+  valueState,
+  type Entry,
+  type EntryKind,
+} from "../src/journey";
+import { nextIntentionDay, dayLabel } from "../src/domain";
 import {
   Body,
   Button,
   C,
   Chip,
   Eyebrow,
-  F,
-  Illustration,
+  Field,
   Notice,
   Page,
   Sheet,
   TextButton,
   Title,
   TopBar,
-  art,
   s,
 } from "../src/ui";
-const positions = [
-  [80, 66],
-  [252, 57],
-  [295, 180],
-  [250, 300],
-  [85, 298],
-  [38, 180],
-  [164, 32],
-  [315, 265],
-  [35, 85],
-  [168, 330],
+const colors: Record<string, string> = {
+  Spark: "#BAB4E8",
+  Glow: "#F8DE9A",
+  Blaze: "#92BCFF",
+  Ember: "#E79980",
+  Craft: "#92BCFF",
+  Flicker: "#CDB978",
+  Steady: "#F4C96D",
+  Drift: "#AEB4C5",
+};
+const layers: [EntryKind, string][] = [
+  ["interest", "Interests"],
+  ["value", "Values"],
+  ["strength", "Strengths"],
+  ["person", "People"],
 ];
 export default function Galaxy() {
-  const { data, saveProfile } = usePractice();
-  const [selected, setSelected] = useState<string | null>(null),
-    [explore, setExplore] = useState(false),
-    [info, setInfo] = useState(false),
+  const { data, putEntry, removeEntry } = usePractice();
+  const { width } = useWindowDimensions();
+  const mapSize = Math.min(width, 430) - 48;
+  const mapHeight = Math.min(mapSize, 300);
+  const [layer, setLayer] = useState<EntryKind>("interest"),
+    [selected, setSelected] = useState<Entry | null>(null),
+    [adding, setAdding] = useState(false),
+    [name, setName] = useState(""),
     [error, setError] = useState("");
-  const labels = Array.from(
-    new Set([...data.profile.values, ...data.profile.interests]),
-  );
-  const count = selected ? activityCount(data, selected) : 0;
-  const completed = data.checkIns.filter((c) => c.outcome !== "not_yet").length;
-  const add = async (label: string) => {
+  const why = currentWhy(data);
+  const items = entriesOf(data, layer);
+  const state = (e: Entry) =>
+    e.kind === "interest"
+      ? interestState(data, e)
+      : e.kind === "value"
+        ? valueState(data, e)
+        : e.kind === "person"
+          ? "Person"
+          : "Strength";
+  const save = async (input: Parameters<typeof putEntry>[0]) => {
     try {
-      await saveProfile({
-        ...data.profile,
-        interests: [...data.profile.interests, label].slice(0, 6),
-      });
-      setExplore(false);
-      setSelected(label);
+      await putEntry(input);
+      setSelected(null);
+      setAdding(false);
+      setName("");
     } catch (e) {
       setError((e as Error).message);
     }
   };
+  const moments = selected
+    ? data.intentions.filter((i) =>
+        layer === "interest"
+          ? i.interest_id
+            ? i.interest_id === selected.id
+            : i.interest === selected.title
+          : layer === "value"
+            ? i.value_id
+              ? i.value_id === selected.id
+              : i.value === selected.title
+            : i.person === selected.title,
+      )
+    : [];
   return (
     <Page
+      footer={
+        <Button label="Try one today" onPress={() => router.push("/ritual")} />
+      }
       header={
         <TopBar
-          title="Your galaxy"
+          title="iwillbe.me"
           back={false}
           right={
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="How your galaxy grows"
-              onPress={() => setInfo(true)}
-              style={s.iconButton}
-            >
-              <Info size={23} color={C.ink} weight="light" />
-            </Pressable>
+            <TextButton
+              label="Explore"
+              onPress={() => router.push("/explore")}
+            />
           }
         />
       }
-      contentStyle={{ paddingTop: 8 }}
     >
-      <Eyebrow>A MAP OF WHAT MATTERS</Eyebrow>
-      <Title>{"A universe,\nuniquely yours."}</Title>
-      <Body>
-        Your values, your interests, and the small moments that bring them to
-        life.
-      </Body>
-      {labels.length ? (
-        <>
-          <View style={{ width: "100%", aspectRatio: 1, position: "relative" }}>
-            <Svg viewBox="0 0 350 360" style={StyleSheet.absoluteFill}>
-              <Circle
-                cx={175}
-                cy={180}
-                r={116}
-                stroke="#D8C6A3"
-                strokeWidth={0.7}
-                strokeDasharray="2 8"
-                fill="none"
-              />
-              {labels.slice(0, 10).map((label, index) => {
-                const [x, y] = positions[index];
-                return (
-                  <Line
-                    key={label}
-                    x1={175}
-                    y1={180}
-                    x2={x}
-                    y2={y}
-                    stroke={activityCount(data, label) ? "#C5A36B" : "#DED7C9"}
-                    strokeWidth={0.8}
-                  />
-                );
-              })}
-            </Svg>
-            <View
+      <Eyebrow>
+        {new Date().toLocaleDateString("en-US", {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+        })}
+      </Eyebrow>
+      <Title>Your galaxy</Title>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Open my why"
+        onPress={() => router.push("/why")}
+      >
+        <Body style={{ color: C.gold, fontStyle: "italic" }}>
+          {why?.body || "Your why is still forming. Start with what draws you."}
+        </Body>
+      </Pressable>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ gap: 8 }}
+        style={{ flexGrow: 0, flexShrink: 0 }}
+      >
+        {layers.map(([kind, label]) => (
+          <Chip
+            key={kind}
+            label={label}
+            selected={layer === kind}
+            onPress={() => setLayer(kind)}
+          />
+        ))}
+      </ScrollView>
+      <View
+        style={{
+          width: "100%",
+          height: mapHeight,
+          borderRadius: 28,
+          overflow: "hidden",
+        }}
+      >
+        <Image
+          source={require("../assets/illustrations/galaxy-night.jpg")}
+          resizeMode="cover"
+          style={{ position: "absolute", width: mapSize, height: mapHeight }}
+        />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="My why at the centre"
+          onPress={() => router.push("/why")}
+          style={{
+            position: "absolute",
+            top: "40%",
+            left: "36%",
+            width: "28%",
+            height: "24%",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <StarFourIcon size={36} weight="fill" color={C.gold} />
+          <Body style={{ fontSize: 12, color: C.gold }}>My why</Body>
+        </Pressable>
+        {items.slice(0, 8).map((e, n) => {
+          const a =
+            (((n * 360) / Math.max(items.slice(0, 8).length, 3) - 90) *
+              Math.PI) /
+            180;
+          return (
+            <Pressable
+              key={e.id}
+              accessibilityRole="button"
+              accessibilityLabel={`${e.title} · ${state(e)}`}
+              onPress={() => setSelected(e)}
               style={{
                 position: "absolute",
-                left: "39%",
-                top: "38%",
-                width: "22%",
+                left: `${41 + 35 * Math.cos(a)}%`,
+                top: `${40 + 35 * Math.sin(a)}%`,
+                width: "20%",
+                minHeight: 58,
                 alignItems: "center",
-                gap: 6,
+                justifyContent: "center",
               }}
             >
-              <StarFour size={58} color={C.gold} weight="duotone" />
+              <StarFourIcon
+                size={state(e) === "Blaze" || state(e) === "Craft" ? 24 : 16}
+                weight={state(e) === "Craft" ? "duotone" : "fill"}
+                color={colors[state(e)] || C.gold}
+              />
               <Body
                 style={{
-                  fontFamily: F.medium,
-                  fontSize: 12,
+                  fontSize: 11,
+                  lineHeight: 14,
                   textAlign: "center",
+                  color: C.navy,
                 }}
               >
-                You
+                {e.title}
               </Body>
-            </View>
-            {labels.slice(0, 10).map((label, index) => {
-              const [x, y] = positions[index],
-                n = activityCount(data, label);
-              return (
-                <Pressable
-                  key={label}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${label}, ${n} real-world steps`}
-                  onPress={() => setSelected(label)}
-                  style={{
-                    position: "absolute",
-                    left: `${(x / 350) * 100 - 12}%`,
-                    top: `${(y / 360) * 100 - 7}%`,
-                    width: "24%",
-                    alignItems: "center",
-                    gap: 6,
-                    paddingVertical: 7,
-                  }}
-                >
-                  <StarFour
-                    size={n ? 30 : 22}
-                    color={n ? C.gold : "#9A9B98"}
-                    weight={n ? "duotone" : "light"}
-                  />
-                  <Body
-                    style={{
-                      textAlign: "center",
-                      fontSize: 11,
-                      lineHeight: 15,
-                      color: C.navy,
-                    }}
-                  >
-                    {label}
-                  </Body>
-                  {n > 0 && (
-                    <Body
-                      style={{ fontSize: 10, color: C.gold, lineHeight: 12 }}
-                    >
-                      {n} {n === 1 ? "moment" : "moments"}
-                    </Body>
-                  )}
-                </Pressable>
-              );
-            })}
-          </View>
-          {labels.length > 10 && (
-            <View style={s.wrap}>
-              {labels.slice(10).map((label) => (
-                <Chip
-                  key={label}
-                  label={`${label} · ${activityCount(data, label)}`}
-                  onPress={() => setSelected(label)}
-                />
-              ))}
-            </View>
-          )}
-          <Body style={{ textAlign: "center", fontSize: 13 }}>
-            {completed
-              ? `${completed} real-world ${completed === 1 ? "step" : "steps"}. A little more you.`
-              : "Your first real-world step will light a star."}
-          </Body>
-        </>
-      ) : (
-        <>
-          <Illustration source={art.explore} height={250} />
-          <Button
-            label="Find my first stars"
-            onPress={() => router.push("/onboarding")}
-          />
-        </>
-      )}
-      <View style={s.section}>
-        <View style={[s.row, { justifyContent: "space-between" }]}>
+            </Pressable>
+          );
+        })}
+      </View>
+      {layer === "interest" ? (
+        <Body style={{ fontSize: 12, textAlign: "center" }}>
+          Spark · Glow · Blaze · Ember · Craft
+        </Body>
+      ) : null}
+      {!items.length ? (
+        <View style={s.card}>
           <Title style={{ fontSize: 23, lineHeight: 30 }}>
-            Room for discovery
+            Room for something new.
           </Title>
-          <Graph size={22} color={C.gold} weight="light" />
+          <Body>
+            {layer === "interest"
+              ? "A curiosity is enough to begin. You do not need to have tried it."
+              : "Add something you recognise in yourself. Chloe never decides this for you."}
+          </Body>
         </View>
-        <Body style={{ fontSize: 14 }}>
-          You don’t have to know who you’ll become. Start with something that
-          makes you curious.
+      ) : null}
+      <View style={s.wrap}>
+        <Chip label="+ Add to my galaxy" onPress={() => setAdding(true)} />
+        <Chip label="+ Possibility" onPress={() => router.push("/explore")} />
+      </View>
+      <Eyebrow>{layers.find((l) => l[0] === layer)?.[1]} · all</Eyebrow>
+      {items.map((e) => (
+        <Pressable
+          key={e.id}
+          accessibilityRole="button"
+          onPress={() => setSelected(e)}
+          style={s.card}
+        >
+          <View style={[s.row, { justifyContent: "space-between" }]}>
+            <Body style={{ color: C.navy, flex: 1 }}>{e.title}</Body>
+            <Body style={{ color: colors[state(e)] || C.gold, fontSize: 13 }}>
+              {state(e)}
+            </Body>
+          </View>
+          <Body style={{ fontSize: 12 }}>{e.source}</Body>
+        </Pressable>
+      ))}
+      <TextButton
+        label="My practices and history"
+        onPress={() => router.push("/history")}
+      />
+      <Button label="Try one today" onPress={() => router.push("/ritual")} />
+      <TextButton
+        label="The people in my constellation"
+        onPress={() => router.push("/connections")}
+      />
+      <TextButton
+        label="My telescope"
+        onPress={() => router.push("/telescope")}
+      />
+      <TextButton
+        label="My rhythms and open questions"
+        onPress={() => router.push("/rhythms")}
+      />
+      <Sheet
+        open={adding}
+        onClose={() => setAdding(false)}
+        title={`Add ${layer === "interest" ? "a spark" : layer === "person" ? "a person" : layer === "value" ? "a value" : "a strength"}`}
+      >
+        <Field
+          label="Name"
+          value={name}
+          onChangeText={setName}
+          maxLength={80}
+        />
+        <Body>
+          {layer === "person"
+            ? "This is someone you admire or care about. Choosing a person here does not create a shared moment."
+            : "Your choice is a starting point. Your lived experience adds detail over time."}
         </Body>
         <Button
-          secondary
-          label="Explore an interest"
-          onPress={() => {
-            setError("");
-            setExplore(true);
-          }}
+          label="Add to my galaxy"
+          disabled={!name.trim()}
+          onPress={() => save(entryInput(layer, name.trim()))}
         />
-      </View>
-      <Sheet
-        open={!!selected}
-        onClose={() => setSelected(null)}
-        title={selected || ""}
-      >
-        <Eyebrow>
-          {count ? "GROWING THROUGH ACTION" : "A POSSIBILITY TO EXPLORE"}
-        </Eyebrow>
-        <Body>
-          {count
-            ? `You have brought ${selected?.toLowerCase()} into ${count} real-world ${count === 1 ? "moment" : "moments"}.`
-            : "This star is here because it matters to you. It will grow when you bring it into your day."}
-        </Body>
-        {data.intentions
-          .filter(
-            (i) =>
-              i.value === selected &&
-              data.checkIns.some(
-                (c) => c.intention_id === i.id && c.outcome !== "not_yet",
-              ),
-          )
-          .slice(0, 3)
-          .map((i) => (
-            <View
-              key={i.id}
-              style={{
-                gap: 5,
-                borderTopWidth: 1,
-                borderColor: C.line,
-                paddingTop: 12,
-              }}
-            >
-              <Body style={{ fontSize: 11, color: C.gold }}>{i.day}</Body>
-              <Body>{i.action}</Body>
-            </View>
-          ))}
-        <Eyebrow>A SMALL WAY TO BEGIN</Eyebrow>
-        {(SUGGESTIONS[selected || ""] || SUGGESTIONS.Curiosity)
-          .slice(0, 2)
-          .map((action) => (
-            <TextButton
-              key={action}
-              label={action}
-              onPress={() => {
-                const value = selected || "Curiosity";
-                setSelected(null);
-                router.push({ pathname: "/ritual", params: { value, action } });
-              }}
-            />
-          ))}
-      </Sheet>
-      <Sheet
-        open={explore}
-        onClose={() => setExplore(false)}
-        title="Follow your curiosity"
-      >
-        <Illustration source={art.explore} height={160} />
-        <Body>Pick something you’d like to make room for.</Body>
-        <View style={s.wrap}>
-          {INTERESTS.filter((v) => !data.profile.interests.includes(v)).map(
-            (v) => (
-              <Chip key={v} label={v} onPress={() => add(v)} />
-            ),
-          )}
-        </View>
-        {INTERESTS.every((v) => data.profile.interests.includes(v)) && (
-          <Body>All these interests are already in your galaxy.</Body>
-        )}
         <Notice text={error} tone="error" />
       </Sheet>
       <Sheet
-        open={info}
-        onClose={() => setInfo(false)}
-        title="A galaxy you live"
+        open={!!selected}
+        onClose={() => setSelected(null)}
+        title={selected?.title || ""}
       >
-        <Body>
-          Choosing a value or interest plants a possibility. When your evening
-          reflection records a real step — even a small one — that star grows.
-        </Body>
-        <Body>
-          Chatting, opening the app, and planning don’t increase it. Missed days
-          never take anything away.
-        </Body>
-        <Button label="That feels right" onPress={() => setInfo(false)} />
+        {selected ? (
+          <>
+            <Eyebrow>{state(selected)}</Eyebrow>
+            <Body>{selected.body || selected.source}</Body>
+            <Body style={{ fontSize: 13 }}>
+              {layer === "interest"
+                ? "Spark: curious. Glow: you already love it, or one try lit you up. Blaze: three try-ons lit you up. Ember and Craft are choices you make. Absence never dims a star."
+                : layer === "value"
+                  ? "Flicker: still exploring. Steady: chosen again in at least two reflections. Drift: your latest choice was “not mine”."
+                  : "A part of your story, without rankings or scores."}
+            </Body>
+            {moments.map((i) => (
+              <View key={i.id} style={s.section}>
+                <Body>{i.action}</Body>
+                <Body style={{ fontSize: 12 }}>
+                  {dayLabel(i.day)} ·{" "}
+                  {data.checkIns.find((c) => c.intention_id === i.id)?.energy ||
+                    "No energy noted"}
+                </Body>
+                <TextButton
+                  label="Open this moment"
+                  onPress={() => {
+                    setSelected(null);
+                    router.push({ pathname: "/history", params: { id: i.id } });
+                  }}
+                />
+              </View>
+            ))}
+            <Button
+              label="Try this next"
+              onPress={() => {
+                setSelected(null);
+                router.push({
+                  pathname: "/ritual",
+                  params: {
+                    day: nextIntentionDay(data),
+                    [layer === "interest"
+                      ? "interest"
+                      : layer === "value"
+                        ? "value"
+                        : "person"]: selected.title,
+                  },
+                });
+              }}
+            />
+            {layer === "interest" ? (
+              <>
+                <Button
+                  secondary
+                  label={
+                    selected.state === "craft"
+                      ? "Return to exploring"
+                      : "Make it my craft"
+                  }
+                  onPress={() =>
+                    save({
+                      ...selected,
+                      state: selected.state === "craft" ? "spark" : "craft",
+                    })
+                  }
+                />
+                <TextButton
+                  label={
+                    selected.state === "ember"
+                      ? "Light this spark again"
+                      : "Let it become an ember"
+                  }
+                  onPress={() =>
+                    save({
+                      ...selected,
+                      state: selected.state === "ember" ? "spark" : "ember",
+                    })
+                  }
+                />
+              </>
+            ) : null}
+            <TextButton
+              label="Remove from my galaxy"
+              onPress={async () => {
+                try {
+                  await removeEntry(selected.id);
+                  setSelected(null);
+                } catch (e) {
+                  setError((e as Error).message);
+                }
+              }}
+            />
+            <Notice text={error} tone="error" />
+          </>
+        ) : null}
       </Sheet>
     </Page>
   );

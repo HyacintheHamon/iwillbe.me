@@ -21,11 +21,28 @@ export async function exportPractice(local: Practice, owner?: string) {
       if (data.length < 1000) return rows;
     }
   };
-  const [intentions, checkIns, memories, messages] = await Promise.all([
+  const [
+    intentions,
+    checkIns,
+    memories,
+    messages,
+    entries,
+    invitations,
+    suggestions,
+    events,
+    feedback,
+    entitlements,
+  ] = await Promise.all([
     allRows("intentions"),
     allRows("check_ins", "intention_id"),
     allRows("memories"),
     allRows("messages"),
+    allRows("journey_entries"),
+    allRows("shared_invitations"),
+    allRows("friend_suggestions"),
+    allRows("product_events"),
+    allRows("product_feedback"),
+    allRows("entitlements", "user_id"),
   ]);
   return {
     exported_at: new Date().toISOString(),
@@ -34,5 +51,11 @@ export async function exportPractice(local: Practice, owner?: string) {
     checkIns,
     memories,
     messages,
+    entries: entries.map((r) => r.entry),
+    invitations,
+    suggestions,
+    events,
+    feedback,
+    entitlements,
   };
 }
