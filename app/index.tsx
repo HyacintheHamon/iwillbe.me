@@ -10,7 +10,12 @@ import { router, useLocalSearchParams } from "expo-router";
 import { GearSixIcon as GearSix } from "phosphor-react-native/src/icons/GearSix";
 import { usePractice } from "../src/practice";
 import { dayLabel, outcomeLabel, shiftDay } from "../src/domain";
-import { currentWhy, rhythmDue } from "../src/journey";
+import {
+  currentWhy,
+  rhythmDue,
+  returningToPractice,
+  formatCommitment,
+} from "../src/journey";
 import { useToday } from "../src/use-today";
 import {
   Body,
@@ -35,6 +40,7 @@ export default function Today() {
   const why = currentWhy(data);
   const rhythm = rhythmDue(data);
   const newVisitor = !data.profile.onboarded && !data.intentions.length;
+  const returning = returningToPractice(data, today);
   const begin = () =>
     router.push({ pathname: "/ritual", params: { day: today } });
   return (
@@ -65,13 +71,13 @@ export default function Today() {
         <Button
           label={
             newVisitor
-              ? "Find my sparks"
+              ? "Find your possibilities"
               : !intention
                 ? data.intentions.length
                   ? "Choose today’s intention"
                   : "Choose my first intention"
                 : checked
-                  ? "See my galaxy"
+                  ? "My Possibilities"
                   : "Reflect on today"
           }
           onPress={
@@ -97,7 +103,9 @@ export default function Today() {
         {!intention
           ? newVisitor
             ? "A life that feels like yours."
-            : "Who will you be today?"
+            : returning
+              ? "What’s true for you right now?"
+              : "Who will you be today?"
           : checked
             ? "A little more you."
             : "Let your intention lead the way."}
@@ -106,7 +114,9 @@ export default function Today() {
         {!intention
           ? newVisitor
             ? "Discover what draws you. Try one small thing. Notice what you want to keep."
-            : "One small thing to try. One moment to notice what it means."
+            : returning
+              ? "Start with what’s here today."
+              : "About two minutes. One small commitment to take into your day."
           : checked
             ? "Every small step becomes part of your story."
             : `One small promise${data.profile.display_name ? `, ${data.profile.display_name}` : ""}. Room to be human.`}
@@ -134,7 +144,13 @@ export default function Today() {
           />
         </View>
       )}
-      {!newVisitor && rhythm ? (
+      {!newVisitor && !intention ? (
+        <TextButton
+          label="Night check-in"
+          onPress={() => router.push("/reflect")}
+        />
+      ) : null}
+      {!newVisitor && !returning && rhythm ? (
         <View style={s.card}>
           <Eyebrow>A LITTLE SPACE TO LOOK BACK</Eyebrow>
           <Body>{rhythm.title}</Body>
@@ -153,13 +169,20 @@ export default function Today() {
         <View style={s.card}>
           <Eyebrow>TODAY’S ONE THING</Eyebrow>
           <Title style={{ fontSize: 25, lineHeight: 33 }}>
-            {intention.action}
+            {formatCommitment(intention.action, intention.kind)}
           </Title>
           <Body>
             {intention.value}
             {intention.interest ? ` · ${intention.interest}` : ""} · For{" "}
             {intention.person || "myself"}
           </Body>
+          {intention.when_context || intention.place ? (
+            <Body style={{ fontSize: 13 }}>
+              {[intention.when_context, intention.place]
+                .filter(Boolean)
+                .join(" · ")}
+            </Body>
+          ) : null}
           {checked ? (
             <>
               <Body>{outcomeLabel(checked.outcome)}</Body>
@@ -231,27 +254,32 @@ export default function Today() {
               onPress={() => router.push("/settings")}
             />
           )}
-          <View style={s.section}>
-            <Eyebrow>YOUR RECENT MOMENTS</Eyebrow>
-            {[...data.intentions]
-              .filter((i) => i.day < today)
-              .sort((a, b) => b.day.localeCompare(a.day))
-              .slice(0, 3)
-              .map((i) => (
-                <TextButton
-                  key={i.id}
-                  label={`${dayLabel(i.day)} · ${i.action}`}
-                  onPress={() =>
-                    router.push({ pathname: "/history", params: { id: i.id } })
-                  }
-                />
-              ))}
-            <Button
-              secondary
-              label="View all my history"
-              onPress={() => router.push("/history")}
-            />
-          </View>
+          {!returning ? (
+            <View style={s.section}>
+              <Eyebrow>YOUR RECENT MOMENTS</Eyebrow>
+              {[...data.intentions]
+                .filter((i) => i.day < today)
+                .sort((a, b) => b.day.localeCompare(a.day))
+                .slice(0, 3)
+                .map((i) => (
+                  <TextButton
+                    key={i.id}
+                    label={`${dayLabel(i.day)} · ${i.action}`}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/history",
+                        params: { id: i.id },
+                      })
+                    }
+                  />
+                ))}
+              <Button
+                secondary
+                label="View all my history"
+                onPress={() => router.push("/history")}
+              />
+            </View>
+          ) : null}
         </>
       )}
       <Notice text={error} tone="error" />

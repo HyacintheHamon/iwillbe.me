@@ -33,10 +33,15 @@ export default function Account() {
     refresh,
     error: loadError,
   } = usePractice();
-  const params = useLocalSearchParams<{ returnTo?: string; reason?: string }>();
+  const params = useLocalSearchParams<{
+    returnTo?: string;
+    reason?: string;
+    question?: string;
+  }>();
   const [intent, setIntent] = useState({
     returnTo: safeDestination(params.returnTo),
     reason: params.reason || "save",
+    question: params.question || "",
   });
   const [mode, setMode] = useState<"link" | "password" | "reset">("link");
   const [email, setEmail] = useState(""),
@@ -53,7 +58,7 @@ export default function Account() {
   useEffect(() => {
     void (
       params.returnTo
-        ? rememberAuthIntent(params.returnTo, params.reason)
+        ? rememberAuthIntent(params.returnTo, params.reason, params.question)
         : readAuthIntent()
     )
       .then(setIntent)
@@ -62,19 +67,24 @@ export default function Account() {
           "Your return destination could not be saved. You can still connect.",
         ),
       );
-  }, [params.returnTo, params.reason]);
+  }, [params.returnTo, params.reason, params.question]);
   useEffect(() => {
     if (!retryAt) return;
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
   }, [retryAt]);
   const remaining = Math.max(0, Math.ceil((retryAt - now) / 1000));
+  const returnToPractice = () => {
+    if (intent.returnTo === "/chloe" && intent.question)
+      router.replace({pathname: "/chloe", params: {question: intent.question, mode: "discovery"}});
+    else router.replace(safeDestination(intent.returnTo));
+  };
   const submit = async () => {
     setBusy(true);
     setError("");
     setNotice("");
     try {
-      await rememberAuthIntent(intent.returnTo, intent.reason);
+      await rememberAuthIntent(intent.returnTo, intent.reason, intent.question);
       if (mode === "password") {
         const { error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
@@ -114,7 +124,7 @@ export default function Account() {
     setError("");
     try {
       await finishAuthIntent(session.user.id, intent.returnTo);
-      router.replace(safeDestination(intent.returnTo));
+      returnToPractice();
     } catch {
       setError("Could not restore your draft. Please try again.");
     } finally {
@@ -166,7 +176,7 @@ export default function Account() {
                   try {
                     await refresh();
                     await finishAuthIntent(session.user.id, intent.returnTo);
-                    router.replace(safeDestination(intent.returnTo));
+                    returnToPractice();
                   } catch (e) {
                     setError((e as Error).message);
                     setBusy(false);
@@ -283,7 +293,7 @@ export default function Account() {
           )}
           <TextButton
             label="Continue on this device"
-            onPress={() => router.replace(safeDestination(intent.returnTo))}
+            onPress={returnToPractice}
           />
         </>
       )}

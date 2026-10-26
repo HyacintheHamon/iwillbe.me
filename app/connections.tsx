@@ -21,7 +21,7 @@ import {
   s,
 } from "../src/ui";
 type Invite = { id: string; kind: string; message: string; expires_at: string };
-type Suggestion = { id: string; content: string };
+type Suggestion = { id: string; content: string; friend_name: string | null };
 export default function Connections() {
   const { data, session, putEntry } = usePractice();
   const action = useAction();
@@ -38,7 +38,7 @@ export default function Connections() {
         .from("shared_invitations")
         .select("id,kind,message,expires_at")
         .order("created_at", { ascending: false }),
-      supabase.from("friend_suggestions").select("id,content"),
+      supabase.from("friend_suggestions").select("id,content,friend_name"),
     ]);
     if (a.error || b.error)
       throw new Error("Could not refresh your invitations.");
@@ -196,16 +196,24 @@ export default function Connections() {
       />
       {suggestions.map((item) => (
         <View key={item.id} style={s.card}>
-          <Eyebrow>A FRIEND’S SUGGESTION</Eyebrow>
+          <Eyebrow>
+            {item.friend_name
+              ? `A Maybe from ${item.friend_name}`
+              : "A friend’s suggestion"}
+          </Eyebrow>
           <Body>{item.content}</Body>
           <Button
-            label="Keep as a Spark"
+            label="Keep as a Maybe"
             onPress={() =>
               action.run(async () => {
                 await putEntry(
                   entryInput("interest", item.content.slice(0, 80), {
+                    // Keep acceptance idempotent if removing the inbox reply fails.
+                    id: item.id,
                     body: item.content,
-                    source: "Friend suggestion · accepted by you",
+                    source: item.friend_name
+                      ? `Suggested by ${item.friend_name} · accepted by you`
+                      : "Friend suggestion · accepted by you",
                     state: "spark",
                   }),
                 );

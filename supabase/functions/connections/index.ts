@@ -24,6 +24,8 @@ Deno.serve(async (req: Request) => {
     const raw = await req.text();
     if (raw.length > 5000) return json({ error: "Request too large" }, 413);
     const body = JSON.parse(raw);
+    if (!body || typeof body !== "object" || Array.isArray(body))
+      return json({ error: "Invalid request." }, 400);
     const admin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -46,6 +48,17 @@ Deno.serve(async (req: Request) => {
         );
       if (body.action === "reply") {
         if (
+          body.friend_name !== undefined &&
+          body.friend_name !== null &&
+          (typeof body.friend_name !== "string" ||
+            body.friend_name.length > 80 ||
+            /[\u0000-\u001f\u007f]/.test(body.friend_name))
+        )
+          return json(
+            { error: "Use a name of up to 80 characters, or leave it blank." },
+            400,
+          );
+        if (
           inv.kind !== "friend" ||
           typeof body.content !== "string" ||
           !body.content.trim() ||
@@ -57,10 +70,14 @@ Deno.serve(async (req: Request) => {
             { error: "Please write a suggestion under 500 characters." },
             400,
           );
-        const { error } = await admin.rpc("submit_friend_suggestion", {
+        const { error } = await admin.rpc("submit_named_friend_suggestion", {
           p_hash: token_hash,
           p_nonce: body.nonce,
           p_content: body.content.trim(),
+          p_friend_name:
+            typeof body.friend_name === "string"
+              ? body.friend_name.trim() || null
+              : null,
         });
         if (error)
           return json(

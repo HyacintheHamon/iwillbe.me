@@ -161,7 +161,7 @@ export function outcomeLabel(outcome: Outcome) {
   return {
     yes: "I showed up",
     partly: "A small step",
-    not_yet: "Another chance tomorrow",
+    not_yet: "Not this time",
   }[outcome];
 }
 export const SUGGESTIONS: Record<string, string[]> = {
