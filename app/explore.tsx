@@ -5,6 +5,7 @@ import { POSSIBILITIES, SPARK_ART, type Possibility } from "../src/catalog";
 import { usePractice } from "../src/practice";
 import { entryInput, entriesOf } from "../src/journey";
 import { nextIntentionDay } from "../src/domain";
+import { useToday } from "../src/use-today";
 import { useAction } from "../src/use-action";
 import {
   Body,
@@ -22,6 +23,7 @@ import {
 } from "../src/ui";
 export default function Explore() {
   const { data, putEntry } = usePractice();
+  const today = useToday();
   const [domain, setDomain] = useState("All"),
     [query, setQuery] = useState(""),
     [selected, setSelected] = useState<Possibility | null>(null),
@@ -41,7 +43,7 @@ export default function Explore() {
             body: item.description,
           }),
         );
-      setMessage(`${item.title} is saved as a Spark.`);
+      setMessage(`${item.title} is saved as a Maybe.`);
       setSelected(null);
     });
   return (
@@ -129,7 +131,7 @@ export default function Explore() {
                   (p) => p.title === e.title && p.domain === selected.domain,
                 ),
               )
-                ? `You have chosen other sparks in ${selected.domain.toLowerCase()}. This is another way to explore that curiosity.`
+                ? `You have chosen other possibilities in ${selected.domain.toLowerCase()}. This is another way to explore that curiosity.`
                 : "A new possibility to explore. You decide whether it feels like you."}
             </Body>
             <Button
@@ -142,14 +144,14 @@ export default function Explore() {
                   params: {
                     action: item.first,
                     interest: item.title,
-                    day: nextIntentionDay(data),
+                    day: nextIntentionDay(data, today),
                   },
                 });
               }}
             />
             <Button
               secondary
-              label="Save as a Spark"
+              label="Save as a Maybe"
               loading={action.busy}
               onPress={() => saveSpark(selected)}
             />

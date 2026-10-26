@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Image, View, useWindowDimensions } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 import { usePractice } from "../src/practice";
 import { entriesOf, entryInput, PLANETS, type Planet } from "../src/journey";
 import { useAction } from "../src/use-action";
@@ -20,15 +21,26 @@ import {
   s,
 } from "../src/ui";
 export default function Telescope() {
-  const [horizon, setHorizon] = useState<"year" | "life">("year");
-  return <Vision key={horizon} {...{ horizon, setHorizon }} />;
+  const params = useLocalSearchParams<{ horizon?: string; changed?: string }>();
+  const [horizon, setHorizon] = useState<"year" | "life">(
+    params.horizon === "life" ? "life" : "year",
+  );
+  return (
+    <Vision
+      key={horizon}
+      {...{ horizon, setHorizon }}
+      changed={params.changed === "true"}
+    />
+  );
 }
 function Vision({
   horizon,
   setHorizon,
+  changed,
 }: {
   horizon: "year" | "life";
   setHorizon: (h: "year" | "life") => void;
+  changed: boolean;
 }) {
   const { data, session, putEntry } = usePractice();
   const { width } = useWindowDimensions();
@@ -41,26 +53,40 @@ function Vision({
     draftKey(`vision.${horizon}`, session?.user.id),
     {
       text: current?.body || "",
+      age: current?.meta.life_age || (90 as 80 | 90 | 100),
       notes:
         current?.meta.planet_notes || ({} as Partial<Record<Planet, string>>),
     },
   );
   const action = useAction();
-  const [editing, setEditing] = useState(!current),
+  const [editing, setEditing] = useState(!current || changed),
+    [area, setArea] = useState<Planet | null>(null),
     [message, setMessage] = useState("");
-  const save = (source: string) =>
+  const save = (source: string, reaffirm = false) =>
     action.run(async () => {
+      const picture =
+        reaffirm && current
+          ? {
+              text: current.body,
+              notes: current.meta.planet_notes || {},
+              age: current.meta.life_age || 90,
+            }
+          : draft;
       await putEntry(
         entryInput(
           "vision",
-          horizon === "year" ? "A year from now" : "Me at 90",
+          horizon === "year"
+            ? "One year out"
+            : `Later in life · ${picture.age}`,
           {
-            body: draft.text.trim() || current?.body || "",
+            body: picture.text.trim(),
             source,
             meta: {
               horizon,
               version: versions.length + 1,
-              planet_notes: draft.notes,
+              planet_notes: picture.notes,
+              life_age:
+                horizon === "life" ? (picture.age as 80 | 90 | 100) : undefined,
             },
           },
         ),
@@ -70,7 +96,7 @@ function Vision({
     });
   return (
     <Page
-      header={<TopBar title="The telescope" />}
+      header={<TopBar title="Future me" />}
       footer={
         !editing && current ? (
           <View style={{ gap: 8 }}>
@@ -78,7 +104,7 @@ function Vision({
             <Button
               label="Still true"
               loading={action.busy}
-              onPress={() => save("Reaffirmed by you")}
+              onPress={() => save("Reaffirmed by you", true)}
             />
             <View style={[s.row, { justifyContent: "center" }]}>
               <TextButton label="Tweak it" onPress={() => setEditing(true)} />
@@ -98,20 +124,32 @@ function Vision({
       <Title>Look a little further.</Title>
       <View style={s.wrap}>
         <Chip
-          label="A year from now"
+          label="One year out"
           selected={horizon === "year"}
           onPress={() => setHorizon("year")}
         />
         <Chip
-          label="Me at 90"
+          label="Later in life"
           selected={horizon === "life"}
           onPress={() => setHorizon("life")}
         />
       </View>
+      {horizon === "life" && editing ? (
+        <View style={s.wrap}>
+          {([80, 90, 100] as const).map((age) => (
+            <Chip
+              key={age}
+              label={`Me at ${age}`}
+              selected={draft.age === age}
+              onPress={() => update({ age })}
+            />
+          ))}
+        </View>
+      ) : null}
       <Body>
         {horizon === "year"
-          ? "Imagine an ordinary day a year from now. Who is there? What fills it? How does it feel?"
-          : "Imagine looking back at 90. What would you be glad you made room for? You can choose any later chapter that feels right."}
+          ? "Picture a year from now, living the life you want. What’s in it?"
+          : `Imagine you at ${draft.age}, looking back. What are you proud of? Who’s around you?`}
       </Body>
       {!editing && current ? (
         <>
@@ -158,8 +196,31 @@ function Vision({
           maxLength={3000}
         />
       ) : null}
+      {editing && horizon === "year" ? (
+        <>
+          <TextButton
+            label="Add a little detail by area"
+            onPress={() => setArea(area ? null : "Be")}
+          />
+          {area ? (
+            <View style={s.wrap}>
+              {PLANETS.slice(0, 5).map((planet) => (
+                <Chip
+                  key={planet}
+                  label={planet}
+                  selected={area === planet}
+                  onPress={() => setArea(planet)}
+                />
+              ))}
+            </View>
+          ) : null}
+          <Body style={{ fontSize: 13 }}>
+            The areas you include help shape your mornings.
+          </Body>
+        </>
+      ) : null}
       {PLANETS.slice(0, 5).map((planet) =>
-        editing ? (
+        editing && area === planet ? (
           <Field
             key={planet}
             label={`${planet} · optional`}
@@ -169,7 +230,7 @@ function Vision({
             }
             maxLength={200}
           />
-        ) : current?.meta.planet_notes?.[planet] ? (
+        ) : !editing && current?.meta.planet_notes?.[planet] ? (
           <View key={planet} style={s.row}>
             <Eyebrow>{planet}</Eyebrow>
             <Body style={{ flex: 1 }}>{current.meta.planet_notes[planet]}</Body>
@@ -198,7 +259,11 @@ function Vision({
           <TextButton
             label="Start from this picture"
             onPress={() => {
-              update({ text: v.body, notes: v.meta.planet_notes || {} });
+              update({
+                text: v.body,
+                notes: v.meta.planet_notes || {},
+                age: v.meta.life_age || 90,
+              });
               setEditing(true);
             }}
           />

@@ -11,6 +11,7 @@ import {
 import { ArrowUpIcon as ArrowUp } from "phosphor-react-native/src/icons/ArrowUp";
 import { BookmarkSimpleIcon as BookmarkSimple } from "phosphor-react-native/src/icons/BookmarkSimple";
 import { router, useLocalSearchParams } from "expo-router";
+import * as Crypto from "expo-crypto";
 import { draftKey, useDraft } from "../src/drafts";
 import { usePractice } from "../src/practice";
 import { supabase } from "../src/supabase";
@@ -30,7 +31,15 @@ import {
   TopBar,
   s,
 } from "../src/ui";
-import { entryInput, type EntryKind } from "../src/journey";
+import {
+  entriesOf,
+  entryInput,
+  returningToPractice,
+  suggestedPlanet,
+  formatCommitment,
+  type EntryKind,
+} from "../src/journey";
+import { useToday } from "../src/use-today";
 type Suggestion = {
   action: string;
   value: string;
@@ -43,6 +52,11 @@ type Suggestion = {
 export default function Chloe() {
   const { data, session, addMessages, remember, putEntry } = usePractice();
   const params = useLocalSearchParams<{ mode?: string; question?: string }>();
+  const today = useToday();
+  const [sessionId, setSessionId] = useState(() => Crypto.randomUUID());
+  const [returningToday] = useState(() => returningToPractice(data, today));
+  const [notice, setNotice] = useState("");
+  const [selectedQuestionDone, setSelectedQuestionDone] = useState(false);
   const [discovery, setDiscovery] = useState<{
     kind: EntryKind;
     title: string;
@@ -70,8 +84,8 @@ export default function Chloe() {
     [memory, setMemory] = useState<string | null>(null),
     [pending, setPending] = useState("");
   const scroll = useRef<React.ElementRef<typeof ScrollView>>(null);
-  const send = async () => {
-    const text = input.trim();
+  const send = async (message?: string) => {
+    const text = (message ?? input).trim();
     if (!text || busy) return;
     if (!session) {
       setError(
@@ -83,8 +97,32 @@ export default function Chloe() {
     setError("");
     setPending(text);
     try {
+      const skipped =
+        /^(skip\b|i don.t know(?: yet)?[.!]?$|not now[.!]?$|ask me something)/i.test(
+          text,
+        );
+      if (skipped && question)
+        await putEntry(
+          entryInput("question", question, {
+            id: entriesOf(data, "question").find((e) => e.title === question)
+              ?.id,
+            state: "open",
+            source: "Chloe · left to sit",
+            meta: {
+              last_asked_at: new Date().toISOString(),
+              last_asked_session: sessionId,
+            },
+          }),
+        );
       const { data: reply, error } = await supabase.functions.invoke("chloe", {
-        body: { action: "chat", message: text, mode },
+        body: {
+          action: "chat",
+          message: text,
+          mode,
+          session_id: sessionId,
+          returning_today: returningToday,
+          area: suggestedPlanet(data, today),
+        },
       });
       if (error) {
         let message =
@@ -99,16 +137,40 @@ export default function Chloe() {
         throw new Error(message);
       }
       await addMessages(reply.messages, session.user.id);
-      setInput("");
+      if (message === undefined || message === input) setInput("");
+      if (message === params.question) setSelectedQuestionDone(true);
       setSuggestion(reply.suggested_intention);
       setMemory(reply.memory_suggestion);
       setQuestion(reply.question || null);
       setDiscovery(reply.discovery || null);
       setWhyProposal(reply.why_proposal || null);
+      try {
+        const asked = entriesOf(data, "question").find(
+          (e) => e.title === reply.question,
+        );
+        if (asked)
+          await putEntry({
+            ...asked,
+            meta: {
+              ...asked.meta,
+              last_asked_at: new Date().toISOString(),
+              last_asked_session: sessionId,
+            },
+          });
+        const answered = entriesOf(data, "question").find(
+          (e) => e.title === question,
+        );
+        if (answered && !skipped)
+          await putEntry({ ...answered, state: "answered", body: text });
+      } catch {
+        setNotice(
+          "Your conversation is saved. The question’s status could not be updated yet.",
+        );
+      }
       setPending("");
     } catch (e) {
       setError((e as Error).message);
-      setInput(text);
+      if (message === undefined) setInput(text);
       setPending("");
     } finally {
       setBusy(false);
@@ -120,12 +182,22 @@ export default function Chloe() {
     return (
       <Page header={<TopBar back={false} title="A moment with Chloe" />}>
         <ChloeMark />
-        <Eyebrow>YOUR SPACE TO THINK</Eyebrow>
+        <Eyebrow>About two minutes · one small step</Eyebrow>
         <Title>Let’s find one small step.</Title>
         <Body>
           Choose an intention on your own now, or connect an account for a
           personal conversation with Chloe.
         </Body>
+        {params.question ? (
+          <View style={s.card}>
+            <Eyebrow>Your Open Question</Eyebrow>
+            <Body>{params.question}</Body>
+            <Body style={{ fontSize: 13 }}>
+              This question will come with you when you connect. Your other
+              draft stays saved.
+            </Body>
+          </View>
+        ) : null}
         <Button
           label="Choose an intention"
           onPress={() => router.push("/ritual")}
@@ -156,7 +228,11 @@ export default function Chloe() {
             onPress={() =>
               router.push({
                 pathname: "/account",
-                params: { returnTo: "/chloe", reason: "chloe" },
+                params: {
+                  returnTo: "/chloe",
+                  reason: "chloe",
+                  question: params.question || "",
+                },
               })
             }
           />
@@ -185,6 +261,8 @@ export default function Chloe() {
             ["night", "Tonight"],
             ["discovery", "Discover"],
             ["explore", "Explore"],
+            ["sunday", "Sunday Explore"],
+            ["fullmoon", "Monthly"],
             ["why", "My why"],
           ] as const
         ).map(([id, label]) => (
@@ -192,7 +270,15 @@ export default function Chloe() {
             key={id}
             label={label}
             selected={mode === id}
-            onPress={() => setMode(id)}
+            onPress={() => {
+              setMode(id);
+              setSessionId(Crypto.randomUUID());
+              setQuestion(null);
+              setSuggestion(null);
+              setDiscovery(null);
+              setMemory(null);
+              setWhyProposal(null);
+            }}
           />
         ))}
       </ScrollView>
@@ -204,6 +290,22 @@ export default function Chloe() {
           scroll.current?.scrollToEnd({ animated: true })
         }
       >
+        {params.question && !selectedQuestionDone ? (
+          <View style={s.card}>
+            <Eyebrow>Your Open Question</Eyebrow>
+            <Body>{params.question}</Body>
+            <Button
+              label="Think about this question"
+              loading={busy}
+              onPress={() => {
+                void send(params.question);
+              }}
+            />
+            <Body style={{ fontSize: 13 }}>
+              Your other draft stays in the message box.
+            </Body>
+          </View>
+        ) : null}
         {!data.messages.length && (
           <View style={{ gap: 18, paddingTop: 12, paddingBottom: 10 }}>
             <ChloeMark />
@@ -247,13 +349,13 @@ export default function Chloe() {
           <View
             style={{
               alignSelf: "flex-end",
-              backgroundColor: C.navy,
+              backgroundColor: "#2D315B",
               borderRadius: 22,
               padding: 17,
               maxWidth: "90%",
             }}
           >
-            <Body style={{ color: C.white }}>{pending}</Body>
+            <Body style={{ color: C.navy }}>{pending}</Body>
           </View>
         )}
         {busy && (
@@ -267,7 +369,7 @@ export default function Chloe() {
           <View style={s.card}>
             <Eyebrow>A POSSIBLE INTENTION</Eyebrow>
             <Title style={{ fontSize: 25, lineHeight: 33 }}>
-              {suggestion.action}
+              {formatCommitment(suggestion.action)}
             </Title>
             <Body style={{ fontSize: 12 }}>
               {suggestion.value} · For {suggestion.person || "myself"}
@@ -337,13 +439,36 @@ export default function Chloe() {
             </Title>
             <Body>{discovery.body}</Body>
             <Button
-              label="Yes, add this to my galaxy"
+              label={
+                discovery.kind === "interest"
+                  ? "Add as a Maybe"
+                  : discovery.kind === "value"
+                    ? "Try this value on"
+                    : discovery.kind === "person"
+                      ? "Add to People I admire"
+                      : "Keep this strength"
+              }
               onPress={async () => {
                 try {
                   await putEntry(
                     entryInput(discovery.kind, discovery.title, {
                       body: discovery.body,
-                      state: "spark",
+                      id: entriesOf(data, discovery.kind).find(
+                        (e) =>
+                          e.title.toLowerCase() ===
+                          discovery.title.toLowerCase(),
+                      )?.id,
+                      state:
+                        entriesOf(data, discovery.kind).find(
+                          (e) =>
+                            e.title.toLowerCase() ===
+                            discovery.title.toLowerCase(),
+                        )?.state ||
+                        (discovery.kind === "interest"
+                          ? "spark"
+                          : discovery.kind === "value"
+                            ? "trying"
+                            : "active"),
                       source: "Proposed by Chloe · confirmed by you",
                       source_ids: discovery.source_ids,
                     }),
@@ -369,19 +494,29 @@ export default function Chloe() {
         ) : null}
         {question ? (
           <View style={s.card}>
-            <Body>{question}</Body>
+            <Eyebrow>Room to let it sit</Eyebrow>
             <TextButton
               label="Save this question for later"
               onPress={async () => {
                 try {
                   await putEntry(
                     entryInput("question", question, {
+                      id: entriesOf(data, "question").find(
+                        (e) => e.title === question,
+                      )?.id,
                       state: "open",
                       source: "Chloe · deferred by you",
+                      meta: {
+                        last_asked_at: new Date().toISOString(),
+                        last_asked_session: sessionId,
+                      },
                     }),
                   );
                   setQuestion(null);
-                  setInput("Ask me something different, please.");
+                  setNotice(
+                    "Let it sit with you today. We can come back to it another time.",
+                  );
+                  setInput("");
                 } catch (e) {
                   setError((e as Error).message);
                 }
@@ -393,8 +528,15 @@ export default function Chloe() {
                 try {
                   await putEntry(
                     entryInput("question", question, {
+                      id: entriesOf(data, "question").find(
+                        (e) => e.title === question,
+                      )?.id,
                       state: "stopped",
                       source: "Chloe · stopped by you",
+                      meta: {
+                        last_asked_at: new Date().toISOString(),
+                        last_asked_session: sessionId,
+                      },
                     }),
                   );
                   setQuestion(null);
@@ -407,8 +549,22 @@ export default function Chloe() {
         ) : null}
         {whyProposal ? (
           <View style={s.card}>
-            <Eyebrow>A possible next version · for you to decide</Eyebrow>
+            <Eyebrow>Here’s what I’m starting to hear</Eyebrow>
             <Body>{whyProposal.text}</Body>
+            <Body style={{ fontSize: 13 }}>
+              {whyProposal.source_ids
+                .map(
+                  (id) =>
+                    data.entries.find((e) => e.id === id)?.title ||
+                    data.intentions.find((i) => i.id === id)?.action ||
+                    data.messages.find((m) => m.id === id && m.role === "user")
+                      ?.content,
+                )
+                .filter(Boolean)
+                .map((piece) => `“${piece}”`)
+                .join(" · ")}
+            </Body>
+            <Body>Want to update your why?</Body>
             <Button
               label="Keep this as my why"
               onPress={async () => {
@@ -451,6 +607,14 @@ export default function Chloe() {
             />
           </View>
         ) : null}
+        <Notice text={notice} />
+        <TextButton
+          label="Ask me something else"
+          onPress={() => {
+            void send("Ask me something else.");
+          }}
+        />
+        <TextButton label="Done for now" onPress={() => router.replace("/")} />
       </ScrollView>
       <View
         style={{
@@ -488,7 +652,9 @@ export default function Chloe() {
           accessibilityRole="button"
           accessibilityLabel="Send message"
           disabled={busy || !input.trim()}
-          onPress={send}
+          onPress={() => {
+            void send();
+          }}
           style={{
             width: 48,
             height: 48,

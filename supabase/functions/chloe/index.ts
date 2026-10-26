@@ -1,5 +1,19 @@
 import { createClient } from "npm:@supabase/supabase-js@2.118.0";
-import { systemPrompt, MODES, PROMPT_VERSION } from "./prompt.ts";
+import {
+  buildChloeContext,
+  contextLookback,
+  conversationHistory,
+  normalizeQuestion,
+  questionInMessage,
+  resolveResponseQuestion,
+  systemPrompt,
+  MODES,
+  PROMPT_VERSION,
+  type HistoryMessage,
+  type IntentionContext,
+  type JourneyRow,
+  type ReflectionContext,
+} from "./prompt.ts";
 const headers = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -117,6 +131,8 @@ Deno.serve(async (req: Request) => {
     if (text.length > 10000)
       return json({ error: "That message is too long." }, 413);
     body = JSON.parse(text);
+    if (!body || typeof body !== "object" || Array.isArray(body))
+      return json({ error: "Invalid request." }, 400);
   } catch {
     return json({ error: "Invalid request." }, 400);
   }
@@ -171,100 +187,136 @@ Deno.serve(async (req: Request) => {
         },
         429,
       );
+    const mode =
+      typeof body.mode === "string" && Object.hasOwn(MODES, body.mode)
+        ? body.mode
+        : "morning";
+    const contextNow = new Date();
+    const since = contextLookback(mode, contextNow);
+    const sessionId =
+      typeof body.session_id === "string" &&
+      /^[a-zA-Z0-9_-]{1,80}$/.test(body.session_id)
+        ? body.session_id
+        : undefined;
+    const area = [
+      "Be",
+      "People",
+      "Causes",
+      "Passions",
+      "Grow",
+      "Surprise",
+    ].includes(body.area)
+      ? body.area
+      : undefined;
     const results = await Promise.all([
       scoped
         .from("profiles")
-        .select("display_name,north_star,values,interests,timezone")
+        .select(
+          "display_name,north_star,values,interests,timezone,onboarded,morning_time,evening_time",
+        )
         .eq("id", user.id)
         .maybeSingle(),
       scoped
         .from("intentions")
         .select(
-          "id,day,action,value,person,interest,planet,kind,when_context,with_person",
+          "id,day,action,value,person,interest,interest_id,value_id,planet,kind,when_context,place,with_person,created_at",
         )
+        .gte("day", since.slice(0, 10))
         .order("day", { ascending: false })
-        .limit(7),
+        .limit(100),
       scoped
         .from("check_ins")
-        .select("intention_id,outcome,reflection,energy,value_choice")
+        .select(
+          "intention_id,outcome,reflection,energy,value_choice,created_at",
+        )
+        .gte("created_at", since)
         .order("created_at", { ascending: false })
-        .limit(7),
+        .limit(100),
       scoped
         .from("memories")
-        .select("content,source,created_at")
+        .select("id,content,source,created_at")
         .order("created_at", { ascending: false })
         .limit(8),
       scoped
         .from("messages")
-        .select("role,content")
+        .select("id,role,content,created_at")
         .order("created_at", { ascending: false })
-        .limit(12),
+        .limit(24),
       scoped
         .from("journey_entries")
-        .select("id,kind,entry")
+        .select("id,kind,entry,updated_at")
         .order("updated_at", { ascending: false })
-        .limit(80),
+        .limit(mode === "why" ? 160 : 80),
       scoped
         .from("journey_entries")
-        .select("id,kind,entry")
+        .select("id,kind,entry,updated_at")
         .eq("kind", "why")
         .eq("entry->>state", "accepted")
-        .order("updated_at", { ascending: false })
+        .order("entry->>created_at", { ascending: false })
         .limit(1),
       scoped
         .from("journey_entries")
-        .select("id,kind,entry")
-        .in("kind", ["question", "preferences"])
+        .select("id,kind,entry,updated_at")
+        .in("kind", ["question", "preferences", "backlog"])
         .order("updated_at", { ascending: false })
-        .limit(1000),
+        .limit(300),
+      // Future pictures may be old and must not fall out of a recent-entry limit.
+      scoped
+        .from("journey_entries")
+        .select("id,kind,entry,updated_at")
+        .eq("kind", "vision")
+        .eq("entry->meta->>horizon", "year")
+        .order("entry->>created_at", { ascending: false })
+        .limit(1),
+      scoped
+        .from("journey_entries")
+        .select("id,kind,entry,updated_at")
+        .eq("kind", "vision")
+        .eq("entry->meta->>horizon", "life")
+        .order("entry->>created_at", { ascending: false })
+        .limit(1),
     ]);
     if (results.some((r) => r.error))
       return json(
         { error: "Could not load your practice. Please try again." },
         503,
       );
-    const [
-      profile,
-      intentions,
-      reflections,
-      memories,
-      history,
-      recentJourney,
-      latestWhy,
-      preferences,
-    ] = results.map((r) => r.data);
-    const journey = [
+    // Keep tuple types: mapping this heterogeneous result list erases row shapes.
+    const profile = results[0].data;
+    const intentions = results[1].data;
+    const reflections = results[2].data;
+    const memories = results[3].data;
+    const history = results[4].data;
+    const recentJourney = results[5].data;
+    const latestWhy = results[6].data;
+    const preferences = results[7].data;
+    const yearVision = results[8].data;
+    const lifeVision = results[9].data;
+    const journey: JourneyRow[] = [
+      ...(recentJourney || []),
       ...(latestWhy || []),
-      ...(recentJourney || []).filter(
-        (e: { id: string }) =>
-          !(latestWhy || []).some((w: { id: string }) => w.id === e.id),
-      ),
+      ...(preferences || []),
+      ...(yearVision || []),
+      ...(lifeVision || []),
     ];
-    const mode =
-      typeof body.mode === "string" && MODES[body.mode] ? body.mode : "morning";
     const userMessageId = crypto.randomUUID();
-    const context = {
-      current_message_id: userMessageId,
+    const context = buildChloeContext({
+      mode,
+      currentMessageId: userMessageId,
       profile,
-      intentions,
-      reflections,
-      memories,
+      intentions: (intentions || []) as IntentionContext[],
+      reflections: (reflections || []) as ReflectionContext[],
+      memories: memories || [],
+      history: (history || []) as HistoryMessage[],
       journey,
-      season: (preferences || []).find(
-        (e: { entry: { title: string } }) => e.entry.title === "Season",
-      )?.entry.meta,
-      deferred_questions: (preferences || [])
-        .filter((e: { kind: string }) => e.kind === "question")
-        .map((e: { entry: { title: string; state: string } }) => ({
-          question: e.entry.title,
-          state: e.entry.state,
-        })),
-      question_policy:
-        (preferences || []).length >= 1000
-          ? "Do not ask more questions unless the user explicitly asks to reopen one."
-          : "Do not repeat any deferred or stopped question.",
-      current_time: new Date().toISOString(),
-    };
+      sessionId,
+      returningToday: body.returning_today === true,
+      area,
+      now: contextNow,
+    });
+    if ((preferences || []).length >= 300)
+      context.question_policy +=
+        " Some older question preferences could not fit in context. Do not proactively reopen any saved question; let the user choose one.";
     const system = systemPrompt(mode, context);
     const started = Date.now();
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -280,7 +332,10 @@ Deno.serve(async (req: Request) => {
         system,
         output_config: { format: { type: "json_schema", schema } },
         messages: [
-          ...(history || []).slice().reverse(),
+          ...conversationHistory(
+            (history || []) as HistoryMessage[],
+            contextNow,
+          ),
           { role: "user", content: body.message.trim() },
         ],
       }),
@@ -317,13 +372,24 @@ Deno.serve(async (req: Request) => {
     const suggested = answer.suggested_intention;
     if (
       suggested &&
-      (!["action", "value", "person"].every(
-        (k) => typeof suggested[k] === "string",
-      ) ||
+      (![
+        "action",
+        "value",
+        "person",
+        "interest",
+        "when_context",
+        "with_person",
+      ].every((k) => typeof suggested[k] === "string") ||
         !suggested.action.trim() ||
         suggested.action.length > 500 ||
         suggested.value.length > 80 ||
-        suggested.person.length > 120)
+        suggested.person.length > 120 ||
+        suggested.interest.length > 80 ||
+        suggested.when_context.length > 200 ||
+        suggested.with_person.length > 120 ||
+        !["Be", "People", "Causes", "Passions", "Grow", "Surprise"].includes(
+          suggested.planet,
+        ))
     )
       answer.suggested_intention = null;
     if (
@@ -332,11 +398,7 @@ Deno.serve(async (req: Request) => {
       answer.memory_suggestion.length > 1000
     )
       answer.memory_suggestion = null;
-    const evidenceIds = new Set([
-      userMessageId,
-      ...(intentions || []).map((i: { id: string }) => i.id),
-      ...(journey || []).map((e: { id: string }) => e.id),
-    ]);
+    const evidenceIds = new Set(context.evidence_ids);
     const discovery = answer.discovery;
     if (
       !discovery ||
@@ -356,6 +418,7 @@ Deno.serve(async (req: Request) => {
     if (
       !answer.why_proposal ||
       typeof answer.why_proposal.text !== "string" ||
+      !answer.why_proposal.text.trim() ||
       answer.why_proposal.text.length > 2000 ||
       !Array.isArray(answer.why_proposal.source_ids) ||
       !answer.why_proposal.source_ids.length ||
@@ -364,11 +427,29 @@ Deno.serve(async (req: Request) => {
       )
     )
       answer.why_proposal = null;
-    if (typeof answer.question !== "string" || answer.question.length > 500)
+    answer.question = resolveResponseQuestion(answer.question, answer.message);
+    // Guard exact repeat violations even when the model omits its question field.
+    // The user may explicitly reopen a question by selecting/typing that question.
+    const repeatedDeferred = context.deferred_questions.find(
+      (q) =>
+        !q.eligible &&
+        questionInMessage(q.question, answer.message) &&
+        normalizeQuestion(body.message) !== normalizeQuestion(q.question),
+    );
+    if (repeatedDeferred) {
+      answer.message =
+        repeatedDeferred.reason === "stopped"
+          ? "We can leave that question here."
+          : "Let it sit with you today. We can come back to it another time.";
       answer.question = null;
+      answer.suggested_intention = null;
+      answer.discovery = null;
+      answer.memory_suggestion = null;
+      answer.why_proposal = null;
+    }
     const analytics = (preferences || []).some(
-      (e: { entry: { kind: string; meta: { analytics?: boolean } } }) =>
-        e.entry.kind === "preferences" && e.entry.meta.analytics,
+      (e: JourneyRow) =>
+        e.kind === "preferences" && e.entry.meta?.analytics === true,
     );
     if (analytics)
       await admin.from("product_events").insert({

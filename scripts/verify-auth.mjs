@@ -1,11 +1,14 @@
 import { chromium } from "playwright";
+import { expect } from "playwright/test";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 const root = process.env.UI_ARTIFACT_DIR || "test-results/auth";
-const baseURL = process.env.UI_BASE_URL || "http://localhost:8081";
+const baseURL = process.env.UI_BASE_URL || "http://localhost:4173";
 await mkdir(root, { recursive: true });
 const browser = await chromium.launch({
-  channel: process.env.PLAYWRIGHT_CHANNEL || "chrome",
+  ...(process.env.PLAYWRIGHT_EXECUTABLE_PATH
+    ? { executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH }
+    : { channel: process.env.PLAYWRIGHT_CHANNEL || "chrome" }),
   headless: true,
 });
 const context = await browser.newContext({
@@ -15,6 +18,9 @@ const context = await browser.newContext({
 const page = await context.newPage();
 const errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
+const selectedQuestion = "What do you want more of in your life?";
+const chatRequests = [];
+let successfulQuestionReply = false;
 const owner = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const user = {
   id: owner,
@@ -125,6 +131,35 @@ await context.route(
     }
     if (url.pathname === "/functions/v1/chloe") {
       chatCalls++;
+      const body = req.postDataJSON();
+      chatRequests.push(body);
+      if (successfulQuestionReply && body.message === selectedQuestion) {
+        const now = new Date().toISOString();
+        const messages = [
+          {
+            id: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+            role: "user",
+            content: selectedQuestion,
+            created_at: now,
+          },
+          {
+            id: "ffffffff-ffff-4fff-8fff-ffffffffffff",
+            role: "assistant",
+            content:
+              "Start with one ordinary moment. When did you last want a little more of it?",
+            created_at: now,
+          },
+        ];
+        account.messages.push(...messages);
+        return respond({
+          messages,
+          suggested_intention: null,
+          memory_suggestion: null,
+          discovery: null,
+          why_proposal: null,
+          question: "When did you last want a little more of it?",
+        });
+      }
       return respond(
         { code: "AI_NOT_CONFIGURED", error: "Fixture: unavailable" },
         503,
@@ -149,7 +184,7 @@ const shot = async (name) => {
 };
 try {
   await page.goto(baseURL);
-  await button("Find my sparks").waitFor();
+  await button("Find your possibilities").waitFor();
   await page.evaluate((p) => {
     localStorage.setItem("iwillbe.practice.v1.guest", JSON.stringify(p));
     localStorage.setItem(
@@ -157,7 +192,24 @@ try {
       JSON.stringify({ input: "My local unfinished thought" }),
     );
   }, local);
-  await page.goto(baseURL + "/account?returnTo=%2Fchloe&reason=chloe");
+  await page.goto(
+    baseURL +
+      "/chloe?mode=discovery&question=" +
+      encodeURIComponent(selectedQuestion),
+  );
+  await expect(page.getByText(selectedQuestion, { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("textbox", {
+      name: "DRAFT FOR CHLOE · OPTIONAL",
+      exact: true,
+    }),
+  ).toHaveValue("My local unfinished thought");
+  assert.equal(
+    chatCalls,
+    0,
+    "Selecting an Open Question must not send a draft",
+  );
+  await button("Connect and continue with Chloe").click();
   await page
     .getByRole("textbox", { name: "EMAIL", exact: true })
     .fill("fixture@example.test");
@@ -200,6 +252,17 @@ try {
     "My local unfinished thought",
   );
   assert.equal(chatCalls, 0, "Never auto-send saved draft");
+  await expect(button("Think about this question")).toBeVisible();
+  await expect(
+    button("Think about this question")
+      .locator("..")
+      .getByText(selectedQuestion, { exact: true }),
+  ).toBeVisible();
+  assert.equal(
+    new URL(page.url()).searchParams.get("question"),
+    selectedQuestion,
+    "The selected question survives authentication and the import branch",
+  );
   const state = await page.evaluate(
     (id) => ({
       guest: JSON.parse(localStorage.getItem("iwillbe.practice.v1.guest")),
@@ -219,6 +282,45 @@ try {
     "My local unfinished thought",
   );
   await shot("13-chloe-unavailable-draft-retained");
+  // Only this explicit click receives a successful mocked response. No live AI
+  // call is made, and the previously unfinished message must remain untouched.
+  successfulQuestionReply = true;
+  const callsBeforeSelection = chatCalls;
+  await button("Think about this question").click();
+  await expect(
+    page
+      .getByText(
+        "Start with one ordinary moment. When did you last want a little more of it?",
+        { exact: true },
+      )
+      .filter({ visible: true }),
+  ).toBeVisible();
+  assert.equal(chatCalls, callsBeforeSelection + 1);
+  assert.equal(chatRequests.at(-1).message, selectedQuestion);
+  assert.equal(chatRequests.at(-1).mode, "discovery");
+  await expect(
+    page.getByRole("textbox", { name: "Message Chloe", exact: true }),
+  ).toHaveValue("My local unfinished thought");
+  await expect(button("Think about this question")).toHaveCount(0);
+  assert.equal(
+    await page.evaluate(
+      (id) =>
+        JSON.parse(localStorage.getItem("iwillbe.draft.v1." + id + ".chloe"))
+          .input,
+      owner,
+    ),
+    "My local unfinished thought",
+  );
+  await page.reload();
+  await expect(
+    page.getByRole("textbox", { name: "Message Chloe", exact: true }),
+  ).toHaveValue("My local unfinished thought");
+  assert.equal(
+    chatCalls,
+    callsBeforeSelection + 1,
+    "Reloading a selected question does not send it again",
+  );
+  await shot("14-open-question-auth-draft-preserved");
   // Existing account draft and incoming guest draft both remain accessible.
   await page.evaluate(
     ({ owner, session }) => {
@@ -276,6 +378,9 @@ try {
           "return to Chloe",
           "draft resumed without auto-send",
           "AI error retains message",
+          "selected Open Question survives authentication and import",
+          "explicit question send uses its exact text without replacing the existing draft",
+          "selected question never auto-sends on open, sign-in or reload",
           "two drafts can be selected without overwrite",
         ],
       },

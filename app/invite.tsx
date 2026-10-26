@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { usePractice } from "../src/practice";
 import { entriesOf, entryInput } from "../src/journey";
-import { localDay, nextIntentionDay } from "../src/domain";
+import { nextIntentionDay } from "../src/domain";
+import { useToday } from "../src/use-today";
 import { connectionRequest } from "../src/connections";
 import { useAction } from "../src/use-action";
 import { draftKey, useDraft } from "../src/drafts";
@@ -27,13 +28,14 @@ type Invitation = {
 export default function Invite() {
   const { token } = useLocalSearchParams<{ token?: string }>();
   const { data, session, putEntry } = usePractice();
+  const today = useToday();
   const [inv, setInv] = useState<Invitation | null>(null),
     [error, setError] = useState(""),
     [done, setDone] = useState(false);
   const action = useAction();
   const { draft, update } = useDraft(
     draftKey(`invite.${token || "none"}`, session?.user.id),
-    { reply: "", nonce: Crypto.randomUUID() },
+    { reply: "", friend_name: "", nonce: Crypto.randomUUID() },
   );
   const pref = entriesOf(data, "preferences").find(
     (e) => e.title === "Comet privacy",
@@ -55,7 +57,7 @@ export default function Invite() {
   const blocked = !!inv && pref?.meta.blocks?.includes(inv.sender_key);
   const limited =
     inv?.kind === "comet" &&
-    pref?.meta.last_comet_day === localDay() &&
+    pref?.meta.last_comet_day === today &&
     pref.meta.last_comet_token !== token;
   const remember = async () => {
     await putEntry(
@@ -63,7 +65,7 @@ export default function Invite() {
         id: pref?.id,
         meta: {
           ...pref?.meta,
-          last_comet_day: localDay(),
+          last_comet_day: today,
           last_comet_token: token,
         },
       }),
@@ -96,6 +98,14 @@ export default function Invite() {
           {inv.kind === "friend" ? (
             <>
               <Field
+                label="Your name · optional"
+                placeholder="How they know you"
+                value={draft.friend_name || ""}
+                onChangeText={(friend_name) => update({ friend_name })}
+                maxLength={80}
+                autoCapitalize="words"
+              />
+              <Field
                 label="Something you think they would love"
                 multiline
                 value={draft.reply}
@@ -104,7 +114,8 @@ export default function Invite() {
               />
               <Body>
                 Your suggestion will be shared with the person who created this
-                link. They decide whether to keep it.
+                link, along with your name if you add it. They decide whether to
+                keep it as a Maybe.
               </Body>
               <Button
                 label="Send this suggestion"
@@ -116,6 +127,7 @@ export default function Invite() {
                       action: "reply",
                       token,
                       content: draft.reply,
+                      friend_name: draft.friend_name?.trim() || "",
                       nonce: draft.nonce,
                     });
                     setDone(true);
@@ -145,7 +157,7 @@ export default function Invite() {
                       pathname: "/ritual",
                       params: {
                         action: inv.message.slice(0, 500),
-                        day: nextIntentionDay(data),
+                        day: nextIntentionDay(data, today),
                       },
                     });
                   })
@@ -153,7 +165,7 @@ export default function Invite() {
               />
               <Button
                 secondary
-                label="Save it as a Spark"
+                label="Save it as a Maybe"
                 onPress={() =>
                   action.run(async () => {
                     await remember();

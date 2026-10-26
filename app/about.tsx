@@ -22,7 +22,7 @@ export default function About() {
         style={{ width: "100%", height: 260, borderRadius: 28 }}
       />
       <Button
-        label="Find my sparks"
+        label="Find your possibilities"
         onPress={() => router.push("/onboarding")}
       />
       {[

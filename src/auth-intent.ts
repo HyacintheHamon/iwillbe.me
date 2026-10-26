@@ -18,10 +18,15 @@ const destinations = [
 export function safeDestination(value?: string) {
   return destinations.find((path) => path === value) || "/";
 }
-export async function rememberAuthIntent(returnTo?: string, reason?: string) {
+export async function rememberAuthIntent(
+  returnTo?: string,
+  reason?: string,
+  question?: string,
+) {
   const intent = {
     returnTo: safeDestination(returnTo),
     reason: reason || "save",
+    question: typeof question === "string" ? question.slice(0, 500) : "",
   };
   await AsyncStorage.setItem(AUTH_INTENT_KEY, JSON.stringify(intent));
   return intent;
@@ -32,6 +37,8 @@ export async function readAuthIntent() {
   return {
     returnTo: safeDestination(intent.returnTo),
     reason: intent.reason || "save",
+    question:
+      typeof intent.question === "string" ? intent.question.slice(0, 500) : "",
   };
 }
 export async function finishAuthIntent(owner: string, returnTo: string) {

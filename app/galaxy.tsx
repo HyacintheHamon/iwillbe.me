@@ -15,10 +15,11 @@ import {
   entryInput,
   interestState,
   valueState,
+  possibilityPattern,
   type Entry,
-  type EntryKind,
 } from "../src/journey";
 import { nextIntentionDay, dayLabel } from "../src/domain";
+import { useToday } from "../src/use-today";
 import {
   Body,
   Button,
@@ -35,54 +36,80 @@ import {
   s,
 } from "../src/ui";
 const colors: Record<string, string> = {
-  Spark: "#BAB4E8",
-  Glow: "#F8DE9A",
-  Blaze: "#92BCFF",
-  Ember: "#E79980",
-  Craft: "#92BCFF",
-  Flicker: "#CDB978",
-  Steady: "#F4C96D",
-  Drift: "#AEB4C5",
+  Maybe: "#BAB4E8",
+  "Tried it": "#F8DE9A",
+  "Into it": "#92BCFF",
+  "On pause": "#E79980",
+  "All in": "#92BCFF",
+  "Trying it on": "#CDB978",
+  Mine: "#F4C96D",
+  "Let go": "#AEB4C5",
 };
-const layers: [EntryKind, string][] = [
-  ["interest", "Interests"],
+type Layer = "interest" | "value" | "strength" | "person" | "practice";
+const layers: [Layer, string][] = [
+  ["interest", "Possibilities"],
   ["value", "Values"],
   ["strength", "Strengths"],
-  ["person", "People"],
+  ["person", "People I admire"],
+  ["practice", "Practices and habits"],
 ];
 export default function Galaxy() {
   const { data, putEntry, removeEntry } = usePractice();
+  const today = useToday();
   const { width } = useWindowDimensions();
   const mapSize = Math.min(width, 430) - 48;
   const mapHeight = Math.min(mapSize, 300);
-  const [layer, setLayer] = useState<EntryKind>("interest"),
+  const [layer, setLayer] = useState<Layer>("interest"),
     [selected, setSelected] = useState<Entry | null>(null),
     [adding, setAdding] = useState(false),
     [name, setName] = useState(""),
+    [detail, setDetail] = useState(""),
     [error, setError] = useState("");
   const why = currentWhy(data);
-  const items = entriesOf(data, layer);
+  const items = entriesOf(
+    data,
+    layer === "practice" ? "interest" : layer,
+  ).filter((e) =>
+    layer === "practice"
+      ? e.meta.category === "practice"
+      : e.meta.category !== "practice",
+  );
+  const strengths = [
+    ...entriesOf(data, "strength"),
+    ...entriesOf(data, "value").filter((e) => valueState(data, e) === "Mine"),
+  ];
+  const threads = entriesOf(data, "interest")
+    .filter(
+      (e) =>
+        e.meta.category !== "practice" &&
+        !["ember", "paused"].includes(e.state),
+    )
+    .slice(0, 2);
+  const pattern = possibilityPattern(data);
   const state = (e: Entry) =>
-    e.kind === "interest"
-      ? interestState(data, e)
-      : e.kind === "value"
-        ? valueState(data, e)
-        : e.kind === "person"
-          ? "Person"
-          : "Strength";
+    e.meta.category === "practice"
+      ? "Practice"
+      : e.kind === "interest"
+        ? interestState(data, e)
+        : e.kind === "value"
+          ? valueState(data, e)
+          : e.kind === "person"
+            ? "Admired"
+            : "Strength";
   const save = async (input: Parameters<typeof putEntry>[0]) => {
     try {
       await putEntry(input);
       setSelected(null);
       setAdding(false);
       setName("");
+      setDetail("");
     } catch (e) {
       setError((e as Error).message);
     }
   };
   const moments = selected
     ? data.intentions.filter((i) =>
-        layer === "interest"
+        layer === "interest" || layer === "practice"
           ? i.interest_id
             ? i.interest_id === selected.id
             : i.interest === selected.title
@@ -90,7 +117,7 @@ export default function Galaxy() {
             ? i.value_id
               ? i.value_id === selected.id
               : i.value === selected.title
-            : i.person === selected.title,
+            : false,
       )
     : [];
   return (
@@ -118,7 +145,8 @@ export default function Galaxy() {
           day: "numeric",
         })}
       </Eyebrow>
-      <Title>Your galaxy</Title>
+      <Title>My Possibilities</Title>
+      <Eyebrow>Your why, and strengths</Eyebrow>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Open my why"
@@ -128,6 +156,26 @@ export default function Galaxy() {
           {why?.body || "Your why is still forming. Start with what draws you."}
         </Body>
       </Pressable>
+      {!why && threads.length ? (
+        <Body style={{ fontSize: 13 }}>
+          Emerging threads: {threads.map((e) => e.title).join(" · ")}
+        </Body>
+      ) : null}
+      {strengths.length ? (
+        <View style={s.wrap}>
+          {strengths.map((e) => (
+            <Chip
+              key={e.id}
+              label={e.title}
+              onPress={() => {
+                setLayer(e.kind === "value" ? "value" : "strength");
+                setSelected(e);
+              }}
+            />
+          ))}
+        </View>
+      ) : null}
+      {pattern ? <Body>{pattern}</Body> : null}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -195,8 +243,8 @@ export default function Galaxy() {
               }}
             >
               <StarFourIcon
-                size={state(e) === "Blaze" || state(e) === "Craft" ? 24 : 16}
-                weight={state(e) === "Craft" ? "duotone" : "fill"}
+                size={state(e) === "Into it" || state(e) === "All in" ? 24 : 16}
+                weight={state(e) === "All in" ? "duotone" : "fill"}
                 color={colors[state(e)] || C.gold}
               />
               <Body
@@ -215,7 +263,7 @@ export default function Galaxy() {
       </View>
       {layer === "interest" ? (
         <Body style={{ fontSize: 12, textAlign: "center" }}>
-          Spark · Glow · Blaze · Ember · Craft
+          Maybe · Tried it · Into it · On pause · All in
         </Body>
       ) : null}
       {!items.length ? (
@@ -231,10 +279,10 @@ export default function Galaxy() {
         </View>
       ) : null}
       <View style={s.wrap}>
-        <Chip label="+ Add to my galaxy" onPress={() => setAdding(true)} />
+        <Chip label="+ Add something" onPress={() => setAdding(true)} />
         <Chip label="+ Possibility" onPress={() => router.push("/explore")} />
       </View>
-      <Eyebrow>{layers.find((l) => l[0] === layer)?.[1]} · all</Eyebrow>
+      <Eyebrow>{layers.find((l) => l[0] === layer)?.[1]}</Eyebrow>
       {items.map((e) => (
         <Pressable
           key={e.id}
@@ -248,7 +296,7 @@ export default function Galaxy() {
               {state(e)}
             </Body>
           </View>
-          <Body style={{ fontSize: 12 }}>{e.source}</Body>
+          <Body style={{ fontSize: 12 }}>{e.body || e.source}</Body>
         </Pressable>
       ))}
       <TextButton
@@ -261,7 +309,7 @@ export default function Galaxy() {
         onPress={() => router.push("/connections")}
       />
       <TextButton
-        label="My telescope"
+        label="One year out and Later in life"
         onPress={() => router.push("/telescope")}
       />
       <TextButton
@@ -271,7 +319,7 @@ export default function Galaxy() {
       <Sheet
         open={adding}
         onClose={() => setAdding(false)}
-        title={`Add ${layer === "interest" ? "a spark" : layer === "person" ? "a person" : layer === "value" ? "a value" : "a strength"}`}
+        title={`Add ${layer === "interest" ? "a possibility" : layer === "person" ? "someone I admire" : layer === "value" ? "a value" : layer === "practice" ? "a practice" : "a strength"}`}
       >
         <Field
           label="Name"
@@ -281,13 +329,43 @@ export default function Galaxy() {
         />
         <Body>
           {layer === "person"
-            ? "This is someone you admire or care about. Choosing a person here does not create a shared moment."
+            ? "Keep what you admire about them next to your why."
             : "Your choice is a starting point. Your lived experience adds detail over time."}
         </Body>
+        {layer === "person" || layer === "practice" ? (
+          <Field
+            label={
+              layer === "person"
+                ? "What exactly do you admire about them?"
+                : "How does this support your why?"
+            }
+            multiline
+            value={detail}
+            onChangeText={setDetail}
+            maxLength={1000}
+          />
+        ) : null}
         <Button
-          label="Add to my galaxy"
-          disabled={!name.trim()}
-          onPress={() => save(entryInput(layer, name.trim()))}
+          label="Keep this"
+          disabled={!name.trim() || (layer === "person" && !detail.trim())}
+          onPress={() =>
+            save(
+              entryInput(
+                layer === "practice" ? "interest" : layer,
+                name.trim(),
+                {
+                  body: detail.trim(),
+                  state:
+                    layer === "interest"
+                      ? "spark"
+                      : layer === "value"
+                        ? "trying"
+                        : "active",
+                  meta: layer === "practice" ? { category: "practice" } : {},
+                },
+              ),
+            )
+          }
         />
         <Notice text={error} tone="error" />
       </Sheet>
@@ -302,10 +380,10 @@ export default function Galaxy() {
             <Body>{selected.body || selected.source}</Body>
             <Body style={{ fontSize: 13 }}>
               {layer === "interest"
-                ? "Spark: curious. Glow: you already love it, or one try lit you up. Blaze: three try-ons lit you up. Ember and Craft are choices you make. Absence never dims a star."
+                ? "Follow what draws you, try it in real life, and notice what keeps lighting you up. On pause stays part of your story."
                 : layer === "value"
-                  ? "Flicker: still exploring. Steady: chosen again in at least two reflections. Drift: your latest choice was “not mine”."
-                  : "A part of your story, without rankings or scores."}
+                  ? "Try it on, choose what feels like yours, and let go of what does not."
+                  : "A part of your story."}
             </Body>
             {moments.map((i) => (
               <View key={i.id} style={s.section}>
@@ -324,56 +402,88 @@ export default function Galaxy() {
                 />
               </View>
             ))}
-            <Button
-              label="Try this next"
-              onPress={() => {
-                setSelected(null);
-                router.push({
-                  pathname: "/ritual",
-                  params: {
-                    day: nextIntentionDay(data),
-                    [layer === "interest"
-                      ? "interest"
-                      : layer === "value"
-                        ? "value"
-                        : "person"]: selected.title,
-                  },
-                });
-              }}
-            />
+            {layer !== "person" && layer !== "strength" ? (
+              <Button
+                label="Try this next"
+                onPress={() => {
+                  setSelected(null);
+                  router.push({
+                    pathname: "/ritual",
+                    params: {
+                      day: nextIntentionDay(data, today),
+                      [layer === "interest" || layer === "practice"
+                        ? "interest"
+                        : layer === "value"
+                          ? "value"
+                          : "person"]: selected.title,
+                    },
+                  });
+                }}
+              />
+            ) : null}
             {layer === "interest" ? (
               <>
-                <Button
-                  secondary
-                  label={
-                    selected.state === "craft"
-                      ? "Return to exploring"
-                      : "Make it my craft"
-                  }
-                  onPress={() =>
-                    save({
-                      ...selected,
-                      state: selected.state === "craft" ? "spark" : "craft",
-                    })
-                  }
-                />
+                {state(selected) === "All in" ||
+                (state(selected) === "Into it" &&
+                  Date.parse(`${today}T12:00:00Z`) -
+                    Date.parse(selected.created_at) >=
+                    7 * 86400000) ? (
+                  <Button
+                    secondary
+                    label={
+                      state(selected) === "All in"
+                        ? "Return to exploring"
+                        : "Go all in"
+                    }
+                    onPress={() =>
+                      save({
+                        ...selected,
+                        state: state(selected) === "All in" ? "love" : "craft",
+                      })
+                    }
+                  />
+                ) : null}
                 <TextButton
                   label={
-                    selected.state === "ember"
-                      ? "Light this spark again"
-                      : "Let it become an ember"
+                    state(selected) === "On pause"
+                      ? "Explore this again"
+                      : "Put this on pause"
                   }
                   onPress={() =>
                     save({
                       ...selected,
-                      state: selected.state === "ember" ? "spark" : "ember",
+                      state:
+                        state(selected) === "On pause"
+                          ? selected.meta.previous_state === "craft"
+                            ? "love"
+                            : selected.meta.previous_state || "spark"
+                          : "ember",
+                      meta: {
+                        ...selected.meta,
+                        previous_state: selected.state,
+                      },
                     })
                   }
                 />
               </>
             ) : null}
+            {layer === "value" ? (
+              <TextButton
+                label={
+                  state(selected) === "Let go"
+                    ? "Try this on again"
+                    : "Let this value go"
+                }
+                onPress={() =>
+                  save({
+                    ...selected,
+                    state: state(selected) === "Let go" ? "trying" : "let_go",
+                  })
+                }
+              />
+            ) : null}
             <TextButton
-              label="Remove from my galaxy"
+              label="Remove this"
               onPress={async () => {
                 try {
                   await removeEntry(selected.id);

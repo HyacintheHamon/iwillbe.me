@@ -131,9 +131,6 @@ export default function History() {
           onPress={() => router.replace("/history")}
         />
       )}
-      <Body>
-        {items.length} {items.length === 1 ? "moment" : "moments"}
-      </Body>
       {items.map((i) => (
         <View key={i.id} style={s.card}>
           <Eyebrow>{dayLabel(i.day)}</Eyebrow>

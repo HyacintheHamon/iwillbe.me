@@ -15,7 +15,6 @@ import { recordUsage } from "./usage";
 import { supabase } from "./supabase";
 import {
   emptyPractice,
-  localDay,
   shiftDay,
   hasPractice,
   type Practice,
@@ -25,7 +24,13 @@ import {
   type Memory,
   type Message,
 } from "./domain";
-import { entryInput, type Entry, type EntryInput } from "./journey";
+import {
+  dayInZone,
+  entryInput,
+  valueState,
+  type Entry,
+  type EntryInput,
+} from "./journey";
 type Context = {
   putEntry: (input: EntryInput) => Promise<Entry>;
   removeEntry: (id: string) => Promise<void>;
@@ -279,6 +284,19 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
         created_at: prior?.created_at || now,
         updated_at: now,
       };
+      if (
+        entry.kind === "interest" &&
+        ["craft", "all_in"].includes(entry.state) &&
+        current.current.entries.filter(
+          (e) =>
+            e.id !== entry.id &&
+            e.kind === "interest" &&
+            ["craft", "all_in"].includes(e.state),
+        ).length >= 2
+      )
+        throw new Error(
+          "Keep a little room to go deeper. Return one of your All in possibilities to exploring first.",
+        );
       if (entry.title.length > 500 || entry.body.length > 6000)
         throw new Error(
           "Please keep the title under 500 and the note under 6,000 characters.",
@@ -361,11 +379,12 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
       action,
       value,
       person,
-      day = localDay(),
+      day = dayInZone(current.current.profile.timezone),
       interest = "",
       details = {},
     ) => {
-      if (![localDay(), shiftDay(localDay(), 1)].includes(day))
+      const today = dayInZone(current.current.profile.timezone);
+      if (![today, shiftDay(today, 1)].includes(day))
         throw new Error("Choose today or tomorrow for a new intention.");
       const owner = user.current;
       const existing = current.current.intentions.find((i) => i.day === day);
@@ -405,7 +424,7 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
           const now = new Date().toISOString();
           const entry: Entry = {
             ...entryInput(kind, title, {
-              state: "spark",
+              state: kind === "value" ? "trying" : "spark",
               source: "Chosen for a daily intention",
             }),
             id: newId(),
@@ -452,13 +471,57 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
         },
         owner,
       );
+      if (owner !== user.current)
+        throw new Error("Your account changed. Please try again.");
+      const chosenValue = current.current.entries.find(
+        (e) => e.kind === "value" && e.id === intention.value_id,
+      );
+      if (
+        chosenValue &&
+        valueState(current.current, chosenValue) === "Let go"
+      ) {
+        const now = new Date().toISOString();
+        const retried: Entry = {
+          ...chosenValue,
+          state: "trying",
+          updated_at: now,
+        };
+        try {
+          await write(
+            "journey_entries",
+            {
+              id: retried.id,
+              kind: retried.kind,
+              entry: retried,
+              updated_at: now,
+            },
+            "id",
+          );
+          await commit(
+            {
+              ...current.current,
+              entries: current.current.entries.map((e) =>
+                e.id === retried.id ? retried : e,
+              ),
+            },
+            owner,
+          );
+        } catch {
+          throw new Error(
+            "Your intention was saved. The value update could not finish; please retry.",
+          );
+        }
+      }
     },
     checkIn: async (input) => {
       const owner = user.current;
       const intention = current.current.intentions.find(
         (i) => i.id === input.intention_id,
       );
-      if (!intention || intention.day > localDay())
+      if (
+        !intention ||
+        intention.day > dayInZone(current.current.profile.timezone)
+      )
         throw new Error(
           "You can reflect on this intention once its day arrives.",
         );
@@ -490,6 +553,85 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
         },
         owner,
       );
+      // A nullable/skipped answer is not a new decision about the value.
+      if (
+        !intention.value ||
+        !input.value_choice ||
+        input.outcome === "not_yet"
+      )
+        return;
+      if (owner !== user.current)
+        throw new Error("Your account changed. Please try again.");
+      const existingValue = current.current.entries.find(
+        (entry) =>
+          entry.kind === "value" &&
+          (intention.value_id
+            ? entry.id === intention.value_id
+            : entry.title === intention.value),
+      );
+      const linkedIntentions = new Set(
+        current.current.intentions
+          .filter((i) =>
+            i.value_id && existingValue
+              ? i.value_id === existingValue.id
+              : i.value === intention.value,
+          )
+          .map((i) => i.id),
+      );
+      const keptChoices = current.current.checkIns.filter(
+        (c) =>
+          linkedIntentions.has(c.intention_id) &&
+          c.outcome !== "not_yet" &&
+          c.value_choice === "yes",
+      ).length;
+      const nextState =
+        input.value_choice === "not_mine"
+          ? "let_go"
+          : input.value_choice === "not_sure"
+            ? "trying"
+            : keptChoices >= 2
+              ? "mine"
+              : "trying";
+      const now = new Date().toISOString();
+      const chosenValue: Entry = {
+        ...(existingValue ||
+          entryInput("value", intention.value, {
+            source: "Chosen in a night reflection",
+          })),
+        id: existingValue?.id || intention.value_id || newId(),
+        created_at: existingValue?.created_at || now,
+        updated_at: now,
+        state: nextState,
+        source_ids: Array.from(
+          new Set([...(existingValue?.source_ids || []), intention.id]),
+        ),
+      };
+      try {
+        await write(
+          "journey_entries",
+          {
+            id: chosenValue.id,
+            kind: "value",
+            entry: chosenValue,
+            updated_at: now,
+          },
+          "id",
+        );
+        await commit(
+          {
+            ...current.current,
+            entries: [
+              ...current.current.entries.filter((e) => e.id !== chosenValue.id),
+              chosenValue,
+            ],
+          },
+          owner,
+        );
+      } catch {
+        throw new Error(
+          "Your reflection was saved. The value update could not finish; please retry.",
+        );
+      }
     },
     remember: async (content, source) => {
       const owner = user.current;
