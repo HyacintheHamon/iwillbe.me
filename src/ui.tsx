@@ -152,23 +152,27 @@ export function TextButton({
 export function Chip({
   label,
   selected,
+  disabled = false,
   onPress,
 }: {
   label: string;
   selected?: boolean;
+  disabled?: boolean;
   onPress: () => void;
 }) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ selected }}
+      accessibilityState={{ selected, disabled }}
       {...(Platform.OS === "web" && selected !== undefined
         ? { "aria-pressed": selected }
         : {})}
       accessibilityLabel={label}
+      disabled={disabled}
       onPress={onPress}
       style={[
         s.chip,
+        disabled && { opacity: 0.55 },
         selected && { borderColor: C.gold, backgroundColor: "#363044" },
       ]}
     >

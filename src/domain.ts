@@ -1,6 +1,7 @@
 import type { Entry, Energy, Planet, ValueChoice } from "./journey";
 export type Outcome = "yes" | "partly" | "not_yet";
 export type Profile = {
+  revision?: number;
   display_name: string;
   north_star: string;
   values: string[];
@@ -11,6 +12,7 @@ export type Profile = {
   evening_time: string;
 };
 export type Intention = {
+  revision?: number;
   id: string;
   day: string;
   action: string;
@@ -27,6 +29,7 @@ export type Intention = {
   created_at: string;
 };
 export type CheckIn = {
+  revision?: number;
   intention_id: string;
   outcome: Outcome;
   reflection: string;
@@ -35,6 +38,7 @@ export type CheckIn = {
   created_at: string;
 };
 export type Memory = {
+  revision?: number;
   id: string;
   content: string;
   source: string;

@@ -5,7 +5,13 @@ import { entryInput, entriesOf } from "../src/journey";
 import { setDeviceLock } from "../src/privacy-lock";
 import { usePractice } from "../src/practice";
 import { supabase } from "../src/supabase";
-import { cancelReminders, scheduleReminders } from "../src/reminders";
+import {
+  cancelReminders,
+  scheduleReminders,
+  downloadReminderCalendar,
+  phoneTimeZone,
+} from "../src/reminders";
+import { validReminderTime, validTimeZone } from "../src/reminder-calendar";
 import { INTERESTS, VALUES } from "../src/domain";
 import { draftKey, useDraft } from "../src/drafts";
 import { exportPractice } from "../src/export-practice";
@@ -32,8 +38,10 @@ export default function Settings() {
     forget,
     remember,
     clearLocal,
+    clearAccountDeviceData,
     refresh,
     putEntry,
+    reminderError,
   } = usePractice();
   const {
     draft: profile,
@@ -50,6 +58,10 @@ export default function Settings() {
     [confirmText, setConfirmText] = useState("");
   const [morning, setMorning] = useState(data.profile.morning_time),
     [evening, setEvening] = useState(data.profile.evening_time);
+  const [timezone, setTimezone] = useState(data.profile.timezone);
+  const [reminderRevision, setReminderRevision] = useState(
+    data.profile.revision ?? 0,
+  );
   const dirty = ["display_name", "north_star", "values", "interests"].some(
     (key) =>
       JSON.stringify(profile[key as keyof typeof profile]) !==
@@ -57,7 +69,7 @@ export default function Settings() {
   );
   const run = async (
     section: Section,
-    fn: () => Promise<void>,
+    fn: () => Promise<unknown>,
     success?: string,
   ) => {
     if (busy) return;
@@ -128,11 +140,13 @@ export default function Settings() {
     run("delete", async () => {
       if (confirmText !== "DELETE") return;
       if (session) {
+        const owner = session.user.id;
         const { error } = await supabase.functions.invoke("chloe", {
           body: { action: "delete_account", confirmation: "DELETE" },
         });
         if (error)
           throw new Error("Could not delete your account. Please try again.");
+        await clearAccountDeviceData(owner);
         await cancelReminders();
         const { error: signOutError } = await supabase.auth.signOut({
           scope: "local",
@@ -192,7 +206,12 @@ export default function Settings() {
             label="Lock this session"
             onPress={() =>
               run("account", async () => {
-                await supabase.auth.signOut();
+                await cancelReminders();
+                const { error } = await supabase.auth.signOut({
+                  scope: "local",
+                });
+                if (error) throw error;
+                await clearAccountDeviceData(session.user.id);
                 router.replace("/account");
               })
             }
@@ -304,15 +323,18 @@ export default function Settings() {
           onPress={() =>
             run(
               "profile",
-              () =>
-                saveProfile({
+              async () => {
+                const saved = await saveProfile({
                   ...data.profile,
+                  revision: profile.revision ?? 0,
                   display_name: profile.display_name.trim(),
                   north_star: profile.north_star.trim(),
                   values: profile.values,
                   interests: profile.interests,
                   onboarded: true,
-                }),
+                });
+                updateProfile({ revision: saved.revision });
+              },
               "Your preferences are saved.",
             )
           }
@@ -329,15 +351,77 @@ export default function Settings() {
           A gentle reminder
         </Title>
         {Platform.OS === "web" ? (
-          <Body>
-            Daily reminders are available in the iOS and Android apps. Your
-            practice works here without notifications.
-          </Body>
+          <>
+            <Body>
+              Add two gentle daily reminders to your calendar. They can reach
+              you when this page is closed, through your calendar’s
+              notifications.
+            </Body>
+            <Field
+              label="MORNING · HH:MM"
+              value={morning}
+              onChangeText={setMorning}
+              maxLength={5}
+            />
+            <Field
+              label="NIGHT · HH:MM"
+              value={evening}
+              onChangeText={setEvening}
+              maxLength={5}
+            />
+            <Field
+              label="TIMEZONE"
+              value={timezone}
+              onChangeText={setTimezone}
+              maxLength={80}
+              autoCapitalize="none"
+            />
+            <TextButton
+              label="Use this device’s timezone"
+              onPress={() => setTimezone(phoneTimeZone())}
+            />
+            <Body style={{ fontSize: 13 }}>
+              Your check-in days use this timezone too. Only the two generic
+              reminders go into the calendar; your stories and commitments stay
+              here. After importing, you can change or remove the reminders in
+              your calendar.
+            </Body>
+            <Button
+              secondary
+              label="Download my calendar reminders"
+              loading={busy === "reminders"}
+              disabled={!!busy}
+              onPress={() =>
+                run(
+                  "reminders",
+                  async () => {
+                    if (![morning, evening].every(validReminderTime))
+                      throw new Error("Use a time like 08:00 or 20:30.");
+                    if (!validTimeZone(timezone))
+                      throw new Error(
+                        "Choose a timezone such as America/New_York.",
+                      );
+                    const savedProfile = await saveProfile({
+                      ...data.profile,
+                      revision: reminderRevision,
+                      morning_time: morning,
+                      evening_time: evening,
+                      timezone,
+                    });
+                    setReminderRevision(savedProfile.revision ?? 0);
+                    downloadReminderCalendar(morning, evening, timezone);
+                  },
+                  "Open the downloaded file in your calendar and accept the reminders. Enable calendar notifications to receive them.",
+                )
+              }
+            />
+          </>
         ) : (
           <>
             <Body>
-              Choose morning and evening times on this phone. We’ll ask
-              permission when you turn reminders on.
+              Your reminders and check-in days follow this phone’s local time,
+              including when you travel. We’ll ask permission when you turn
+              reminders on.
             </Body>
             <Field
               label="MORNING · HH:MM"
@@ -360,12 +444,15 @@ export default function Settings() {
                 run(
                   "reminders",
                   async () => {
-                    await scheduleReminders(morning, evening, data);
-                    await saveProfile({
+                    const savedProfile = await saveProfile({
                       ...data.profile,
+                      revision: reminderRevision,
                       morning_time: morning,
                       evening_time: evening,
+                      timezone: phoneTimeZone(),
                     });
+                    setReminderRevision(savedProfile.revision ?? 0);
+                    await scheduleReminders(morning, evening, data);
                   },
                   "Your reminders are set on this phone.",
                 )
@@ -377,9 +464,10 @@ export default function Settings() {
                 run("reminders", cancelReminders, "Reminders are off.")
               }
             />
-            {note("reminders")}
           </>
         )}
+        {note("reminders")}
+        <Notice text={reminderError} tone="error" />
       </View>
       <View style={s.section}>
         <Title style={{ fontSize: 24, lineHeight: 30 }}>
@@ -441,6 +529,11 @@ export default function Settings() {
         />
         {session && (
           <>
+            <Body style={{ fontSize: 13 }}>
+              Signing out removes this account’s cached practice and unfinished
+              drafts from this device. Your saved account data and any separate
+              guest practice stay available.
+            </Body>
             <TextButton
               label="Refresh from my account"
               onPress={() =>
@@ -454,6 +547,7 @@ export default function Settings() {
                   await cancelReminders();
                   const { error } = await supabase.auth.signOut();
                   if (error) throw error;
+                  await clearAccountDeviceData(session.user.id);
                   router.replace("/");
                 })
               }

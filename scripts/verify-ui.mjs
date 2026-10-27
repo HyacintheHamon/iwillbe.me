@@ -126,7 +126,6 @@ try {
       { exact: true },
     ),
   ).toBeVisible();
-  await button("A few short stories").click();
   await expect(
     heading("When did time disappear on you recently?"),
   ).toBeVisible();
@@ -135,7 +134,9 @@ try {
   await page.reload();
   await expect(field("Your story")).toHaveValue("Making a bowl with a friend.");
   await button("There's a little more to this").click();
-  await expect(heading("What about it stayed with you?")).toBeVisible();
+  await expect(
+    heading("What about being together stayed with you?"),
+  ).toBeVisible();
   await field("A little more").fill(
     "We gave each other space to make something imperfect.",
   );
@@ -151,18 +152,23 @@ try {
   await button("Keep this possibility").click();
   await field("My why, in my words").fill("Make space for curiosity and care.");
   await button("Keep my first draft").click();
+  await button("Keep this person and why").click();
   await button("Try on fairness").click();
   await shot("first-possibilities");
   await button("Find my check-in rhythm").click();
   await field("My morning anchor").fill("After my first coffee");
   await button("Keep this anchor").click();
-  await field("Time · HH:MM").fill("08:15");
-  await button("Keep this time").click();
   await field("My night anchor").fill("After brushing my teeth");
   await button("Keep this anchor").click();
+  await expect(button("Choose my first I will")).toBeVisible();
+  await button("Set reminder times · optional").click();
+  await field("Time · HH:MM").fill("08:15");
+  await button("Keep this time").click();
   await field("Time · HH:MM").fill("20:45");
   await expect(
-    page.getByText(/this browser won't send a reminder/),
+    page.getByText(
+      /add the reminders to your calendar, so they work when this page is closed/,
+    ),
   ).toBeVisible();
   await button("Keep this time").click();
   await expect(button("Choose my first I will")).toBeVisible();
@@ -219,6 +225,7 @@ try {
   );
 
   await go("/rhythms");
+  await button("My focus, Meaning To and Open Questions").click();
   await button("Focus on one area").click();
   await button("Passions").click();
   await kept((practice) =>
@@ -306,7 +313,8 @@ try {
   await button("Another value matters more").click();
   await field("A VALUE TO TRY ON").fill("Courage");
   await button("Try this value on").click();
-  await button("Add a thought from today").click();
+  if (await button("Add a thought from today").isVisible())
+    await button("Add a thought from today").click();
   await field("WHAT I NOTICED").fill(
     "I enjoyed working with my hands and taking a chance.",
   );
@@ -342,18 +350,35 @@ try {
     practice.entries.some((e) => e.title === "Teaching" && e.state === "spark"),
   );
   await go("/why");
+  await button("Make a little room").click();
+  await field("One thought is enough").fill(
+    "I want to help people trust their own curiosity.",
+  );
+  await button("Keep this thought").click();
   await field("In my words").fill("Help others find their own curiosity.");
   await button("Keep this version").click();
   await expect(
-    page.getByText("Your why is saved. Earlier versions are still yours.", {
-      exact: true,
-    }),
+    heading("Would this help you choose between two options?"),
   ).toBeVisible();
+  assert.equal(
+    (await state()).entries.filter(
+      (e) => e.kind === "why" && e.state === "accepted",
+    ).length,
+    1,
+    "The practical choice test does not silently accept a new why",
+  );
+  await button("Yes, use this why").click();
+  await expect(button("Done for now")).toBeVisible();
   await kept(
     (practice) =>
       practice.entries.filter((e) => e.kind === "why" && e.state === "accepted")
         .length === 2,
   );
+  await go("/why");
+  await button("Earlier versions").click();
+  await expect(
+    page.getByText("Make space for curiosity and care.", { exact: true }),
+  ).toBeVisible();
   await shot("why-versions");
   record("Explore saves a Maybe; an edited why preserves the first version");
 
@@ -365,6 +390,18 @@ try {
   await button("People").click();
   await field("People · optional").fill("Sunday lunches with my sisters");
   await button("Keep this picture").click();
+  await expect(heading("Does this sorting feel right?")).toBeVisible();
+  assert.equal(
+    (await state()).entries.filter(
+      (e) => e.kind === "vision" && e.meta.horizon === "year",
+    ).length,
+    0,
+    "A proposed area map does not save before confirmation",
+  );
+  await button("Remove Be").click();
+  await button("Confirm these areas").click();
+  await expect(button("Done for now")).toBeVisible();
+  await go("/telescope");
   await button("Still true").click();
   await kept(
     (practice) =>
@@ -404,9 +441,13 @@ try {
     .filter((e) => e.kind === "vision" && e.meta.horizon === "year")
     .sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
   assert.equal(reaffirmed.body, "Calmer mornings and Sundays with my sisters.");
-  assert.deepEqual(reaffirmed.meta.planet_notes, {
-    People: "Sunday lunches with my sisters",
-  });
+  assert.equal(
+    reaffirmed.meta.planet_notes.People,
+    "Sunday lunches with my sisters",
+  );
+  assert.equal(reaffirmed.meta.planet_notes.Be || "", "");
+  assert.equal(reaffirmed.meta.planet_notes.Grow || "", "");
+  await go("/telescope");
   await button("Tweak it").click();
   await expect(field("The life I picture")).toHaveValue(
     "An unfinished move to another country",
@@ -433,7 +474,9 @@ try {
 
   await go("/rhythms");
   await button("Sunday Explore").click();
+  await button("My focus, Meaning To and Open Questions").click();
   await button("Let Chloe choose").click();
+  await button("Close my rhythm tools").click();
   await expect(
     heading("Here’s what I noticed about you this week"),
   ).toBeVisible();
@@ -461,6 +504,7 @@ try {
         (e) => e.title === "Weekly focus" && e.meta.focus_area === "Grow",
       ),
   );
+  await button("My focus, Meaning To and Open Questions").click();
   await field("Something I’ve been meaning to do").fill("Visit the library");
   await button("Keep it for later").click();
   const backlogCard = page
@@ -703,6 +747,7 @@ try {
     .first()
     .innerText();
   await button("I don’t know yet", questionPage).click();
+  await button("My focus, Meaning To and Open Questions", questionPage).click();
   await expect(
     questionPage.getByText(stoppedQuestion, { exact: true }),
   ).toBeVisible();

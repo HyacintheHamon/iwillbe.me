@@ -6,6 +6,7 @@ import {
   normalizeQuestion,
   questionInMessage,
   resolveResponseQuestion,
+  localContextDay,
   systemPrompt,
   MODES,
   PROMPT_VERSION,
@@ -14,6 +15,21 @@ import {
   type JourneyRow,
   type ReflectionContext,
 } from "./prompt.ts";
+import {
+  reflectionProposalSchema,
+  weeklyFocusSchema,
+  validateReflectionProposal,
+  validateWeeklyFocus,
+} from "./proposals.ts";
+import {
+  validateOnboardingInput,
+  generateOnboardingInsights,
+} from "./onboarding.ts";
+import {
+  constrainChloeReply,
+  legacyProposalInstruction,
+  schemaForProposalCapability,
+} from "./reply.ts";
 const headers = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -34,8 +50,12 @@ const schema = {
     "question",
     "why_proposal",
     "discovery",
+    "reflection_proposal",
+    "weekly_focus",
   ],
   properties: {
+    reflection_proposal: reflectionProposalSchema,
+    weekly_focus: weeklyFocusSchema,
     discovery: {
       anyOf: [
         { type: "null" },
@@ -155,11 +175,21 @@ Deno.serve(async (req: Request) => {
         );
       return json({ deleted: true });
     }
+    const onboardingInput =
+      body.action === "onboarding_insights"
+        ? validateOnboardingInput(body)
+        : null;
+    if (body.action === "onboarding_insights" && !onboardingInput)
+      return json(
+        { error: "Please keep each saved story brief and try again." },
+        400,
+      );
     if (
-      body.action !== "chat" ||
-      typeof body.message !== "string" ||
-      !body.message.trim() ||
-      body.message.length > 2000
+      body.action !== "onboarding_insights" &&
+      (body.action !== "chat" ||
+        typeof body.message !== "string" ||
+        !body.message.trim() ||
+        body.message.length > 2000)
     )
       return json(
         { error: "Please send a message of up to 2,000 characters." },
@@ -187,6 +217,15 @@ Deno.serve(async (req: Request) => {
         },
         429,
       );
+    if (onboardingInput) {
+      // This action proposes only: no story, interest, strength or why is written.
+      const insights = await generateOnboardingInsights(
+        onboardingInput,
+        apiKey,
+        Deno.env.get("ANTHROPIC_MODEL") || "claude-sonnet-5-5",
+      );
+      return json(insights);
+    }
     const mode =
       typeof body.mode === "string" && Object.hasOwn(MODES, body.mode)
         ? body.mode
@@ -317,7 +356,10 @@ Deno.serve(async (req: Request) => {
     if ((preferences || []).length >= 300)
       context.question_policy +=
         " Some older question preferences could not fit in context. Do not proactively reopen any saved question; let the user choose one.";
-    const system = systemPrompt(mode, context);
+    const proposalCards = body.proposal_cards === true;
+    const system =
+      systemPrompt(mode, context) +
+      (proposalCards ? "" : legacyProposalInstruction);
     const started = Date.now();
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -330,7 +372,12 @@ Deno.serve(async (req: Request) => {
         model: Deno.env.get("ANTHROPIC_MODEL") || "claude-sonnet-5-5",
         max_tokens: 1200,
         system,
-        output_config: { format: { type: "json_schema", schema } },
+        output_config: {
+          format: {
+            type: "json_schema",
+            schema: schemaForProposalCapability(schema, proposalCards),
+          },
+        },
         messages: [
           ...conversationHistory(
             (history || []) as HistoryMessage[],
@@ -399,6 +446,31 @@ Deno.serve(async (req: Request) => {
     )
       answer.memory_suggestion = null;
     const evidenceIds = new Set(context.evidence_ids);
+    const userSources = new Map<string, string>([
+      ...((history || []) as HistoryMessage[])
+        .filter(
+          (m) =>
+            m.role === "user" &&
+            Date.parse(m.created_at) >=
+              contextNow.getTime() - 2 * 60 * 60 * 1000 &&
+            localContextDay(profile?.timezone, new Date(m.created_at)) ===
+              context.local_day,
+        )
+        .map((m) => [m.id, m.content] as [string, string]),
+      [userMessageId, body.message.trim()],
+    ]);
+    answer.reflection_proposal = validateReflectionProposal(
+      answer.reflection_proposal,
+      mode,
+      context.today_commitment,
+      userSources,
+    );
+    answer.weekly_focus = validateWeeklyFocus(
+      answer.weekly_focus,
+      mode,
+      evidenceIds,
+      context.focus,
+    );
     const discovery = answer.discovery;
     if (
       !discovery ||
@@ -427,7 +499,11 @@ Deno.serve(async (req: Request) => {
       )
     )
       answer.why_proposal = null;
-    answer.question = resolveResponseQuestion(answer.question, answer.message);
+    answer = constrainChloeReply(
+      answer,
+      resolveResponseQuestion,
+      proposalCards,
+    );
     // Guard exact repeat violations even when the model omits its question field.
     // The user may explicitly reopen a question by selecting/typing that question.
     const repeatedDeferred = context.deferred_questions.find(
@@ -446,6 +522,8 @@ Deno.serve(async (req: Request) => {
       answer.discovery = null;
       answer.memory_suggestion = null;
       answer.why_proposal = null;
+      answer.reflection_proposal = null;
+      answer.weekly_focus = null;
     }
     const analytics = (preferences || []).some(
       (e: JourneyRow) =>
@@ -489,6 +567,8 @@ Deno.serve(async (req: Request) => {
       discovery: answer.discovery,
       question: answer.question,
       why_proposal: answer.why_proposal,
+      reflection_proposal: answer.reflection_proposal,
+      weekly_focus: answer.weekly_focus,
       prompt_version: PROMPT_VERSION,
     });
   } catch {

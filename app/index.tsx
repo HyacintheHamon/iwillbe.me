@@ -29,7 +29,7 @@ import {
   s,
 } from "../src/ui";
 export default function Today() {
-  const { data, session, error } = usePractice();
+  const { data, session, error, reminderError } = usePractice();
   const { height } = useWindowDimensions();
   const { saved } = useLocalSearchParams<{ saved?: string }>();
   const today = useToday(),
@@ -283,6 +283,15 @@ export default function Today() {
         </>
       )}
       <Notice text={error} tone="error" />
+      {reminderError ? (
+        <View style={s.card}>
+          <Notice text={reminderError} />
+          <TextButton
+            label="Check my reminders"
+            onPress={() => router.push("/settings")}
+          />
+        </View>
+      ) : null}
     </Page>
   );
 }

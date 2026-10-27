@@ -69,7 +69,7 @@ export default function Layout() {
                   {(
                     [
                       { path: "/", label: "Today", Icon: Sun },
-                      { path: "/galaxy", label: "Galaxy", Icon: Graph },
+                      { path: "/galaxy", label: "Possibilities", Icon: Graph },
                       { path: "/chloe", label: "Chloe", Icon: ChatCircle },
                     ] as const
                   ).map(({ path: to, label, Icon }) => (

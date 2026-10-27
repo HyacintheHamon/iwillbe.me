@@ -81,18 +81,22 @@ const local = {
   messages: [],
 };
 let account = {
-  profile,
+  profile: { ...profile, id: owner, revision: 1 },
   intentions: [
     {
       ...local.intentions[0],
       id: "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+      user_id: owner,
+      revision: 1,
       action: "Account intention",
     },
   ],
   checkIns: [],
   memories: [],
   messages: [],
+  entries: [],
 };
+const mutations = [];
 let importCalls = 0,
   emailCalls = 0,
   chatCalls = 0;
@@ -107,74 +111,172 @@ await context.route(
         contentType: "application/json",
         body: JSON.stringify(data),
       });
-    if (req.method() === "OPTIONS") return respond({});
-    if (url.pathname === "/auth/v1/otp") {
-      emailCalls++;
-      const body = req.postDataJSON();
-      assert.equal(body.email, "fixture@example.test");
-      assert.equal(url.searchParams.get("redirect_to"), baseURL + "/account");
-      return respond({});
-    }
-    if (url.pathname === "/auth/v1/token") return respond(session);
-    if (url.pathname === "/auth/v1/user") return respond(user);
-    if (url.pathname === "/auth/v1/logout") return respond({});
-    if (url.pathname === "/rest/v1/rpc/import_local_practice") {
-      importCalls++;
-      assert.deepEqual(
-        req.postDataJSON().practice.intentions,
-        local.intentions,
-      );
-      if (importCalls === 1)
-        return respond({ message: "Fixture offline" }, 503);
-      account.intentions.push(local.intentions[1]);
-      return respond({ imported: 1, skipped_days: [today] });
-    }
-    if (url.pathname === "/functions/v1/chloe") {
-      chatCalls++;
-      const body = req.postDataJSON();
-      chatRequests.push(body);
-      if (successfulQuestionReply && body.message === selectedQuestion) {
-        const now = new Date().toISOString();
-        const messages = [
-          {
-            id: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
-            role: "user",
-            content: selectedQuestion,
-            created_at: now,
-          },
-          {
-            id: "ffffffff-ffff-4fff-8fff-ffffffffffff",
-            role: "assistant",
-            content:
-              "Start with one ordinary moment. When did you last want a little more of it?",
-            created_at: now,
-          },
-        ];
-        account.messages.push(...messages);
-        return respond({
-          messages,
-          suggested_intention: null,
-          memory_suggestion: null,
-          discovery: null,
-          why_proposal: null,
-          question: "When did you last want a little more of it?",
-        });
+    const represented = (rows) =>
+      req.headers().accept?.includes("application/vnd.pgrst.object+json")
+        ? (rows[0] ?? null)
+        : rows;
+    try {
+      if (req.method() === "OPTIONS") return respond({});
+      if (url.pathname === "/auth/v1/otp") {
+        emailCalls++;
+        const body = req.postDataJSON();
+        assert.equal(body.email, "fixture@example.test");
+        assert.equal(url.searchParams.get("redirect_to"), baseURL + "/account");
+        return respond({});
       }
+      if (url.pathname === "/auth/v1/token") return respond(session);
+      if (url.pathname === "/auth/v1/user") return respond(user);
+      if (url.pathname === "/auth/v1/logout") return respond({});
+      if (url.pathname === "/rest/v1/rpc/import_local_practice") {
+        importCalls++;
+        assert.deepEqual(
+          req.postDataJSON().practice.intentions,
+          local.intentions,
+        );
+        if (importCalls === 1)
+          return respond({ message: "Fixture offline" }, 503);
+        account.intentions.push({
+          ...local.intentions[1],
+          user_id: owner,
+          revision: 1,
+        });
+        return respond({ imported: 1, skipped_days: [today] });
+      }
+      if (url.pathname === "/functions/v1/chloe") {
+        chatCalls++;
+        const body = req.postDataJSON();
+        chatRequests.push(body);
+        if (successfulQuestionReply && body.message === selectedQuestion) {
+          const now = new Date().toISOString();
+          const messages = [
+            {
+              id: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+              role: "user",
+              content: selectedQuestion,
+              created_at: now,
+            },
+            {
+              id: "ffffffff-ffff-4fff-8fff-ffffffffffff",
+              role: "assistant",
+              content:
+                "Start with one ordinary moment. When did you last want a little more of it?",
+              created_at: now,
+            },
+          ];
+          account.messages.push(...messages);
+          return respond({
+            messages,
+            suggested_intention: null,
+            memory_suggestion: null,
+            discovery: null,
+            why_proposal: null,
+            question: "When did you last want a little more of it?",
+          });
+        }
+        return respond(
+          { code: "AI_NOT_CONFIGURED", error: "Fixture: unavailable" },
+          503,
+        );
+      }
+      const table = url.pathname.split("/").pop();
+      const fields = {
+        intentions: "intentions",
+        check_ins: "checkIns",
+        memories: "memories",
+        journey_entries: "entries",
+        messages: "messages",
+      };
+      assert(
+        table === "profiles" || Object.hasOwn(fields, table),
+        `Unexpected network request ${req.method()} ${url.pathname}`,
+      );
+      const rows =
+        table === "profiles" ? [account.profile] : account[fields[table]];
+      const matches = (row) =>
+        [...url.searchParams].every(([key, value]) => {
+          if (["select", "order", "limit", "offset"].includes(key)) return true;
+          assert(value.startsWith("eq."), `Unsupported filter ${key}=${value}`);
+          return String(row[key]) === value.slice(3);
+        });
+      if (req.method() === "GET")
+        return respond(represented(rows.filter(matches)));
+      const method = req.method(),
+        key = table === "check_ins" ? "intention_id" : "id";
+      assert(["POST", "PATCH", "DELETE"].includes(method));
+      assert(
+        req.headers().prefer?.includes("return=representation"),
+        "CAS writes must return their saved revision",
+      );
+      assert(
+        !req.headers().prefer?.includes("resolution=merge-duplicates"),
+        "This fixture must not hide an unconditional upsert",
+      );
+      const payload = method === "DELETE" ? null : req.postDataJSON();
+      const attempt = {
+        table,
+        method,
+        payload,
+        saved: false,
+        revision: url.searchParams.get("revision"),
+      };
+      mutations.push(attempt);
+      if (payload) {
+        assert(!Object.hasOwn(payload, "revision"));
+        assert.equal(
+          table === "profiles" ? payload.id : payload.user_id,
+          owner,
+        );
+        if (payload.entry) assert(!Object.hasOwn(payload.entry, "revision"));
+      }
+      const replaceRows = (next) => {
+        if (table === "profiles") account.profile = next[0];
+        else account[fields[table]] = next;
+      };
+      if (method === "POST") {
+        if (
+          rows.some(
+            (row) =>
+              row[key] === payload[key] ||
+              (table === "intentions" && row.day === payload.day),
+          )
+        )
+          return respond(
+            { code: "23505", message: "Synthetic unique constraint" },
+            409,
+          );
+        const saved = { ...payload, revision: 1 };
+        replaceRows([...rows, saved]);
+        attempt.saved = true;
+        return respond(represented([saved]), 201);
+      }
+      assert.match(attempt.revision || "", /^eq\.[1-9]\d*$/);
+      assert.equal(
+        url.searchParams.get(table === "profiles" ? "id" : "user_id"),
+        `eq.${owner}`,
+      );
+      assert(url.searchParams.has(key));
+      const matched = rows.filter(matches);
+      if (!matched.length) return respond([]);
+      assert.equal(matched.length, 1);
+      attempt.saved = true;
+      if (method === "DELETE") {
+        replaceRows(rows.filter((row) => row !== matched[0]));
+        return respond(represented(matched));
+      }
+      const saved = {
+        ...matched[0],
+        ...payload,
+        revision: matched[0].revision + 1,
+      };
+      replaceRows(rows.map((row) => (row === matched[0] ? saved : row)));
+      return respond(represented([saved]));
+    } catch (error) {
+      errors.push(`${req.method()} ${url.pathname}: ${String(error)}`);
       return respond(
-        { code: "AI_NOT_CONFIGURED", error: "Fixture: unavailable" },
-        503,
+        { code: "FIXTURE_UNEXPECTED", message: String(error) },
+        500,
       );
     }
-    const table = url.pathname.split("/").pop();
-    if (table === "profiles") return respond(account.profile);
-    if (table === "intentions") return respond(account.intentions);
-    if (table === "check_ins") return respond(account.checkIns);
-    if (table === "memories") return respond(account.memories);
-    if (table === "journey_entries") return respond([]);
-    if (table === "messages") return respond(account.messages);
-    throw new Error(
-      "Unexpected network request " + req.method() + " " + url.pathname,
-    );
   },
 );
 const button = (name) => page.getByRole("button", { name, exact: true });

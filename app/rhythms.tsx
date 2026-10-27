@@ -20,7 +20,9 @@ import { shiftDay } from "../src/domain";
 import { useToday } from "../src/use-today";
 import { useAction } from "../src/use-action";
 import { draftKey, useDraft } from "../src/drafts";
+import { weeklyPossibility } from "../src/guidance";
 import { POSSIBILITIES } from "../src/catalog";
+import { isUnreadyAnswer } from "../src/onboarding";
 import {
   Body,
   Button,
@@ -55,9 +57,17 @@ function RhythmForm({
   const monthly = mode === "monthly";
   const period = monthly ? `moon:${today.slice(0, 7)}` : weekPeriod(today);
   const prior = entriesOf(data, "review").find((e) => e.meta.period === period);
+  const [question] = useState(() => nextWhyQuestion(data, today));
+  const priorThought = entriesOf(data, "story").find(
+    (e) => e.title === question && e.meta.period === period,
+  );
+  const priorFocus = entriesOf(data, "preferences").find(
+    (e) => e.title === "Weekly focus",
+  );
   const action = useAction();
   const [message, setMessage] = useState(""),
     [backlog, setBacklog] = useState("");
+  const [showTools, setShowTools] = useState(false);
   const { draft, update, ready, draftError } = useDraft(
     draftKey(`brief.review.${period}`, session?.user.id),
     {
@@ -65,6 +75,12 @@ function RhythmForm({
       note: prior?.body || "",
       focus: suggestedPlanet(data, shiftDay(today, 1)),
       picture: "",
+      storyId: priorThought?.id || "",
+      storyRevision: priorThought?.revision ?? 0,
+      reviewId: prior?.id || "",
+      reviewRevision: prior?.revision ?? 0,
+      focusId: priorFocus?.id || "",
+      focusRevision: priorFocus?.revision ?? 0,
     },
   );
   const notices = weeklyNotices(data, today);
@@ -73,30 +89,7 @@ function RhythmForm({
   );
   const year = currentVision(data, "year");
   const why = currentWhy(data);
-  const [question] = useState(() => nextWhyQuestion(data, today));
-  const lived = data.intentions
-    .filter(
-      (i) =>
-        i.day <= today &&
-        data.checkIns.some(
-          (c) =>
-            c.intention_id === i.id &&
-            c.outcome !== "not_yet" &&
-            c.energy === "lit",
-        ),
-    )
-    .sort((a, b) => b.day.localeCompare(a.day))[0];
-  const sourcePossibility = POSSIBILITIES.find(
-    (item) => item.title === lived?.interest,
-  );
-  const suggestion =
-    sourcePossibility &&
-    (POSSIBILITIES.find(
-      (item) =>
-        sourcePossibility.related.includes(item.id) &&
-        !entriesOf(data, "interest").some((e) => e.title === item.title),
-    ) ||
-      sourcePossibility);
+  const suggestion = weeklyPossibility(data, today, POSSIBILITIES);
   const saveSeason = (
     pace: "stay" | "vary" | "guide",
     orbit: Planet = season?.meta.orbit || "Be",
@@ -111,7 +104,11 @@ function RhythmForm({
     });
   const saveQuestion = (skip = false) =>
     action.run(async () => {
-      if (skip || !draft.note.trim()) {
+      let savedStory = {
+        storyId: draft.storyId,
+        storyRevision: draft.storyRevision,
+      };
+      if (skip || isUnreadyAnswer(draft.note)) {
         const existing = entriesOf(data, "question").find(
           (e) => e.title === question,
         );
@@ -132,22 +129,32 @@ function RhythmForm({
         const existing = entriesOf(data, "story").find(
           (e) => e.title === question && e.meta.period === period,
         );
-        await putEntry(
+        const story = await putEntry(
           entryInput("story", question || "A thought from Sunday", {
-            id: existing?.id,
+            id: draft.storyId || existing?.id,
+            revision: draft.storyRevision,
             body: draft.note.trim(),
             source: "Sunday Explore · in your words",
             meta: { period },
           }),
         );
+        savedStory = { storyId: story.id, storyRevision: story.revision ?? 0 };
       }
-      update({ step: 2 });
+      update({
+        ...savedStory,
+        step: 2,
+        focus:
+          suggestion?.planet && suggestion.planet !== "Surprise"
+            ? suggestion.planet
+            : draft.focus,
+      });
     });
   const finish = () =>
     action.run(async () => {
-      await putEntry(
+      const review = await putEntry(
         entryInput("review", monthly ? "Monthly check-in" : "Sunday Explore", {
-          id: prior?.id,
+          id: draft.reviewId || prior?.id,
+          revision: draft.reviewRevision,
           body: draft.note.trim(),
           state: "done",
           source: "A private reflection",
@@ -155,18 +162,30 @@ function RhythmForm({
           meta: { period, version: 2 },
         }),
       );
+      update({ reviewId: review.id, reviewRevision: review.revision ?? 0 });
+      let savedFocus = {
+        focusId: draft.focusId,
+        focusRevision: draft.focusRevision,
+      };
       if (!monthly) {
         const focus = entriesOf(data, "preferences").find(
           (e) => e.title === "Weekly focus",
         );
-        await putEntry(
+        const saved = await putEntry(
           entryInput("preferences", "Weekly focus", {
-            id: focus?.id,
+            id: draft.focusId || focus?.id,
+            revision: draft.focusRevision,
             meta: { focus_area: draft.focus, focus_until: shiftDay(today, 7) },
           }),
         );
+        savedFocus = { focusId: saved.id, focusRevision: saved.revision ?? 0 };
       }
-      update({ step: 3 });
+      update({
+        step: 3,
+        reviewId: review.id,
+        reviewRevision: review.revision ?? 0,
+        ...savedFocus,
+      });
       setMessage("Saved privately. Take it with you into the week.");
     });
   const revisit = whyRevisitDue(data, today);
@@ -261,10 +280,7 @@ function RhythmForm({
                       label="See this moment"
                       onPress={() =>
                         router.push(
-                          notice.sourceId === lived?.id ||
-                            data.intentions.some(
-                              (i) => i.id === notice.sourceId,
-                            )
+                          data.intentions.some((i) => i.id === notice.sourceId)
                             ? {
                                 pathname: "/history",
                                 params: { id: notice.sourceId },
@@ -323,15 +339,13 @@ function RhythmForm({
             <View style={s.card}>
               <Eyebrow>{suggestion.title}</Eyebrow>
               <Body>
-                {sourcePossibility?.title} lit you up.{" "}
-                {suggestion.title === sourcePossibility?.title
-                  ? "There may be more to explore there."
-                  : `This is another way into ${sourcePossibility?.domain.toLowerCase()}.`}
+                {suggestion.reason}{" "}
+                {suggestion.title !== suggestion.sourceTitle
+                  ? `${suggestion.title} is a nearby possibility to try.`
+                  : "There may be more to explore there."}
               </Body>
               <Body>{suggestion.first}</Body>
-              <Body style={{ fontSize: 13 }}>
-                {suggestion.time} · {suggestion.cost}
-              </Body>
+              <Body style={{ fontSize: 13 }}>{suggestion.details}</Body>
               <TextButton
                 label="Keep this as a Maybe"
                 onPress={() =>
@@ -345,8 +359,9 @@ function RhythmForm({
                         entryInput("interest", suggestion.title, {
                           state: "spark",
                           body: suggestion.description,
-                          source: `Sunday Explore · connected to ${sourcePossibility?.title}`,
-                          source_ids: lived ? [lived.id] : [],
+                          source: `Sunday Explore · connected to ${suggestion.sourceTitle}`,
+                          source_ids: suggestion.sourceIds,
+                          meta: { planet: suggestion.planet },
                         }),
                       );
                     setMessage("Kept in your Possibilities.");
@@ -361,6 +376,7 @@ function RhythmForm({
                     params: {
                       action: suggestion.first,
                       interest: suggestion.title,
+                      planet: suggestion.planet,
                     },
                   })
                 }
@@ -390,6 +406,16 @@ function RhythmForm({
                     />
                   ))}
                 </View>
+              ) : null}
+              {notices.length > 1 ? (
+                <TextButton
+                  label={
+                    why
+                      ? "See what this brings to my why"
+                      : "Give my why a little shape"
+                  }
+                  onPress={() => router.push("/why")}
+                />
               ) : null}
             </>
           ) : (
@@ -423,6 +449,39 @@ function RhythmForm({
             loading={action.busy}
             onPress={finish}
           />
+          <TextButton
+            label={
+              monthly
+                ? "Talk through this month with Chloe"
+                : "Keep exploring with Chloe"
+            }
+            onPress={() =>
+              router.push({
+                pathname: "/chloe",
+                params: {
+                  mode: monthly ? "fullmoon" : "sunday",
+                  question: monthly
+                    ? "Help me look at what still feels true in my life this month."
+                    : "Help me explore one possibility connected to what lit me up this week.",
+                },
+              })
+            }
+          />
+          {!monthly &&
+          (!currentVision(data, "year") || !currentVision(data, "life")) ? (
+            <TextButton
+              label="If I have a moment: picture my future"
+              onPress={() => router.push("/telescope")}
+            />
+          ) : null}
+          {!monthly &&
+          Math.floor(Date.parse(`${today}T12:00:00Z`) / (7 * 86400000)) % 4 ===
+            0 ? (
+            <TextButton
+              label="Ask a friend what they think I’d love"
+              onPress={() => router.push("/connections")}
+            />
+          ) : null}
         </>
       ) : null}
       {ready && draft.step === 3 ? (
@@ -442,202 +501,219 @@ function RhythmForm({
       />
       <TextButton
         label={
-          monthly
-            ? "Talk through this month with Chloe"
-            : "Keep exploring with Chloe"
+          showTools
+            ? "Close my rhythm tools"
+            : "My focus, Meaning To and Open Questions"
         }
-        onPress={() =>
-          router.push({
-            pathname: "/chloe",
-            params: { mode: monthly ? "fullmoon" : "sunday" },
-          })
-        }
+        onPress={() => setShowTools(!showTools)}
       />
-      {!currentVision(data, "year") || !currentVision(data, "life") ? (
-        <View style={s.card}>
-          <Eyebrow>If you have a moment</Eyebrow>
-          <Body>
-            One year out and Later in life can give your days a direction.
-            There’s no hurry.
-          </Body>
+      {showTools ? (
+        <>
           <TextButton
-            label="Look a little further"
+            label={
+              monthly
+                ? "Talk through this month with Chloe"
+                : "Keep exploring with Chloe"
+            }
+            onPress={() =>
+              router.push({
+                pathname: "/chloe",
+                params: { mode: monthly ? "fullmoon" : "sunday" },
+              })
+            }
+          />
+          {!currentVision(data, "year") || !currentVision(data, "life") ? (
+            <View style={s.card}>
+              <Eyebrow>If you have a moment</Eyebrow>
+              <Body>
+                One year out and Later in life can give your days a direction.
+                There’s no hurry.
+              </Body>
+              <TextButton
+                label="Look a little further"
+                onPress={() => router.push("/telescope")}
+              />
+            </View>
+          ) : null}
+          {draft.step === 3 ? (
+            <TextButton
+              label="Ask a friend: What do you think I’d love?"
+              onPress={() => router.push("/connections")}
+            />
+          ) : null}
+          <View style={s.section}>
+            <Eyebrow>My focus</Eyebrow>
+            <Body>Choose how your mornings begin.</Body>
+            <View style={s.wrap}>
+              {(
+                [
+                  ["stay", "Focus on one area"],
+                  ["vary", "Rotate areas"],
+                  ["guide", "Let Chloe choose"],
+                ] as const
+              ).map(([pace, label]) => (
+                <Chip
+                  key={pace}
+                  label={label}
+                  selected={(season?.meta.pace || "guide") === pace}
+                  onPress={() => saveSeason(pace)}
+                />
+              ))}
+            </View>
+            {season?.meta.pace === "stay" ? (
+              <View style={s.wrap}>
+                {PLANETS.slice(0, 5).map((area) => (
+                  <Chip
+                    key={area}
+                    label={area}
+                    selected={season.meta.orbit === area}
+                    onPress={() => saveSeason("stay", area)}
+                  />
+                ))}
+              </View>
+            ) : null}
+          </View>
+          <View style={s.section}>
+            <Eyebrow>Meaning To</Eyebrow>
+            <Body>Room for another day. Letting it go is a choice too.</Body>
+            <Field
+              label="Something I’ve been meaning to do"
+              value={backlog}
+              onChangeText={setBacklog}
+              maxLength={500}
+            />
+            <Button
+              secondary
+              label="Keep it for later"
+              disabled={!backlog.trim()}
+              onPress={() =>
+                action.run(async () => {
+                  await putEntry(
+                    entryInput("backlog", backlog.trim(), {
+                      state: "open",
+                      meta: { passes: 0 },
+                    }),
+                  );
+                  setBacklog("");
+                })
+              }
+            />
+            {entriesOf(data, "backlog")
+              .filter((e) => e.state === "open")
+              .map((e) => (
+                <View key={e.id} style={s.card}>
+                  <Body>{e.title}</Body>
+                  {(e.meta.passes || 0) >= 3 ||
+                  Date.parse(`${today}T12:00:00Z`) - Date.parse(e.created_at) >=
+                    14 * 86400000 ? (
+                    <Body>Do it this week, or let it go?</Body>
+                  ) : null}
+                  <TextButton
+                    label="Do this today"
+                    onPress={() =>
+                      router.push({
+                        pathname: "/ritual",
+                        params: { action: e.title, backlog: e.id },
+                      })
+                    }
+                  />
+                  <View style={s.wrap}>
+                    <Chip
+                      label="Done"
+                      onPress={() =>
+                        action.run(async () => {
+                          await putEntry({ ...e, state: "done" });
+                        })
+                      }
+                    />
+                    <Chip
+                      label="Release it"
+                      onPress={() =>
+                        action.run(async () => {
+                          await putEntry({ ...e, state: "released" });
+                          setMessage("Letting it go is a choice too.");
+                        })
+                      }
+                    />
+                    <Chip
+                      label="Not now"
+                      onPress={() =>
+                        action.run(async () => {
+                          await putEntry({
+                            ...e,
+                            meta: {
+                              ...e.meta,
+                              passes: (e.meta.passes || 0) + 1,
+                            },
+                          });
+                        })
+                      }
+                    />
+                  </View>
+                </View>
+              ))}
+            {entriesOf(data, "backlog")
+              .filter((e) => ["done", "released"].includes(e.state))
+              .slice(-5)
+              .map((e) => (
+                <Body key={e.id} style={{ fontSize: 13 }}>
+                  {e.title} · {e.state === "done" ? "Done" : "Released"}
+                </Body>
+              ))}
+          </View>
+          <View style={s.section}>
+            <Eyebrow>Open Questions</Eyebrow>
+            <Body>
+              Let these sit with you. Chloe may offer one another day, never
+              twice in a row.
+            </Body>
+            {entriesOf(data, "question")
+              .filter((e) => !["stopped", "answered"].includes(e.state))
+              .map((e) => (
+                <View key={e.id} style={s.card}>
+                  <Body>{e.title}</Body>
+                  <TextButton
+                    label="Think about this with Chloe"
+                    onPress={() =>
+                      router.push({
+                        pathname: "/chloe",
+                        params: { question: e.title, mode: "discovery" },
+                      })
+                    }
+                  />
+                  <TextButton
+                    label="Stop asking this"
+                    onPress={() =>
+                      action.run(async () => {
+                        await putEntry({ ...e, state: "stopped" });
+                      })
+                    }
+                  />
+                  <TextButton
+                    label="Remove this question"
+                    onPress={() =>
+                      action.run(async () => {
+                        await removeEntry(e.id);
+                      })
+                    }
+                  />
+                </View>
+              ))}
+          </View>
+          <TextButton
+            label="One year out and Later in life"
             onPress={() => router.push("/telescope")}
           />
-        </View>
+        </>
       ) : null}
-      {draft.step === 3 ? (
+      {showTools ? (
         <TextButton
-          label="Ask a friend: What do you think I’d love?"
-          onPress={() => router.push("/connections")}
-        />
-      ) : null}
-      <View style={s.section}>
-        <Eyebrow>My focus</Eyebrow>
-        <Body>Choose how your mornings begin.</Body>
-        <View style={s.wrap}>
-          {(
-            [
-              ["stay", "Focus on one area"],
-              ["vary", "Rotate areas"],
-              ["guide", "Let Chloe choose"],
-            ] as const
-          ).map(([pace, label]) => (
-            <Chip
-              key={pace}
-              label={label}
-              selected={(season?.meta.pace || "guide") === pace}
-              onPress={() => saveSeason(pace)}
-            />
-          ))}
-        </View>
-        {season?.meta.pace === "stay" ? (
-          <View style={s.wrap}>
-            {PLANETS.slice(0, 5).map((area) => (
-              <Chip
-                key={area}
-                label={area}
-                selected={season.meta.orbit === area}
-                onPress={() => saveSeason("stay", area)}
-              />
-            ))}
-          </View>
-        ) : null}
-      </View>
-      <View style={s.section}>
-        <Eyebrow>Meaning To</Eyebrow>
-        <Body>Room for another day. Letting it go is a choice too.</Body>
-        <Field
-          label="Something I’ve been meaning to do"
-          value={backlog}
-          onChangeText={setBacklog}
-          maxLength={500}
-        />
-        <Button
-          secondary
-          label="Keep it for later"
-          disabled={!backlog.trim()}
+          label="A big change in my life · revisit my why"
           onPress={() =>
-            action.run(async () => {
-              await putEntry(
-                entryInput("backlog", backlog.trim(), {
-                  state: "open",
-                  meta: { passes: 0 },
-                }),
-              );
-              setBacklog("");
-            })
+            router.push({ pathname: "/why", params: { revisit: "true" } })
           }
         />
-        {entriesOf(data, "backlog")
-          .filter((e) => e.state === "open")
-          .map((e) => (
-            <View key={e.id} style={s.card}>
-              <Body>{e.title}</Body>
-              {(e.meta.passes || 0) >= 3 ||
-              Date.parse(`${today}T12:00:00Z`) - Date.parse(e.created_at) >=
-                14 * 86400000 ? (
-                <Body>Do it this week, or let it go?</Body>
-              ) : null}
-              <TextButton
-                label="Do this today"
-                onPress={() =>
-                  router.push({
-                    pathname: "/ritual",
-                    params: { action: e.title, backlog: e.id },
-                  })
-                }
-              />
-              <View style={s.wrap}>
-                <Chip
-                  label="Done"
-                  onPress={() =>
-                    action.run(async () => {
-                      await putEntry({ ...e, state: "done" });
-                    })
-                  }
-                />
-                <Chip
-                  label="Release it"
-                  onPress={() =>
-                    action.run(async () => {
-                      await putEntry({ ...e, state: "released" });
-                      setMessage("Letting it go is a choice too.");
-                    })
-                  }
-                />
-                <Chip
-                  label="Not now"
-                  onPress={() =>
-                    action.run(async () => {
-                      await putEntry({
-                        ...e,
-                        meta: { ...e.meta, passes: (e.meta.passes || 0) + 1 },
-                      });
-                    })
-                  }
-                />
-              </View>
-            </View>
-          ))}
-        {entriesOf(data, "backlog")
-          .filter((e) => ["done", "released"].includes(e.state))
-          .slice(-5)
-          .map((e) => (
-            <Body key={e.id} style={{ fontSize: 13 }}>
-              {e.title} · {e.state === "done" ? "Done" : "Released"}
-            </Body>
-          ))}
-      </View>
-      <View style={s.section}>
-        <Eyebrow>Open Questions</Eyebrow>
-        <Body>
-          Let these sit with you. Chloe may offer one another day, never twice
-          in a row.
-        </Body>
-        {entriesOf(data, "question")
-          .filter((e) => !["stopped", "answered"].includes(e.state))
-          .map((e) => (
-            <View key={e.id} style={s.card}>
-              <Body>{e.title}</Body>
-              <TextButton
-                label="Think about this with Chloe"
-                onPress={() =>
-                  router.push({
-                    pathname: "/chloe",
-                    params: { question: e.title, mode: "discovery" },
-                  })
-                }
-              />
-              <TextButton
-                label="Stop asking this"
-                onPress={() =>
-                  action.run(async () => {
-                    await putEntry({ ...e, state: "stopped" });
-                  })
-                }
-              />
-              <TextButton
-                label="Remove this question"
-                onPress={() =>
-                  action.run(async () => {
-                    await removeEntry(e.id);
-                  })
-                }
-              />
-            </View>
-          ))}
-      </View>
-      <TextButton
-        label="One year out and Later in life"
-        onPress={() => router.push("/telescope")}
-      />
-      <TextButton
-        label="A big change in my life · revisit my why"
-        onPress={() =>
-          router.push({ pathname: "/why", params: { revisit: "true" } })
-        }
-      />
+      ) : null}
     </Page>
   );
 }

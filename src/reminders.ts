@@ -2,19 +2,46 @@ import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import type { Practice } from "./domain";
-import { localDay } from "./domain";
+import { reminderCalendar, validReminderTime } from "./reminder-calendar";
+
 const KEY = "iwillbe.reminders.v2";
 let pending: Promise<void> = Promise.resolve();
+let generation = 0;
+let lastSchedule = "";
+export const phoneTimeZone = () =>
+  Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+export async function reminderTimezone() {
+  return Platform.OS !== "web" && (await AsyncStorage.getItem(KEY))
+    ? phoneTimeZone()
+    : null;
+}
+export function downloadReminderCalendar(
+  morning: string,
+  evening: string,
+  timezone: string,
+) {
+  if (Platform.OS !== "web")
+    throw new Error("Calendar download is available in your browser.");
+  const contents = reminderCalendar({ morning, evening, timezone });
+  const url = URL.createObjectURL(
+    new Blob([contents], { type: "text/calendar;charset=utf-8" }),
+  );
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "iwillbe-check-in-reminders.ics";
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 export async function scheduleReminders(
   morning: string,
   evening: string,
   practice?: Practice,
 ) {
+  const requestedGeneration = generation;
   if (Platform.OS === "web")
-    throw new Error("Reminders are available in the iOS and Android app.");
-  for (const time of [morning, evening])
-    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time))
-      throw new Error("Use a time like 08:00 or 20:30.");
+    throw new Error("Add these reminders to your calendar from Settings.");
+  if (![morning, evening].every(validReminderTime))
+    throw new Error("Use a time like 08:00 or 20:30.");
   if (Platform.OS === "android")
     await Notifications.setNotificationChannelAsync("rituals", {
       name: "Your daily rituals",
@@ -25,64 +52,107 @@ export async function scheduleReminders(
     throw new Error(
       "Allow notifications in your phone settings to receive reminders.",
     );
-  await AsyncStorage.setItem(KEY, JSON.stringify({ morning, evening }));
-  await syncReminders(practice);
-}
-export function syncReminders(practice?: Practice) {
-  if (Platform.OS === "web") return Promise.resolve();
   pending = pending
     .catch(() => {})
     .then(async () => {
+      if (requestedGeneration !== generation)
+        throw new Error(
+          "Reminders were turned off. You can turn them back on in Settings.",
+        );
+      await AsyncStorage.setItem(
+        KEY,
+        JSON.stringify({ morning, evening, policy: "phone-local" }),
+      );
+    });
+  await pending;
+  if (requestedGeneration !== generation) return;
+  lastSchedule = "";
+  await syncReminders(practice);
+}
+export function syncReminders(_practice?: Practice) {
+  if (Platform.OS === "web") return Promise.resolve();
+  const requestedGeneration = generation;
+  pending = pending
+    .catch(() => {})
+    .then(async () => {
+      if (requestedGeneration !== generation) return;
       const stored = await AsyncStorage.getItem(KEY);
       if (!stored) return;
       const { morning, evening } = JSON.parse(stored);
+      if (![morning, evening].every(validReminderTime))
+        throw new Error("Check your reminder times in Settings.");
+      const permission = await Notifications.getPermissionsAsync();
+      if (!permission.granted)
+        throw new Error(
+          "Reminders are paused. Allow notifications in your phone settings to turn them back on.",
+        );
+      const fingerprint = `${morning}/${evening}/${phoneTimeZone()}`;
+      if (fingerprint === lastSchedule) {
+        const scheduled =
+          await Notifications.getAllScheduledNotificationsAsync();
+        if (
+          ["/ritual", "/reflect"].every((url) =>
+            scheduled.some((item) => item.content.data?.url === url),
+          )
+        )
+          return;
+      }
       await Notifications.cancelAllScheduledNotificationsAsync();
-      for (let offset = 0; offset < 14; offset++)
+      if (requestedGeneration !== generation) return;
+      try {
         for (const [time, title, body, url] of [
           [
             morning,
-            "A little more you.",
-            "Make room for one small thing today.",
+            "A little room for today",
+            "One small commitment, then back to your day.",
             "/ritual",
           ],
           [
             evening,
-            "A moment to look back.",
-            "Did it light you up?",
+            "A moment to look back",
+            "A short reflection, when it helps.",
             "/reflect",
           ],
         ]) {
-          const when = new Date();
-          when.setDate(when.getDate() + offset);
           const [hour, minute] = time.split(":").map(Number);
-          when.setHours(hour, minute, 0, 0);
-          if (when.getTime() <= Date.now()) continue;
-          const intention = practice?.intentions.find(
-            (i) => i.day === localDay(when),
-          );
-          if (url === "/ritual" && intention) continue;
-          if (
-            url === "/reflect" &&
-            intention &&
-            practice?.checkIns.some((c) => c.intention_id === intention.id)
-          )
-            continue;
           await Notifications.scheduleNotificationAsync({
             content: { title, body, data: { url } },
-            trigger: {
-              type: Notifications.SchedulableTriggerInputTypes.DATE,
-              date: when,
-              channelId: "rituals",
-            },
+            trigger:
+              Platform.OS === "ios"
+                ? {
+                    type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+                    hour,
+                    minute,
+                    repeats: true,
+                  }
+                : {
+                    type: Notifications.SchedulableTriggerInputTypes.DAILY,
+                    hour,
+                    minute,
+                    channelId: "rituals",
+                  },
           });
         }
+        if (requestedGeneration !== generation)
+          await Notifications.cancelAllScheduledNotificationsAsync();
+        else lastSchedule = fingerprint;
+      } catch (error) {
+        lastSchedule = "";
+        await Notifications.cancelAllScheduledNotificationsAsync();
+        throw error;
+      }
     });
   return pending;
 }
 export async function cancelReminders() {
-  if (Platform.OS !== "web") {
-    await AsyncStorage.removeItem(KEY);
-    await pending.catch(() => {});
-    await Notifications.cancelAllScheduledNotificationsAsync();
-  }
+  generation += 1;
+  lastSchedule = "";
+  if (Platform.OS === "web") return;
+  pending = pending
+    .catch(() => {})
+    .then(async () => {
+      await AsyncStorage.removeItem(KEY);
+      await Notifications.cancelAllScheduledNotificationsAsync();
+    });
+  await pending;
 }

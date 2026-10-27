@@ -16,6 +16,7 @@ import {
   interestState,
   valueState,
   possibilityPattern,
+  allInEligible,
   type Entry,
 } from "../src/journey";
 import { nextIntentionDay, dayLabel } from "../src/domain";
@@ -424,10 +425,7 @@ export default function Galaxy() {
             {layer === "interest" ? (
               <>
                 {state(selected) === "All in" ||
-                (state(selected) === "Into it" &&
-                  Date.parse(`${today}T12:00:00Z`) -
-                    Date.parse(selected.created_at) >=
-                    7 * 86400000) ? (
+                allInEligible(data, selected, today) ? (
                   <Button
                     secondary
                     label={

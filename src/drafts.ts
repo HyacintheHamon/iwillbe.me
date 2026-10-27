@@ -1,21 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createDraftStore } from "./draft-store";
 
 export const draftKey = (name: string, owner?: string) =>
   `iwillbe.draft.v1.${owner || "guest"}.${name}`;
-const pending = new Map<string, Promise<unknown>>();
-function enqueue(key: string, write: () => Promise<unknown>) {
-  const operation = (pending.get(key) || Promise.resolve())
-    .catch(() => {})
-    .then(write);
-  pending.set(key, operation);
-  return operation;
-}
+const store = createDraftStore(AsyncStorage);
+export const clearOwnerDrafts = (owner: string) => store.clearOwner(owner);
 // Writes and removal share a queue, so navigating away cannot resurrect a saved draft.
 export function useDraft<T>(key: string, initial: T) {
   const initialRef = useRef(initial);
   const active = useRef(true);
+  const lease = useRef({ key, token: store.lease(key) });
   const [state, setState] = useState({ key, value: initial, ready: false });
+  const latest = useRef({ key, value: initial });
+  const edits = useRef(0);
   const [error, setError] = useState("");
   useEffect(() => {
     initialRef.current = initial;
@@ -23,21 +21,33 @@ export function useDraft<T>(key: string, initial: T) {
   useEffect(() => {
     let mounted = true;
     active.current = true;
+    lease.current = { key, token: store.lease(key) };
+    const token = lease.current.token;
+    const editAtStart = edits.current;
     void (async () => {
       try {
-        await pending.get(key);
-        const saved = await AsyncStorage.getItem(key);
-        if (mounted)
-          setState({
+        const saved = await store.read(key, token);
+        if (
+          mounted &&
+          store.valid(key, token) &&
+          edits.current === editAtStart
+        ) {
+          const restored = {
             key,
             value: saved
               ? { ...initialRef.current, ...JSON.parse(saved) }
               : initialRef.current,
             ready: true,
-          });
+          };
+          latest.current = restored;
+          setState(restored);
+          setError("");
+        }
       } catch {
-        if (mounted) {
-          setState({ key, value: initialRef.current, ready: true });
+        if (mounted && edits.current === editAtStart) {
+          const restored = { key, value: initialRef.current, ready: true };
+          latest.current = restored;
+          setState(restored);
           setError("Your draft could not be restored on this device.");
         }
       }
@@ -47,20 +57,32 @@ export function useDraft<T>(key: string, initial: T) {
     };
   }, [key]);
   const update = (patch: Partial<T>) => {
-    const value = { ...state.value, ...patch };
+    // An async reply can finish after account switch or deletion. Its closure
+    // belongs to the old key and must not replace the new screen's draft.
+    if (
+      !active.current ||
+      lease.current.key !== key ||
+      !store.valid(key, lease.current.token)
+    )
+      return;
+    const previous =
+      latest.current.key === key ? latest.current.value : initialRef.current;
+    const value = { ...previous, ...patch };
+    latest.current = { key, value };
+    edits.current += 1;
     setState({ key, value, ready: true });
-    if (active.current)
-      void enqueue(key, () =>
-        AsyncStorage.setItem(key, JSON.stringify(value)),
-      ).catch(() =>
-        setError(
-          "Your draft could not be saved on this device. Keep this page open.",
-        ),
-      );
+    if (active.current && lease.current.key === key)
+      void store
+        .write(key, JSON.stringify(value), lease.current.token)
+        .catch(() =>
+          setError(
+            "Your draft could not be saved on this device. Keep this page open.",
+          ),
+        );
   };
   const clear = async () => {
     active.current = false;
-    await enqueue(key, () => AsyncStorage.removeItem(key));
+    await store.clear(key);
   };
   return {
     draft: state.value,

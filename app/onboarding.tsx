@@ -1,11 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Image, Platform, View } from "react-native";
 import { router } from "expo-router";
+import * as Crypto from "expo-crypto";
 import { usePractice } from "../src/practice";
+import { supabase } from "../src/supabase";
 import {
   entryInput,
   entriesOf,
   currentWhy,
+  interestState,
   type EntryInput,
 } from "../src/journey";
 import { POSSIBILITIES, SPARK_ART } from "../src/catalog";
@@ -23,7 +26,11 @@ import {
   s,
 } from "../src/ui";
 import { draftKey, useDraft } from "../src/drafts";
-import { scheduleReminders } from "../src/reminders";
+import {
+  scheduleReminders,
+  downloadReminderCalendar,
+  phoneTimeZone,
+} from "../src/reminders";
 import {
   FIRST_SESSION_STORIES,
   GROWTH_QUESTION,
@@ -31,56 +38,127 @@ import {
   MORNING_ANCHOR_QUESTION,
   EVENING_ANCHOR_QUESTION,
   firstSessionStep,
+  firstSessionQuestionAvailable,
+  previousFirstSessionStep,
   isUnreadyAnswer,
   pickObservation,
   quickPickState,
+  shouldOfferStoryFollowUp,
+  storyBody,
+  storyFollowUp,
   suggestedFirstValue,
   validCheckInTime,
 } from "../src/onboarding";
-
-const FOLLOW_UP = "What about it stayed with you?";
+import {
+  proposalKey,
+  storyProposals,
+  validatedOnboardingInsights,
+  type OnboardingInsights,
+  type OnboardingProposal,
+} from "../src/onboarding-insights";
+import {
+  legacyPickOwnership,
+  pickKey,
+  pickSource,
+  quickPickChanges,
+  type PickSnapshot,
+} from "../src/onboarding-picks";
 
 export default function Onboarding() {
-  const { data, session, putEntry, saveProfile } = usePractice();
+  const { data, session, putEntry, removeEntry, saveProfile } = usePractice();
+  const [sessionSeed] = useState(() => Crypto.randomUUID());
   const anchors = entriesOf(data, "preferences").find(
     (e) => e.title === "Check-in anchors",
   );
-  const { draft, update, ready, draftError } = useDraft(
-    draftKey("discovery", session?.user.id),
-    {
-      flowVersion: 0,
-      step: 0,
-      cursor: 0,
-      sort: {} as Record<string, string>,
-      stories: ["", "", ""],
-      followUps: ["", "", ""],
-      followUp: false,
-      growth: "",
-      why: currentWhy(data)?.body || "",
-      value: "",
-      morningAnchor: anchors?.meta.morning_anchor || "",
-      eveningAnchor: anchors?.meta.evening_anchor || "",
-      morningTime: data.profile.morning_time,
-      eveningTime: data.profile.evening_time,
+  const {
+    draft,
+    update: storeDraft,
+    ready,
+    draftError,
+  } = useDraft(draftKey("discovery", session?.user.id), {
+    flowVersion: 0,
+    flowSession: "",
+    allocatedIds: {} as Record<string, string>,
+    pickSnapshots: {} as Record<string, PickSnapshot>,
+    legacyPicks: [] as { card: string; id: string; updated_at: string }[],
+    step: 0,
+    cursor: 0,
+    sort: {} as Record<string, string>,
+    stories: ["", "", ""],
+    followUps: ["", "", ""],
+    followUpQuestions: ["", "", ""],
+    keptFollowUps: [false, false, false],
+    followUp: false,
+    automaticFollowUpOffered: false,
+    growth: "",
+    why: currentWhy(data)?.body || "",
+    value: "",
+    morningAnchor: anchors?.meta.morning_anchor || "",
+    eveningAnchor: anchors?.meta.evening_anchor || "",
+    morningTime: data.profile.morning_time,
+    eveningTime: data.profile.evening_time,
+    reminderTimesChosen: false,
+    insights: { proposals: [], follow_up: null } as OnboardingInsights,
+    insightSources: "",
+    dismissedProposals: [] as string[],
+  });
+  const draftRef = useRef(draft);
+  useEffect(() => {
+    draftRef.current = draft;
+  }, [draft]);
+  const update = useCallback(
+    (change: Partial<typeof draft>) => {
+      const next = { ...draftRef.current, ...change };
+      draftRef.current = next;
+      storeDraft(next);
     },
+    [storeDraft],
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [remindersSet, setRemindersSet] = useState(false);
+  const [insightsBusy, setInsightsBusy] = useState(false);
+  const alive = useRef(true);
+  const owner = useRef(session?.user.id);
+  useEffect(() => {
+    owner.current = session?.user.id;
+  }, [session?.user.id]);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
   const latest = useRef(data);
   useEffect(() => {
     latest.current = data;
   }, [data]);
-  const savedIds = useRef(new Map<string, string>());
   const inFlight = useRef(false);
   useEffect(() => {
-    if (ready && draft.flowVersion !== 2)
+    if (ready && draft.flowVersion !== 3)
       update({
-        flowVersion: 2,
+        flowVersion: 3,
+        flowSession: draft.flowSession || sessionSeed,
         step: firstSessionStep(draft.flowVersion, draft.step),
+        legacyPicks: legacyPickOwnership({
+          cards: POSSIBILITIES,
+          choices: draft.sort,
+          entries: data.entries,
+          onboarded: data.profile.onboarded,
+          used: data.intentions,
+        }),
       });
-  }, [ready, draft.flowVersion, draft.step, update]);
+  }, [
+    ready,
+    draft.flowVersion,
+    draft.flowSession,
+    draft.step,
+    draft.sort,
+    data,
+    sessionSeed,
+    update,
+  ]);
   const run = async (work: () => Promise<void>) => {
     if (inFlight.current) return;
     inFlight.current = true;
@@ -97,19 +175,26 @@ export default function Onboarding() {
       setBusy(false);
     }
   };
+  const allocatedId = (key: string) => {
+    const saved = draftRef.current.allocatedIds[key];
+    if (saved) return saved;
+    const id = Crypto.randomUUID();
+    update({ allocatedIds: { ...draftRef.current.allocatedIds, [key]: id } });
+    return id;
+  };
   const saveEntry = async (input: EntryInput, uniqueBody = false) => {
     const key = `${input.kind}:${input.title}${uniqueBody ? `:${input.body}` : ""}`;
-    const prior = latest.current.entries.find(
-      (entry) =>
-        entry.kind === input.kind &&
-        entry.title === input.title &&
-        (!uniqueBody || entry.body === input.body),
+    const prior = latest.current.entries.find((entry) =>
+      input.id
+        ? entry.id === input.id
+        : entry.kind === input.kind &&
+          entry.title === input.title &&
+          (!uniqueBody || entry.body === input.body),
     );
     const saved = await putEntry({
       ...input,
-      id: prior?.id || savedIds.current.get(key),
+      id: input.id || prior?.id || allocatedId(`entry:${key}`),
     });
-    savedIds.current.set(key, saved.id);
     latest.current = {
       ...latest.current,
       entries: [
@@ -119,7 +204,11 @@ export default function Onboarding() {
     };
     return saved;
   };
-  const leaveOpen = async (question: string) => {
+  const leaveOpen = async (
+    question: string,
+    context = "",
+    sourceIds: string[] = [],
+  ) => {
     const prior = entriesOf(latest.current, "question").find(
       (e) => e.title === question,
     );
@@ -128,7 +217,10 @@ export default function Onboarding() {
         entryInput("question", question, {
           state: "open",
           source: "First session · left open",
+          body: context || prior?.body || "",
+          source_ids: sourceIds.length ? sourceIds : prior?.source_ids || [],
           meta: {
+            ...prior?.meta,
             last_asked_at: new Date().toISOString(),
             last_asked_session: "first-session",
           },
@@ -152,30 +244,111 @@ export default function Onboarding() {
   const observation = pickObservation(
     chosen.map((p) => ({ title: p.title, choice: draft.sort[p.id] })),
   );
+  const savedStories = FIRST_SESSION_STORIES.map((question) =>
+    entriesOf(data, "story").find((entry) => entry.title === question),
+  );
+  const storyInputs = FIRST_SESSION_STORIES.map((question, index) => ({
+    question,
+    answer: savedStories[index]?.body || "",
+  }));
+  const storyFingerprint = JSON.stringify(storyInputs);
+  const proposals = [
+    ...(draft.insightSources === storyFingerprint
+      ? draft.insights.proposals
+      : []),
+    ...storyProposals(storyInputs),
+  ]
+    .filter(
+      (proposal, index, all) =>
+        all.findIndex(
+          (item) =>
+            item.kind === proposal.kind &&
+            item.title.toLowerCase() === proposal.title.toLowerCase(),
+        ) === index,
+    )
+    .slice(0, 4);
+  const pendingProposals = proposals.filter(
+    (proposal) =>
+      !draft.dismissedProposals.includes(proposalKey(proposal)) &&
+      !data.entries.some(
+        (entry) =>
+          entry.kind === proposal.kind &&
+          entry.title.toLowerCase() === proposal.title.toLowerCase(),
+      ),
+  );
+  const nextProposal = pendingProposals[0];
   const valueSuggestion = suggestedFirstValue(
-    entriesOf(data, "story").map((entry) => entry.body),
+    [],
     chosen.some((p) => draft.sort[p.id] === "curious"),
   );
+  const fallbackValue =
+    !proposals.some((proposal) => proposal.kind === "value") &&
+    valueSuggestion &&
+    !entriesOf(data, "value").some((entry) => entry.title === valueSuggestion)
+      ? valueSuggestion
+      : null;
   const storyIndex = draft.step - 3;
   const storyQuestion = FIRST_SESSION_STORIES[storyIndex];
+  const followUpQuestion =
+    draft.followUpQuestions[storyIndex] ||
+    storyFollowUp(storyIndex, draft.stories[storyIndex] || "");
   const savePicks = () =>
     run(async () => {
-      for (const item of chosen) {
+      for (const legacy of draftRef.current.legacyPicks) {
+        const entry = latest.current.entries.find(
+          (item) => item.id === legacy.id,
+        );
         if (
-          entriesOf(latest.current, "interest").some(
-            (e) => e.title === item.title,
-          )
+          !entry ||
+          entry.updated_at !== legacy.updated_at ||
+          entry.meta.onboarding_session
         )
           continue;
-        await saveEntry(
+        const saved = await saveEntry({
+          ...entry,
+          meta: {
+            ...entry.meta,
+            onboarding_session: draftRef.current.flowSession,
+            onboarding_key: pickKey(legacy.card),
+          },
+        });
+        update({
+          pickSnapshots: {
+            ...draftRef.current.pickSnapshots,
+            [legacy.card]: { id: saved.id, updated_at: saved.updated_at },
+          },
+        });
+      }
+      update({ legacyPicks: [] });
+      const changes = quickPickChanges({
+        cards: POSSIBILITIES,
+        choices: draftRef.current.sort,
+        entries: latest.current.entries,
+        session: draftRef.current.flowSession,
+        snapshots: draftRef.current.pickSnapshots,
+        used: latest.current.intentions,
+      });
+      for (const change of changes) {
+        const item = change.card;
+        if (change.operation === "remove") {
+          await removeEntry(change.entry!.id);
+          latest.current = {
+            ...latest.current,
+            entries: latest.current.entries.filter(
+              (entry) => entry.id !== change.entry!.id,
+            ),
+          };
+          continue;
+        }
+        const saved = await saveEntry(
           entryInput("interest", item.title, {
-            state: quickPickState(draft.sort[item.id])!,
-            source:
-              draft.sort[item.id] === "love"
-                ? "Already love · chosen by you"
-                : "Quick picks · curious",
+            id: change.entry?.id || allocatedId(pickKey(item.id)),
+            state: change.state!,
+            source: pickSource(change.state!),
             body: item.description,
             meta: {
+              onboarding_session: draftRef.current.flowSession,
+              onboarding_key: pickKey(item.id),
               planet:
                 item.domain === "Helping"
                   ? "Causes"
@@ -185,23 +358,52 @@ export default function Onboarding() {
             },
           }),
         );
+        update({
+          pickSnapshots: {
+            ...draftRef.current.pickSnapshots,
+            [item.id]: { id: saved.id, updated_at: saved.updated_at },
+          },
+        });
       }
-      go(2);
+      go(3);
     });
-  const saveStory = (skip = false) =>
+  const saveStory = (skip = false, dropDetail = false) =>
     run(async () => {
       const answer = draft.stories[storyIndex]?.trim() || "";
       if (skip || isUnreadyAnswer(answer)) await leaveOpen(storyQuestion);
       else {
-        const detail = draft.followUps[storyIndex]?.trim();
-        await saveEntry(
+        const detail = draft.followUps[storyIndex]?.trim() || "";
+        const keepDetail =
+          !dropDetail && (draft.followUp || draft.keptFollowUps[storyIndex]);
+        const saved = await saveEntry(
           entryInput("story", storyQuestion, {
-            body: `${answer}${detail && !isUnreadyAnswer(detail) ? `\n\n${FOLLOW_UP}\n${detail}` : ""}`,
+            body: storyBody(answer, detail, followUpQuestion, keepDetail),
             source: "First session · in your words",
           }),
         );
         await resolveQuestion(storyQuestion);
         setNotice("");
+        if (draft.followUp) {
+          const keptFollowUps = [...draftRef.current.keptFollowUps];
+          keptFollowUps[storyIndex] = keepDetail && !isUnreadyAnswer(detail);
+          const followUps = [...draftRef.current.followUps];
+          if (!keptFollowUps[storyIndex]) {
+            followUps[storyIndex] = "";
+            await leaveOpen(followUpQuestion, `About: ${answer}`, [saved.id]);
+          } else await resolveQuestion(followUpQuestion);
+          update({ keptFollowUps, followUps });
+        } else if (
+          shouldOfferStoryFollowUp(answer, draft.automaticFollowUpOffered)
+        ) {
+          const followUpQuestions = [...draftRef.current.followUpQuestions];
+          followUpQuestions[storyIndex] = storyFollowUp(storyIndex, answer);
+          update({
+            followUp: true,
+            followUpQuestions,
+            automaticFollowUpOffered: true,
+          });
+          return;
+        }
       }
       update({ step: draft.step + 1, followUp: false });
     });
@@ -251,6 +453,138 @@ export default function Onboarding() {
       }
       update({ step: 8 });
     });
+  const keepProposal = (proposal: OnboardingProposal) =>
+    run(async () => {
+      const valid = validatedOnboardingInsights(
+        { proposals: [proposal] },
+        storyInputs,
+      ).proposals[0];
+      if (!valid)
+        throw new Error(
+          "This clue changed with your story. Please look at it again.",
+        );
+      const existing = latest.current.entries.find(
+        (entry) =>
+          entry.kind === valid.kind &&
+          entry.title.toLowerCase() === valid.title.toLowerCase(),
+      );
+      if (!existing) {
+        const key = `proposal:${proposalKey(valid)}`;
+        await saveEntry(
+          entryInput(valid.kind, valid.title, {
+            id: allocatedId(key),
+            body: valid.body,
+            state:
+              valid.kind === "interest"
+                ? "tried"
+                : valid.kind === "value"
+                  ? "trying"
+                  : "active",
+            source: "First session · a clue you chose to keep",
+            source_ids: Array.from(
+              new Set(
+                valid.evidence
+                  .map((piece) => savedStories[piece.story_index]?.id)
+                  .filter((id): id is string => !!id),
+              ),
+            ),
+            meta: {
+              onboarding_session: draftRef.current.flowSession,
+              onboarding_key: key,
+              ...(valid.kind === "interest"
+                ? { planet: "Passions" as const }
+                : {}),
+            },
+          }),
+        );
+      }
+      if (valid.kind === "value") update({ value: valid.title });
+      setNotice(
+        valid.kind === "person"
+          ? "Kept with the people you admire."
+          : valid.kind === "strength"
+            ? "Kept with your strengths."
+            : valid.kind === "value"
+              ? "A value to try on."
+              : "Kept in your Possibilities.",
+      );
+    });
+  const askForInsights = async () => {
+    if (!session || insightsBusy || busy) return;
+    const requestOwner = session.user.id;
+    const requestSources = storyFingerprint;
+    setInsightsBusy(true);
+    setError("");
+    try {
+      const { data: response, error: requestError } =
+        await supabase.functions.invoke("chloe", {
+          body: {
+            action: "onboarding_insights",
+            stories: storyInputs,
+            picks: chosen.map((pick) => ({
+              title: pick.title,
+              choice: draft.sort[pick.id],
+            })),
+            growth: entriesOf(data, "interest").find(
+              (entry) =>
+                entry.title === draft.growth.trim() &&
+                entry.source === "Something you want to grow into",
+            )?.title,
+          },
+        });
+      if (requestError) throw requestError;
+      if (!alive.current || owner.current !== requestOwner) return;
+      const currentStories = FIRST_SESSION_STORIES.map((question) => ({
+        question,
+        answer:
+          entriesOf(latest.current, "story").find(
+            (entry) => entry.title === question,
+          )?.body || "",
+      }));
+      if (JSON.stringify(currentStories) !== requestSources) return;
+      const insights = validatedOnboardingInsights(response, storyInputs);
+      if (
+        insights.follow_up &&
+        !firstSessionQuestionAvailable(
+          latest.current,
+          insights.follow_up.question,
+        )
+      )
+        insights.follow_up = null;
+      update({ insights, insightSources: requestSources });
+      setNotice(
+        insights.proposals.length
+          ? "Keep only what feels true to you."
+          : "Nothing needs a label yet. Your stories are kept.",
+      );
+    } catch {
+      if (alive.current && owner.current === requestOwner)
+        setError(
+          "Chloe couldn't look just now. Your stories are saved, and you can keep going.",
+        );
+    } finally {
+      if (alive.current && owner.current === requestOwner)
+        setInsightsBusy(false);
+    }
+  };
+  const keepFollowUpQuestion = () =>
+    run(async () => {
+      const followUp = draft.insights.follow_up;
+      if (
+        !followUp ||
+        draft.insightSources !== storyFingerprint ||
+        !firstSessionQuestionAvailable(latest.current, followUp.question)
+      )
+        return;
+      await leaveOpen(
+        followUp.question,
+        `About: ${storyInputs[followUp.story_index].answer}`,
+        savedStories[followUp.story_index]
+          ? [savedStories[followUp.story_index]!.id]
+          : [],
+      );
+      update({ insights: { ...draftRef.current.insights, follow_up: null } });
+    });
   const saveValue = () =>
     run(async () => {
       if (
@@ -286,12 +620,9 @@ export default function Onboarding() {
         await resolveQuestion(question);
         setNotice("");
       }
-      if (which === "evening" && unanswered)
+      if (which === "evening")
         await saveProfile({ ...latest.current.profile, onboarded: true });
-      update({
-        step:
-          which === "morning" ? (unanswered ? 11 : 10) : unanswered ? 13 : 12,
-      });
+      update({ step: which === "morning" ? 11 : 13 });
     });
   const saveTime = (which: "morning" | "evening", skip = false) =>
     run(async () => {
@@ -303,9 +634,19 @@ export default function Onboarding() {
         ...(skip ? {} : { [`${which}_time`]: time }),
         ...(which === "evening" ? { onboarded: true } : {}),
       });
-      go(which === "morning" ? 11 : 13);
+      if (!skip) update({ reminderTimesChosen: true });
+      go(which === "morning" ? 12 : 13);
     });
-  if (!ready || draft.flowVersion !== 2)
+  const summaryInterests = entriesOf(data, "interest")
+    .filter((entry) => !["ember", "paused", "on_pause"].includes(entry.state))
+    .slice(0, 2);
+  const confirmedThreads = data.entries.filter(
+    (entry) =>
+      entry.meta.onboarding_session === draft.flowSession &&
+      entry.meta.onboarding_key?.startsWith("proposal:") &&
+      entry.kind !== "interest",
+  );
+  if (!ready || draft.flowVersion !== 3)
     return (
       <ActivityIndicator accessibilityLabel="Restoring your first session" />
     );
@@ -318,7 +659,7 @@ export default function Onboarding() {
           onBack={() => {
             if (busy) return;
             if (draft.followUp) update({ followUp: false });
-            else if (draft.step > 0) go(draft.step - 1);
+            else if (draft.step > 0) go(previousFirstSessionStep(draft.step));
             else router.replace("/");
           }}
         />
@@ -359,6 +700,9 @@ export default function Onboarding() {
       {draft.step === 1 && (
         <>
           <Eyebrow>Quick picks · What could I love?</Eyebrow>
+          <Body style={{ fontSize: 13 }}>
+            Pick what draws you. Continue whenever you have a starting point.
+          </Body>
           {card ? (
             <>
               <Image
@@ -369,6 +713,7 @@ export default function Onboarding() {
               <Body>{card.description}</Body>
               <Button
                 label="Curious"
+                disabled={busy}
                 onPress={() =>
                   update({
                     sort: { ...draft.sort, [card.id]: "curious" },
@@ -379,6 +724,7 @@ export default function Onboarding() {
               <Button
                 secondary
                 label="Already love"
+                disabled={busy}
                 onPress={() =>
                   update({
                     sort: { ...draft.sort, [card.id]: "love" },
@@ -389,6 +735,7 @@ export default function Onboarding() {
               <TextButton
                 label="Not for me"
                 onPress={() =>
+                  !busy &&
                   update({
                     sort: { ...draft.sort, [card.id]: "pass" },
                     cursor: draft.cursor + 1,
@@ -407,6 +754,7 @@ export default function Onboarding() {
               <Chip
                 label="Undo last choice"
                 onPress={() => {
+                  if (busy) return;
                   const sort = { ...draft.sort };
                   delete sort[POSSIBILITIES[draft.cursor - 1].id];
                   update({ sort, cursor: draft.cursor - 1 });
@@ -416,7 +764,7 @@ export default function Onboarding() {
             {card && (
               <Chip
                 label="Skip this card"
-                onPress={() => update({ cursor: draft.cursor + 1 })}
+                onPress={() => !busy && update({ cursor: draft.cursor + 1 })}
               />
             )}
           </View>
@@ -431,24 +779,17 @@ export default function Onboarding() {
           </Body>
         </>
       )}
-      {draft.step === 2 && (
-        <>
-          <Eyebrow>Your first clues</Eyebrow>
-          <Title>A little of what draws you in.</Title>
-          <Body>{observation}</Body>
-          <Body>
-            Curious becomes Maybe. What you already love starts as Into it.
-          </Body>
-          <Button label="A few short stories" onPress={() => go(3)} />
-        </>
-      )}
       {storyQuestion && (
         <>
+          {storyIndex === 0 && !draft.followUp ? (
+            <Body style={{ fontSize: 14 }}>{observation}</Body>
+          ) : null}
           <Eyebrow>Short stories · Who am I?</Eyebrow>
-          <Title>{draft.followUp ? FOLLOW_UP : storyQuestion}</Title>
+          <Title>{draft.followUp ? followUpQuestion : storyQuestion}</Title>
           <Field
             label={draft.followUp ? "A little more" : "Your story"}
             multiline
+            editable={!busy}
             placeholder="A few words are enough."
             maxLength={2000}
             value={
@@ -470,14 +811,26 @@ export default function Onboarding() {
             !isUnreadyAnswer(draft.stories[storyIndex] || "") && (
               <TextButton
                 label="There's a little more to this"
-                onPress={() => update({ followUp: true })}
+                onPress={() => {
+                  if (busy) return;
+                  const followUpQuestions = [...draft.followUpQuestions];
+                  followUpQuestions[storyIndex] = storyFollowUp(
+                    storyIndex,
+                    draft.stories[storyIndex],
+                  );
+                  update({
+                    followUp: true,
+                    followUpQuestions,
+                    automaticFollowUpOffered: true,
+                  });
+                }}
               />
             )}
           <TextButton
             label={
               draft.followUp ? "Keep just my story" : "I don't know yet · skip"
             }
-            onPress={() => saveStory(!draft.followUp)}
+            onPress={() => saveStory(!draft.followUp, draft.followUp)}
           />
         </>
       )}
@@ -541,46 +894,137 @@ export default function Onboarding() {
           <View style={s.card}>
             <Eyebrow>My why</Eyebrow>
             <Body>{currentWhy(data)?.body || "Still forming"}</Body>
+            {!currentWhy(data) && summaryInterests.length ? (
+              <Body style={{ fontSize: 13 }}>
+                Emerging threads:{" "}
+                {summaryInterests.map((entry) => entry.title).join(" · ")}
+              </Body>
+            ) : null}
           </View>
-          {chosen.slice(0, 5).map((item) => (
-            <View key={item.id} style={s.card}>
-              <Body>{item.title}</Body>
+          {summaryInterests.length ? (
+            <View style={s.card}>
+              <Eyebrow>A little room to explore</Eyebrow>
+              {summaryInterests.map((entry) => (
+                <Body key={entry.id}>
+                  {entry.title} · {interestState(data, entry)}
+                </Body>
+              ))}
+              <TextButton
+                label="See all my Possibilities"
+                onPress={() => router.push("/galaxy")}
+              />
+            </View>
+          ) : null}
+          {confirmedThreads.length ? (
+            <Body style={{ fontSize: 14 }}>
+              Kept from your stories:{" "}
+              {confirmedThreads.map((entry) => entry.title).join(" · ")}
+            </Body>
+          ) : null}
+          {nextProposal ? (
+            <View style={s.card}>
               <Eyebrow>
-                {draft.sort[item.id] === "love" ? "Into it" : "Maybe"}
+                {nextProposal.kind === "person"
+                  ? "Someone you admire"
+                  : nextProposal.kind === "strength"
+                    ? "A possible strength"
+                    : nextProposal.kind === "value"
+                      ? "A value to try on"
+                      : "From your stories"}
               </Eyebrow>
+              <Title style={{ fontSize: 24, lineHeight: 31 }}>
+                {nextProposal.title}
+              </Title>
+              <Body>{nextProposal.body}</Body>
+              <Body style={{ fontSize: 13 }}>
+                From “
+                {nextProposal.evidence[0].quote.length > 180
+                  ? `${nextProposal.evidence[0].quote.slice(0, 177)}…`
+                  : nextProposal.evidence[0].quote}
+                ”
+              </Body>
+              <Button
+                label={
+                  nextProposal.kind === "value"
+                    ? `Try on ${nextProposal.title.toLowerCase()}`
+                    : nextProposal.kind === "strength"
+                      ? "Keep this strength"
+                      : nextProposal.kind === "person"
+                        ? "Keep this person and why"
+                        : "Keep this possibility"
+                }
+                loading={busy}
+                onPress={() => keepProposal(nextProposal)}
+              />
+              <TextButton
+                label="Pass on this clue"
+                onPress={() => {
+                  if (busy) return;
+                  update({
+                    dismissedProposals: [
+                      ...draftRef.current.dismissedProposals,
+                      proposalKey(nextProposal),
+                    ],
+                  });
+                  setNotice("");
+                }}
+              />
             </View>
-          ))}
-          {entriesOf(data, "interest").some(
-            (entry) => entry.title === draft.growth.trim(),
-          ) && (
+          ) : savedStories.some(Boolean) ? (
+            <Body style={{ fontSize: 14 }}>
+              Your stories stay here, even without a label.
+            </Body>
+          ) : null}
+          {fallbackValue && (
             <View style={s.card}>
-              <Body>{draft.growth}</Body>
-              <Eyebrow>Maybe · Grow</Eyebrow>
-            </View>
-          )}
-          <Body>{observation}</Body>
-          {valueSuggestion && (
-            <View style={s.card}>
-              <Body>{valueSuggestion} could be a value to try on.</Body>
+              <Body>{fallbackValue} could be a value to try on.</Body>
               <Chip
-                label={`Try on ${valueSuggestion.toLowerCase()}`}
-                selected={draft.value === valueSuggestion}
+                label={`Try on ${fallbackValue.toLowerCase()}`}
+                selected={draft.value === fallbackValue}
                 onPress={() =>
                   update({
-                    value:
-                      draft.value === valueSuggestion ? "" : valueSuggestion,
+                    value: draft.value === fallbackValue ? "" : fallbackValue,
                   })
                 }
               />
             </View>
           )}
+          {session && savedStories.some(Boolean) ? (
+            <>
+              <Button
+                secondary
+                label="Let Chloe look for a thread"
+                loading={insightsBusy}
+                disabled={busy}
+                onPress={() => void askForInsights()}
+              />
+              <Body style={{ fontSize: 12 }}>
+                Chloe uses AI to look at these stories. You choose what to keep.
+              </Body>
+            </>
+          ) : null}
+          {draft.insightSources === storyFingerprint &&
+          draft.insights.follow_up &&
+          firstSessionQuestionAvailable(
+            data,
+            draft.insights.follow_up.question,
+          ) ? (
+            <View style={s.card}>
+              <Body>{draft.insights.follow_up.question}</Body>
+              <Body style={{ fontSize: 13 }}>No need to answer now.</Body>
+              <TextButton
+                label="Keep this question for later"
+                onPress={keepFollowUpQuestion}
+              />
+            </View>
+          ) : null}
           <Button
             label="Find my check-in rhythm"
             loading={busy}
             onPress={saveValue}
           />
           <TextButton
-            label="Choose my own value later"
+            label="Leave the other clues for later"
             onPress={() => {
               update({ value: "", step: 9 });
               setNotice("");
@@ -651,8 +1095,8 @@ export default function Onboarding() {
           />
           <Body>
             {Platform.OS === "web"
-              ? "I'll keep this rhythm for you. Notifications are available in the iOS and Android app; this browser won't send a reminder."
-              : "This sets when to remind you on this phone. You can turn notifications on after this step."}
+              ? "I'll keep this rhythm for you. Next, you can add the reminders to your calendar, so they work when this page is closed."
+              : "Your reminders and check-in days follow this phone’s local time. You can turn notifications on after this step."}
           </Body>
           <Button
             label="Keep this time"
@@ -685,24 +1129,68 @@ export default function Onboarding() {
               })
             }
           />
-          {Platform.OS !== "web" && !remindersSet && (
-            <Button
-              secondary
-              label="Turn on my reminders"
-              loading={busy}
-              onPress={() =>
-                run(async () => {
-                  await scheduleReminders(
-                    data.profile.morning_time,
-                    data.profile.evening_time,
-                    data,
-                  );
-                  setRemindersSet(true);
-                  setNotice("Your check-in reminders are set on this phone.");
-                })
-              }
-            />
-          )}
+          <TextButton
+            label={
+              draft.reminderTimesChosen
+                ? "Adjust my reminder times"
+                : "Set reminder times · optional"
+            }
+            onPress={() => go(10)}
+          />
+          {draft.reminderTimesChosen ? (
+            <Body style={{ fontSize: 13 }}>
+              Morning {data.profile.morning_time} · Night{" "}
+              {data.profile.evening_time} · {data.profile.timezone}
+            </Body>
+          ) : null}
+          {Platform.OS === "web" && draft.reminderTimesChosen ? (
+            <>
+              <Button
+                secondary
+                label="Add reminders to my calendar"
+                onPress={() =>
+                  run(async () => {
+                    downloadReminderCalendar(
+                      data.profile.morning_time,
+                      data.profile.evening_time,
+                      data.profile.timezone,
+                    );
+                    setNotice(
+                      "Open the downloaded file in your calendar and accept the reminders. Enable calendar notifications to receive them.",
+                    );
+                  })
+                }
+              />
+              <Body style={{ fontSize: 13 }}>
+                Only generic reminders go into your calendar. Your stories stay
+                here. You can change or stop the reminders in your calendar.
+              </Body>
+            </>
+          ) : null}
+          {Platform.OS !== "web" &&
+            draft.reminderTimesChosen &&
+            !remindersSet && (
+              <Button
+                secondary
+                label="Turn on my reminders"
+                loading={busy}
+                onPress={() =>
+                  run(async () => {
+                    await saveProfile({
+                      ...data.profile,
+                      timezone: phoneTimeZone(),
+                    });
+                    await scheduleReminders(
+                      data.profile.morning_time,
+                      data.profile.evening_time,
+                      data,
+                    );
+                    setRemindersSet(true);
+                    setNotice("Your check-in reminders are set on this phone.");
+                  })
+                }
+              />
+            )}
           <TextButton
             label="See my Possibilities"
             onPress={() => router.replace("/galaxy")}
