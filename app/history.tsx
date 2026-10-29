@@ -1,3 +1,4 @@
+import { withAccount } from "../src/access-gate";
 import React, { useState } from "react";
 import { View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
@@ -21,7 +22,7 @@ import {
   TopBar,
   s,
 } from "../src/ui";
-export default function History() {
+function History() {
   const { data } = usePractice();
   const today = useToday();
   const { id, dimension, label } = useLocalSearchParams<{
@@ -127,7 +128,7 @@ export default function History() {
       </View>
       {label && (
         <TextButton
-          label="Clear galaxy filter"
+          label="Clear possibilities filter"
           onPress={() => router.replace("/history")}
         />
       )}
@@ -163,3 +164,5 @@ export default function History() {
     </Page>
   );
 }
+
+export default withAccount(History);

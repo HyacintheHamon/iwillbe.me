@@ -1,3 +1,4 @@
+import { withAccount } from "../src/access-gate";
 import React, { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
@@ -16,9 +17,15 @@ import {
   entryInput,
   formatCommitment,
   returningToPractice,
+  availableQuestion,
+  questionAvailable,
+  questionKey,
+  currentWhy,
   type Energy,
   type ValueChoice,
 } from "../src/journey";
+import { intentionConnectsToWhy, nightInsight } from "../src/guidance";
+import { isUnreadyAnswer } from "../src/onboarding";
 import { useToday } from "../src/use-today";
 import {
   Body,
@@ -26,7 +33,6 @@ import {
   Chip,
   Eyebrow,
   Field,
-  Illustration,
   Notice,
   Page,
   TextButton,
@@ -35,9 +41,16 @@ import {
   s,
 } from "../src/ui";
 
-type Step = "outcome" | "energy" | "value" | "replacement" | "note" | "wrap";
+type Step =
+  | "outcome"
+  | "energy"
+  | "value"
+  | "replacement"
+  | "note"
+  | "possibility"
+  | "wrap";
 
-export default function Reflect() {
+function Reflect() {
   const { data } = usePractice();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const today = useToday();
@@ -71,15 +84,33 @@ function QuietNight({ today }: { today: string }) {
     "What caught your interest today?",
     "When did time fly today?",
   ];
-  const question = returning
-    ? "What's true for you right now?"
-    : questions[
-        Math.floor(Date.parse(`${today}T12:00:00Z`) / 86400000) %
-          questions.length
-      ];
+  const [question] = useState(() => {
+    const start =
+      Math.floor(Date.parse(`${today}T12:00:00Z`) / 86400000) %
+      questions.length;
+    return availableQuestion(
+      data,
+      [
+        ...(returning ? ["What's true for you right now?"] : []),
+        ...questions.slice(start),
+        ...questions.slice(0, start),
+      ],
+      today,
+      `night:${today}`,
+    );
+  });
+  const priorThought = entriesOf(data, "story").find(
+    (e) => e.title === question && e.meta.period === `night:${today}`,
+  );
   const { draft, update, clear, ready, draftError } = useDraft(
     draftKey(`night.${today}`, session?.user.id),
-    { note: "" },
+    {
+      note: priorThought?.body || "",
+      possibility: "",
+      naming: false,
+      storyId: priorThought?.id || "",
+      storyRevision: priorThought?.revision ?? 0,
+    },
   );
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -89,7 +120,7 @@ function QuietNight({ today }: { today: string }) {
     setBusy(true);
     setError("");
     try {
-      if (skip || !draft.note.trim()) {
+      if ((skip || isUnreadyAnswer(draft.note)) && question) {
         const prior = entriesOf(data, "question").find(
           (e) => e.title === question && e.state !== "answered",
         );
@@ -107,18 +138,51 @@ function QuietNight({ today }: { today: string }) {
               },
             }),
           );
-      } else {
+      } else if (!skip && !isUnreadyAnswer(draft.note)) {
         const prior = entriesOf(data, "story").find(
           (e) => e.title === question && e.meta.period === `night:${today}`,
         );
-        await putEntry(
+        const story = await putEntry(
           entryInput("story", question, {
-            id: prior?.id,
+            id: draft.storyId || prior?.id,
+            revision: draft.storyRevision,
             body: draft.note.trim(),
             source: "A thought from tonight",
             meta: { period: `night:${today}` },
           }),
         );
+        update({ storyId: story.id, storyRevision: story.revision ?? 0 });
+        if (
+          draft.possibility.trim() &&
+          !entriesOf(data, "interest").some(
+            (e) =>
+              e.title.toLowerCase() === draft.possibility.trim().toLowerCase(),
+          )
+        )
+          await putEntry(
+            entryInput("interest", draft.possibility.trim(), {
+              state: "spark",
+              body: draft.note.trim(),
+              source: "Named by you after a night reflection",
+              source_ids: [story.id],
+            }),
+          );
+        const open = entriesOf(data, "question").find(
+          (e) =>
+            questionKey(e.title) === questionKey(question) &&
+            e.state !== "stopped",
+        );
+        if (open)
+          await putEntry({
+            ...open,
+            state: "answered",
+            body: draft.note.trim(),
+            meta: {
+              ...open.meta,
+              last_asked_at: new Date().toISOString(),
+              last_asked_session: `night:${today}`,
+            },
+          });
       }
       const priorSession = entriesOf(data, "preferences").find(
         (e) => e.title === "Check-in session",
@@ -129,13 +193,16 @@ function QuietNight({ today }: { today: string }) {
           meta: {
             ...priorSession?.meta,
             last_check_in_at: new Date().toISOString(),
+            last_question: question || priorSession?.meta.last_question,
           },
         }),
       );
-      await clear();
+      if (question) await clear();
       setDone(true);
+      return true;
     } catch (e) {
       setError((e as Error).message);
+      return false;
     } finally {
       setBusy(false);
     }
@@ -146,32 +213,53 @@ function QuietNight({ today }: { today: string }) {
     <Page
       header={<TopBar title="Night" />}
       footer={
-        !done ? (
+        !done && question ? (
           <>
             <Notice text={error || draftError} tone="error" />
             <Button
-              label="Keep this thought"
-              disabled={!draft.note.trim()}
+              label={
+                draft.naming ? "Keep this as a Maybe" : "Keep this thought"
+              }
+              disabled={
+                !draft.note.trim() ||
+                (draft.naming && isUnreadyAnswer(draft.possibility))
+              }
               loading={busy}
               onPress={() => save()}
             />
-            <TextButton label="Skip for now" onPress={() => save(true)} />
+            <TextButton
+              label={draft.naming ? "Back to my thought" : "Skip for now"}
+              onPress={() =>
+                draft.naming
+                  ? update({ naming: false, possibility: "" })
+                  : save(true)
+              }
+            />
           </>
         ) : undefined
       }
     >
       <Eyebrow>About two minutes</Eyebrow>
-      <Title>{done ? "That's enough for tonight." : question}</Title>
-      {done ? (
+      <Title>
+        {done || !question
+          ? "That's enough for tonight."
+          : draft.naming
+            ? "A possibility to keep"
+            : question}
+      </Title>
+      {!question ? <Notice text={error || draftError} tone="error" /> : null}
+      {done || !question ? (
         <>
-          <Illustration
-            source={require("../assets/illustrations/evening-reflection.png")}
-            height={180}
-          />
           <Body>Leave it here. Enjoy the rest of your evening.</Body>
           <Button
             label="Done for tonight"
-            onPress={() => router.replace("/")}
+            onPress={() =>
+              done
+                ? router.replace("/")
+                : void save(true).then((saved) => {
+                    if (saved) router.replace("/");
+                  })
+            }
           />
         </>
       ) : (
@@ -179,14 +267,36 @@ function QuietNight({ today }: { today: string }) {
           {returning ? (
             <Body>Good to see you. Start wherever you are.</Body>
           ) : null}
-          <Field
-            label="A THOUGHT FROM TODAY"
-            multiline
-            placeholder="A sentence is enough."
-            value={draft.note}
-            onChangeText={(note) => update({ note })}
-            maxLength={2000}
-          />
+          {draft.naming ? (
+            <>
+              <Body>
+                Give it a name. You can try it in real life when you’re ready.
+              </Body>
+              <Field
+                label="A POSSIBILITY"
+                value={draft.possibility}
+                onChangeText={(possibility) => update({ possibility })}
+                maxLength={80}
+              />
+            </>
+          ) : (
+            <>
+              <Field
+                label="A THOUGHT FROM TODAY"
+                multiline
+                placeholder="A sentence is enough."
+                value={draft.note}
+                onChangeText={(note) => update({ note })}
+                maxLength={2000}
+              />
+              {!isUnreadyAnswer(draft.note) ? (
+                <TextButton
+                  label="There’s a new possibility in this thought"
+                  onPress={() => update({ naming: true })}
+                />
+              ) : null}
+            </>
+          )}
         </>
       )}
     </Page>
@@ -212,12 +322,14 @@ function ReflectionForm({
     draftKey(`reflect.${intention.id}`, session?.user.id),
     {
       step: "outcome" as Step,
+      revision: prior?.revision ?? 0,
       outcome: prior?.outcome as Outcome | undefined,
       note: prior?.reflection || "",
       energy: prior?.energy || (null as Energy | null),
       value_choice: prior?.value_choice || (null as ValueChoice | null),
       replacement: "",
       replacing: false,
+      possibility: "",
     },
   );
   const [busy, setBusy] = useState(false),
@@ -225,38 +337,121 @@ function ReflectionForm({
     [notice, setNotice] = useState(""),
     [done, setDone] = useState(false),
     [skipped, setSkipped] = useState(false);
+  const [insight, setInsight] = useState("");
   const seed = Math.floor(Date.parse(`${intention.day}T12:00:00Z`) / 86400000);
   const valueQuestions = [
     `Was ${intention.value.toLowerCase()} worth the effort today?`,
     `Is ${intention.value.toLowerCase()} part of how you want to be remembered?`,
     `Do you choose ${intention.value.toLowerCase()} again?`,
   ];
+  const [prompts] = useState(() => {
+    const session = `night:${today}`;
+    const select = (candidates: string[], sameTopic = false) =>
+      availableQuestion(data, candidates, today, session, sameTopic);
+    const prefs = entriesOf(data, "preferences").find(
+      (e) => e.title === "Check-in session",
+    );
+    const carried =
+      prefs?.meta.carried_question_day === today
+        ? entriesOf(data, "question").find(
+            (e) =>
+              e.id === prefs.meta.carried_question_id &&
+              e.state !== "answered" &&
+              questionAvailable(data, e.title, today, session),
+          )
+        : undefined;
+    const whyQuestion =
+      currentWhy(data) &&
+      intentionConnectsToWhy(data, intention) &&
+      seed % 3 === 0
+        ? select(["Where did your why show up today?"])
+        : "";
+    const discovery = [
+      "What caught your interest today?",
+      "What are you proud of today?",
+      "What lit you up?",
+    ];
+    return {
+      outcome: select(
+        [
+          "Did you show up?",
+          "How did today’s one thing go?",
+          "Were you able to make room for it?",
+        ],
+        true,
+      ),
+      energy: select(
+        [
+          "Did it light you up, feel neutral, or drain you?",
+          "How did it leave you feeling?",
+        ],
+        true,
+      ),
+      value: select(
+        [
+          ...valueQuestions.slice(seed % valueQuestions.length),
+          ...valueQuestions.slice(0, seed % valueQuestions.length),
+        ],
+        true,
+      ),
+      obstacle: select(
+        ["What got in the way?", "Tomorrow: move it, shrink it, or let it go?"],
+        true,
+      ),
+      practice: select(
+        [
+          "What did you practice, and what did you learn?",
+          "What did today’s practice teach you?",
+        ],
+        true,
+      ),
+      discovery:
+        carried?.title ||
+        whyQuestion ||
+        select([...discovery.slice(seed % 3), ...discovery.slice(0, seed % 3)]),
+      invited: !!carried || !!whyQuestion,
+      carried: carried?.title || "",
+    };
+  });
   const noteQuestion =
     draft.outcome === "not_yet"
-      ? "What got in the way?"
-      : allIn
-        ? "What did you practice, and what did you learn?"
-        : [
-            "What caught your interest today?",
-            "What are you proud of today?",
-            "What lit you up?",
-          ][seed % 3];
+      ? prompts.obstacle
+      : prompts.carried
+        ? prompts.carried
+        : allIn
+          ? prompts.practice
+          : prompts.discovery;
   const question =
     draft.step === "outcome"
-      ? "Did you show up?"
+      ? prompts.outcome
       : draft.step === "energy"
-        ? "Did it light you up, feel neutral, or drain you?"
+        ? prompts.energy
         : draft.step === "value"
-          ? valueQuestions[seed % valueQuestions.length]
+          ? prompts.value
           : draft.step === "replacement"
             ? "Which value matters more to you?"
-            : draft.step === "note"
-              ? noteQuestion
-              : "Leave it here for tonight.";
-  const afterAnswers = (outcome = draft.outcome): Step =>
-    outcome === "not_yet" || allIn ? "note" : "wrap";
-  const afterEnergy = (): Step => (intention.value ? "value" : afterAnswers());
+            : draft.step === "possibility"
+              ? "A possibility to keep"
+              : draft.step === "note"
+                ? noteQuestion
+                : "Leave it here for tonight.";
+  const afterAnswers = (outcome = draft.outcome): Step => {
+    const selected =
+      outcome === "not_yet"
+        ? prompts.obstacle
+        : prompts.carried
+          ? prompts.carried
+          : allIn
+            ? prompts.practice
+            : prompts.discovery;
+    return selected && (outcome === "not_yet" || allIn || prompts.invited)
+      ? "note"
+      : "wrap";
+  };
+  const afterEnergy = (): Step =>
+    intention.value && prompts.value ? "value" : afterAnswers();
   const saveQuestion = async (title: string) => {
+    if (!title.trim()) return;
     const existing = entriesOf(data, "question").find(
       (e) => e.title === title && e.state !== "answered",
     );
@@ -289,32 +484,89 @@ function ReflectionForm({
       setBusy(false);
     }
   };
-  const markSession = async () => {
+  const markSession = async (hasInsight = false) => {
     const existing = entriesOf(data, "preferences").find(
       (e) => e.title === "Check-in session",
     );
     await putEntry(
       entryInput("preferences", "Check-in session", {
         id: existing?.id,
-        meta: { ...existing?.meta, last_check_in_at: new Date().toISOString() },
+        meta: {
+          ...existing?.meta,
+          last_check_in_at: new Date().toISOString(),
+          last_question: draft.note.trim()
+            ? noteQuestion
+            : (draft.value_choice
+                ? prompts.value
+                : draft.energy
+                  ? prompts.energy
+                  : prompts.outcome) || existing?.meta.last_question,
+          ...(hasInsight ? { last_insight_at: new Date().toISOString() } : {}),
+        },
       }),
     );
   };
   const save = () =>
     run(async () => {
       if (!draft.outcome) return;
-      if (draft.step === "note" && !draft.note.trim())
-        await saveQuestion(noteQuestion);
+      const note = isUnreadyAnswer(draft.note) ? "" : draft.note.trim();
+      if (draft.step === "note" && !note) await saveQuestion(noteQuestion);
       await checkIn({
         intention_id: intention.id,
+        revision: draft.revision,
         outcome: draft.outcome,
-        reflection: draft.note.trim(),
+        reflection: note,
         energy: draft.outcome === "not_yet" ? null : draft.energy,
         value_choice:
           intention.value && draft.outcome !== "not_yet"
             ? draft.value_choice
             : null,
       });
+      if (note) {
+        const open = entriesOf(data, "question").find(
+          (e) =>
+            questionKey(e.title) === questionKey(noteQuestion) &&
+            e.state !== "stopped",
+        );
+        if (open)
+          await putEntry({
+            ...open,
+            state: "answered",
+            body: draft.note.trim(),
+            meta: {
+              ...open.meta,
+              last_asked_at: new Date().toISOString(),
+              last_asked_session: `night:${today}`,
+            },
+          });
+        if (
+          draft.possibility.trim() &&
+          !entriesOf(data, "interest").some(
+            (e) =>
+              e.title.toLowerCase() === draft.possibility.trim().toLowerCase(),
+          )
+        )
+          await putEntry(
+            entryInput("interest", draft.possibility.trim(), {
+              state: "spark",
+              body: draft.note.trim(),
+              source: "Named by you after a night reflection",
+              source_ids: [intention.id],
+            }),
+          );
+        if (
+          noteQuestion === "Where did your why show up today?" &&
+          currentWhy(data)
+        )
+          await putEntry(
+            entryInput("story", noteQuestion, {
+              body: draft.note.trim(),
+              source: "A connection you noticed",
+              source_ids: [intention.id, currentWhy(data)!.id],
+              meta: { period: `why-reflection:${today}` },
+            }),
+          );
+      }
       if (draft.replacing && draft.replacement.trim()) {
         const title = draft.replacement.trim();
         const value = entriesOf(data, "value").find(
@@ -341,7 +593,18 @@ function ReflectionForm({
         ))
           await putEntry({ ...item, state: "done" });
       }
-      await markSession();
+      const usefulInsight = nightInsight(
+        data,
+        intention,
+        {
+          outcome: draft.outcome,
+          energy: draft.energy,
+          value_choice: draft.value_choice,
+        },
+        today,
+      );
+      await markSession(!!usefulInsight);
+      setInsight(usefulInsight?.text || "");
       await clear();
       setDone(true);
     });
@@ -372,10 +635,10 @@ function ReflectionForm({
   const chooseOutcome = (outcome: Outcome) => {
     const step: Step =
       outcome === "not_yet"
-        ? "note"
-        : intention.interest && !allIn
+        ? afterAnswers(outcome)
+        : intention.interest && !allIn && prompts.energy
           ? "energy"
-          : intention.value
+          : intention.value && prompts.value
             ? "value"
             : afterAnswers(outcome);
     update({
@@ -430,14 +693,29 @@ function ReflectionForm({
         !done ? (
           <>
             <Notice text={error || draftError} tone="error" />
-            {draft.step === "note" ? (
+            {draft.step === "note" || draft.step === "possibility" ? (
               <>
                 <Button
                   label="Keep this reflection"
                   loading={busy}
+                  disabled={
+                    draft.step === "possibility" &&
+                    isUnreadyAnswer(draft.possibility)
+                  }
                   onPress={save}
                 />
-                <TextButton label="Skip for now" onPress={skip} />
+                <TextButton
+                  label={
+                    draft.step === "possibility"
+                      ? "Back to my thought"
+                      : "Skip for now"
+                  }
+                  onPress={() =>
+                    draft.step === "possibility"
+                      ? update({ step: "note", possibility: "" })
+                      : skip()
+                  }
+                />
               </>
             ) : draft.step === "wrap" ? (
               <Button
@@ -451,7 +729,7 @@ function ReflectionForm({
                   label="Try this value on"
                   loading={busy}
                   disabled={
-                    !draft.replacement.trim() ||
+                    isUnreadyAnswer(draft.replacement) ||
                     draft.replacement.trim().toLowerCase() ===
                       intention.value.toLowerCase()
                   }
@@ -467,19 +745,22 @@ function ReflectionForm({
       }
     >
       <Eyebrow>{dayLabel(intention.day)} · About two minutes</Eyebrow>
-      <Title>{done ? "That's enough for tonight." : question}</Title>
+      <Title>
+        {done
+          ? "That's enough for tonight."
+          : question || "Leave it here for tonight."}
+      </Title>
       {done ? (
         <>
-          <Illustration
-            source={require("../assets/illustrations/evening-reflection.png")}
-            height={180}
-          />
+          {insight ? <Body>{insight}</Body> : null}
           <Body>
             {skipped
               ? "Let it sit with you. We can come back to it."
               : draft.outcome === "not_yet"
                 ? "Useful to know. Leave it here for tonight."
-                : "Kept with today. Go enjoy the rest of your evening."}
+                : insight
+                  ? "Go enjoy the rest of your evening."
+                  : "Kept with today. Go enjoy the rest of your evening."}
           </Body>
           <Button
             label="Done for tonight"
@@ -516,22 +797,26 @@ function ReflectionForm({
                   <Eyebrow>Trying on {intention.value}</Eyebrow>
                 ) : null}
               </View>
-              <View style={s.wrap}>
-                {(
-                  [
-                    { id: "yes", label: "I did" },
-                    { id: "partly", label: "A little" },
-                    { id: "not_yet", label: "Not this time" },
-                  ] as const
-                ).map((o) => (
-                  <Chip
-                    key={o.id}
-                    label={o.label}
-                    selected={draft.outcome === o.id}
-                    onPress={() => chooseOutcome(o.id)}
-                  />
-                ))}
-              </View>
+              {prompts.outcome ? (
+                <View style={s.wrap}>
+                  {(
+                    [
+                      { id: "yes", label: "I did" },
+                      { id: "partly", label: "A little" },
+                      { id: "not_yet", label: "Not this time" },
+                    ] as const
+                  ).map((o) => (
+                    <Chip
+                      key={o.id}
+                      label={o.label}
+                      selected={draft.outcome === o.id}
+                      onPress={() => chooseOutcome(o.id)}
+                    />
+                  ))}
+                </View>
+              ) : (
+                <Body>There’s nothing else you need to answer.</Body>
+              )}
             </>
           ) : draft.step === "energy" ? (
             <>
@@ -597,28 +882,50 @@ function ReflectionForm({
                 ))}
               </View>
             </>
+          ) : draft.step === "possibility" ? (
+            <>
+              <Body>
+                Name something from this thought that you’d like to explore.
+              </Body>
+              <Field
+                label="A POSSIBILITY"
+                value={draft.possibility}
+                onChangeText={(possibility) => update({ possibility })}
+                maxLength={80}
+              />
+            </>
           ) : draft.step === "note" ? (
-            <Field
-              label={
-                draft.outcome === "not_yet"
-                  ? "WHAT GOT IN THE WAY?"
-                  : allIn
-                    ? "WHAT I PRACTICED AND LEARNED"
-                    : "WHAT I NOTICED"
-              }
-              multiline
-              placeholder="A sentence is enough. You can leave this here for now."
-              value={draft.note}
-              onChangeText={(note) => update({ note })}
-              maxLength={2000}
-            />
+            <>
+              <Field
+                label={
+                  draft.outcome === "not_yet"
+                    ? "A THOUGHT TO KEEP"
+                    : allIn
+                      ? "WHAT I PRACTICED AND LEARNED"
+                      : "WHAT I NOTICED"
+                }
+                multiline
+                placeholder="A sentence is enough. You can leave this here for now."
+                value={draft.note}
+                onChangeText={(note) => update({ note })}
+                maxLength={2000}
+              />
+              {!isUnreadyAnswer(draft.note) && draft.outcome !== "not_yet" ? (
+                <TextButton
+                  label="There’s a new possibility in this thought"
+                  onPress={() => update({ step: "possibility" })}
+                />
+              ) : null}
+            </>
           ) : (
             <>
               <Body>There’s nothing else you need to answer.</Body>
-              <TextButton
-                label="Add a thought from today"
-                onPress={() => update({ step: "note" })}
-              />
+              {noteQuestion ? (
+                <TextButton
+                  label="Add a thought from today"
+                  onPress={() => update({ step: "note" })}
+                />
+              ) : null}
             </>
           )}
         </>
@@ -626,3 +933,5 @@ function ReflectionForm({
     </Page>
   );
 }
+
+export default withAccount(Reflect);

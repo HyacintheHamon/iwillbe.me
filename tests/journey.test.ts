@@ -13,6 +13,10 @@ import {
   formatCommitment,
   whyRevisitDue,
   weeklyNotices,
+  allInEligible,
+  availableQuestion,
+  questionAvailable,
+  eligibleOpenQuestion,
   type Entry,
 } from "../src/journey";
 const e = (kind: Entry["kind"], title: string): Entry => ({
@@ -20,6 +24,173 @@ const e = (kind: Entry["kind"], title: string): Entry => ({
   id: "e",
   created_at: "2026-01-01",
   updated_at: "2026-01-01",
+});
+
+test("an old Maybe does not become eligible for All in when it has only just become Into it", () => {
+  const p = emptyPractice();
+  p.profile.timezone = "UTC";
+  const interest = {
+    ...e("interest", "Teaching"),
+    state: "into_it",
+    updated_at: "2026-10-25T20:00:00Z",
+  };
+  assert.equal(allInEligible(p, interest, "2026-10-26"), false);
+  interest.meta.into_it_since = "2026-10-01T20:00:00Z";
+  assert.equal(allInEligible(p, interest, "2026-10-26"), true);
+  assert.equal(
+    allInEligible(p, { ...interest, state: "paused" }, "2026-10-26"),
+    false,
+  );
+  assert.equal(
+    allInEligible(
+      p,
+      { ...interest, meta: { into_it_since: "not a date" } },
+      "2026-10-26",
+    ),
+    false,
+  );
+});
+
+test("derived Into it begins at the second positive reflection, not the original curiosity or first try", () => {
+  const p = emptyPractice();
+  p.profile.timezone = "UTC";
+  const interest = e("interest", "Teaching");
+  p.intentions = ["a", "b"].map((id, n) => ({
+    id,
+    day: `2026-09-0${n + 1}`,
+    action: "Tutor",
+    interest: "Teaching",
+    value: "",
+    person: "",
+    created_at: `2026-09-0${n + 1}T12:00:00Z`,
+  }));
+  p.checkIns = ["a", "b"].map((id, n) => ({
+    intention_id: id,
+    outcome: "yes",
+    energy: "lit",
+    reflection: "",
+    created_at: n ? "2026-10-25T20:00:00Z" : "2026-09-01T20:00:00Z",
+  }));
+  assert.equal(interestState(p, interest), "Into it");
+  assert.equal(allInEligible(p, interest, "2026-10-26"), false);
+  assert.equal(allInEligible(p, interest, "2026-11-08"), true);
+});
+
+test("night prompt selection honors stopped, deferred, same-session, and immediately previous questions", () => {
+  const p = emptyPractice();
+  p.profile.timezone = "America/New_York";
+  p.entries = [
+    { ...e("question", "What lit you up?"), id: "stopped", state: "stopped" },
+    {
+      ...e("question", "What did you practice, and what did you learn?"),
+      id: "later",
+      state: "open",
+      meta: { next_day: "2026-10-27" },
+    },
+    {
+      ...e("question", "What caught your interest today?"),
+      id: "session",
+      state: "open",
+      meta: { last_asked_session: "night:2026-10-26" },
+    },
+    {
+      ...e("preferences", "Check-in session"),
+      id: "preferences",
+      meta: { last_question: "What are you proud of today?" },
+    },
+  ];
+  const candidates = [
+    "What lit you up?",
+    "What did you practice, and what did you learn?",
+    "What caught your interest today?",
+    "What are you proud of today?",
+    "When did time fly today?",
+  ];
+  assert.equal(
+    availableQuestion(p, candidates, "2026-10-26", "night:2026-10-26"),
+    "When did time fly today?",
+  );
+  p.entries.push({
+    ...e("question", "When did time fly today?"),
+    state: "stopped",
+  });
+  assert.equal(
+    availableQuestion(p, candidates, "2026-10-26", "night:2026-10-26"),
+    "",
+  );
+  assert.equal(
+    questionAvailable(
+      p,
+      "What did you practice, and what did you learn?",
+      "2026-10-27",
+      "night:2026-10-27",
+    ),
+    true,
+  );
+});
+
+test("eligible Open Questions exclude answered items and an explicit reopen supersedes an older stopped copy", () => {
+  const p = emptyPractice();
+  p.entries = [
+    { ...e("question", "What lit you up?"), id: "old", state: "stopped" },
+    {
+      ...e("question", "What lit you up?"),
+      id: "new",
+      state: "open",
+      updated_at: "2026-10-20T12:00:00Z",
+    },
+    {
+      ...e("question", "Who do you admire?"),
+      id: "answered",
+      state: "answered",
+    },
+  ];
+  assert.equal(questionAvailable(p, "What lit you up?", "2026-10-26"), true);
+  assert.equal(eligibleOpenQuestion(p, "2026-10-26")?.id, "new");
+});
+
+test("a deferred or stopped All in question is not immediately replaced by a paraphrase", () => {
+  const p = emptyPractice();
+  const questions = [
+    "What did you practice, and what did you learn?",
+    "What did today’s practice teach you?",
+  ];
+  p.entries = [
+    {
+      ...e("question", questions[0]),
+      state: "open",
+      meta: { next_day: "2026-10-28" },
+    },
+  ];
+  assert.equal(
+    availableQuestion(p, questions, "2026-10-26", "night:2026-10-26", true),
+    "",
+  );
+  p.entries[0].state = "stopped";
+  assert.equal(
+    availableQuestion(p, questions, "2026-11-01", "night:2026-11-01", true),
+    "",
+  );
+  p.entries[0].state = "answered";
+  p.entries[0].meta = {};
+  assert.equal(
+    availableQuestion(p, questions, "2026-11-01", "night:2026-11-01", true),
+    questions[0],
+  );
+});
+
+test("quarterly due dates clamp month ends in the profile timezone", () => {
+  const p = emptyPractice();
+  p.profile.timezone = "America/New_York";
+  p.entries = [
+    {
+      ...e("why", "My why"),
+      state: "accepted",
+      created_at: "2026-09-01T01:00:00Z",
+    },
+  ];
+  assert.equal(whyRevisitDue(p, "2026-11-29"), false);
+  assert.equal(whyRevisitDue(p, "2026-11-30"), true);
 });
 test("completion never invents energy or value conviction, and absence never dims interests", () => {
   const p = emptyPractice();
@@ -268,14 +439,33 @@ test("an explicit value retry supersedes an older release", () => {
 test("explicit weekly consent can introduce a new area while fixed focus and rotation remain respected", () => {
   const p = emptyPractice();
   p.entries = [
-    {...e("vision", "One year out"), meta: {horizon: "year", planet_notes: {People: "More time with family"}}},
-    {...e("preferences", "Weekly focus"), meta: {focus_area: "Grow", focus_until: "2026-11-01"}},
+    {
+      ...e("vision", "One year out"),
+      meta: {
+        horizon: "year",
+        planet_notes: { People: "More time with family" },
+      },
+    },
+    {
+      ...e("preferences", "Weekly focus"),
+      meta: { focus_area: "Grow", focus_until: "2026-11-01" },
+    },
   ];
   assert.equal(suggestedPlanet(p, "2026-10-26"), "Grow");
-  p.entries.push({...e("preferences", "Season"), meta: {pace: "vary"}});
+  p.entries.push({ ...e("preferences", "Season"), meta: { pace: "vary" } });
   assert.equal(suggestedPlanet(p, "2026-10-26"), "Grow");
-  p.intentions = [{id: "a", day: "2026-10-26", action: "Learn", value: "", person: "", planet: "Grow", created_at: "2026-10-26T12:00:00Z"}];
+  p.intentions = [
+    {
+      id: "a",
+      day: "2026-10-26",
+      action: "Learn",
+      value: "",
+      person: "",
+      planet: "Grow",
+      created_at: "2026-10-26T12:00:00Z",
+    },
+  ];
   assert.notEqual(suggestedPlanet(p, "2026-10-27"), "Grow");
-  p.entries[p.entries.length - 1].meta = {pace: "stay", orbit: "Be"};
+  p.entries[p.entries.length - 1].meta = { pace: "stay", orbit: "Be" };
   assert.equal(suggestedPlanet(p, "2026-10-27"), "Be");
 });

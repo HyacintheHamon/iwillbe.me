@@ -19,7 +19,7 @@ import { DMSans_600SemiBold } from "@expo-google-fonts/dm-sans/600SemiBold";
 import { SunIcon as Sun } from "phosphor-react-native/src/icons/Sun";
 import { GraphIcon as Graph } from "phosphor-react-native/src/icons/Graph";
 import { ChatCircleIcon as ChatCircle } from "phosphor-react-native/src/icons/ChatCircle";
-import { PracticeProvider } from "../src/practice";
+import { usePractice, PracticeProvider } from "../src/practice";
 import { NotificationRouting } from "../src/notification-routing";
 import { PrivacyLock } from "../src/privacy-lock";
 import { C, F } from "../src/ui";
@@ -31,8 +31,6 @@ export default function Layout() {
     DMSans_500Medium,
     DMSans_600SemiBold,
   });
-  const path = usePathname();
-  const tabs = ["/", "/galaxy", "/chloe"].includes(path);
   if (!loaded && !error)
     return (
       <View
@@ -51,74 +49,86 @@ export default function Layout() {
       <PracticeProvider>
         <PrivacyLock>
           <NotificationRouting />
-          <View style={styles.outer}>
-            <SafeAreaView style={styles.app} edges={["top", "bottom"]}>
-              <StatusBar style="light" />
-              <View style={{ flex: 1 }}>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                    contentStyle: { backgroundColor: C.paper },
-                    animation: "none",
-                    animationDuration: 180,
-                  }}
-                />
-              </View>
-              {tabs && (
-                <View style={styles.tabs} accessibilityRole="tablist">
-                  {(
-                    [
-                      { path: "/", label: "Today", Icon: Sun },
-                      { path: "/galaxy", label: "Galaxy", Icon: Graph },
-                      { path: "/chloe", label: "Chloe", Icon: ChatCircle },
-                    ] as const
-                  ).map(({ path: to, label, Icon }) => (
-                    <Pressable
-                      accessibilityRole="tab"
-                      accessibilityLabel={label}
-                      accessibilityState={{ selected: path === to }}
-                      {...(Platform.OS === "web"
-                        ? { "aria-selected": path === to }
-                        : {})}
-                      onPress={() => router.replace(to)}
-                      key={to}
-                      style={styles.tab}
-                    >
-                      <Icon
-                        size={28}
-                        weight="light"
-                        color={path === to ? C.gold : C.ink}
-                      />
-                      <Text
-                        style={{
-                          fontFamily: F.medium,
-                          fontSize: 12,
-                          color: path === to ? C.gold : C.ink,
-                        }}
-                      >
-                        {label}
-                      </Text>
-                      <View
-                        style={{
-                          height: 3,
-                          width: 22,
-                          borderRadius: 2,
-                          backgroundColor: path === to ? C.gold : "transparent",
-                        }}
-                      />
-                    </Pressable>
-                  ))}
-                </View>
-              )}
-            </SafeAreaView>
-          </View>
+          <AppShell />
         </PrivacyLock>
       </PracticeProvider>
     </SafeAreaProvider>
   );
 }
+function AppShell() {
+  const path = usePathname();
+  const { session } = usePractice();
+  const tabs = !!session && ["/", "/galaxy", "/chloe"].includes(path);
+  const landing = !session && ["/", "/about"].includes(path);
+  return (
+    <View style={styles.outer}>
+      <SafeAreaView
+        style={[styles.app, landing && { maxWidth: 1100 }]}
+        edges={["top", "bottom"]}
+      >
+        <StatusBar style="dark" />
+        <View style={{ flex: 1 }}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: C.paper },
+              animation: "none",
+              animationDuration: 180,
+            }}
+          />
+        </View>
+        {tabs && (
+          <View style={styles.tabs} accessibilityRole="tablist">
+            {(
+              [
+                { path: "/", label: "Today", Icon: Sun },
+                { path: "/galaxy", label: "Possibilities", Icon: Graph },
+                { path: "/chloe", label: "Chloe", Icon: ChatCircle },
+              ] as const
+            ).map(({ path: to, label, Icon }) => (
+              <Pressable
+                accessibilityRole="tab"
+                accessibilityLabel={label}
+                accessibilityState={{ selected: path === to }}
+                {...(Platform.OS === "web"
+                  ? { "aria-selected": path === to }
+                  : {})}
+                onPress={() => router.replace(to)}
+                key={to}
+                style={styles.tab}
+              >
+                <Icon
+                  size={28}
+                  weight="light"
+                  color={path === to ? C.gold : C.ink}
+                />
+                <Text
+                  style={{
+                    fontFamily: F.medium,
+                    fontSize: 12,
+                    color: path === to ? C.gold : C.ink,
+                  }}
+                >
+                  {label}
+                </Text>
+                <View
+                  style={{
+                    height: 3,
+                    width: 22,
+                    borderRadius: 2,
+                    backgroundColor: path === to ? C.gold : "transparent",
+                  }}
+                />
+              </Pressable>
+            ))}
+          </View>
+        )}
+      </SafeAreaView>
+    </View>
+  );
+}
 const styles = StyleSheet.create({
-  outer: { flex: 1, backgroundColor: "#080912", alignItems: "center" },
+  outer: { flex: 1, backgroundColor: "#EEEFE9", alignItems: "center" },
   app: {
     flex: 1,
     width: "100%",

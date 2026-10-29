@@ -26,6 +26,7 @@ export type EntryKind =
   | "event";
 export type Entry = {
   id: string;
+  revision?: number;
   kind: EntryKind;
   title: string;
   body: string;
@@ -67,6 +68,13 @@ export type Entry = {
     focus_until?: string;
     why_revisited_at?: string;
     previous_state?: string;
+    into_it_since?: string;
+    onboarding_session?: string;
+    onboarding_key?: string;
+    last_question?: string;
+    last_insight_at?: string;
+    carried_question_id?: string;
+    carried_question_day?: string;
   };
 };
 export type EntryInput = Omit<Entry, "id" | "created_at" | "updated_at"> & {
@@ -101,7 +109,7 @@ export function interestState(
   e: Entry,
 ): "Maybe" | "Tried it" | "Into it" | "On pause" | "All in" {
   if (["craft", "all_in"].includes(e.state)) return "All in";
-  if (["ember", "paused"].includes(e.state)) return "On pause";
+  if (["ember", "paused", "on_pause"].includes(e.state)) return "On pause";
   const ids = new Set(
     p.intentions
       .filter((i) =>
@@ -115,6 +123,35 @@ export function interestState(
   const lit = experiences.filter((c) => c.energy === "lit").length;
   if (["love", "into_it"].includes(e.state) || lit >= 2) return "Into it";
   return experiences.length || e.state === "tried" ? "Tried it" : "Maybe";
+}
+export function allInEligible(p: Practice, e: Entry, day: string) {
+  if (interestState(p, e) !== "Into it") return false;
+  const linked = p.intentions.filter((i) =>
+    i.interest_id ? i.interest_id === e.id : i.interest === e.title,
+  );
+  const positiveDays = p.checkIns
+    .filter(
+      (c) =>
+        linked.some((i) => i.id === c.intention_id) &&
+        c.outcome !== "not_yet" &&
+        c.energy === "lit",
+    )
+    .map((c) => c.created_at)
+    .filter((date) => Number.isFinite(Date.parse(date)))
+    .sort();
+  // The age of a Maybe is not the age of being Into it. For older explicit
+  // choices without transition metadata, the last update is conservative.
+  const since =
+    e.meta.into_it_since ||
+    (["love", "into_it"].includes(e.state) ? e.updated_at : positiveDays[1]);
+  if (!since || !Number.isFinite(Date.parse(since))) return false;
+  const sinceDay = /^\d{4}-\d{2}-\d{2}$/.test(since)
+    ? since
+    : dayInZone(p.profile.timezone, new Date(since));
+  return (
+    Date.parse(`${day}T12:00:00Z`) - Date.parse(`${sinceDay}T12:00:00Z`) >=
+    14 * 86400000
+  );
 }
 export function valueState(
   p: Practice,
@@ -236,7 +273,42 @@ export function suggestedPlanet(p: Practice, day: string): Planet {
   const pictureAreas = PLANETS.slice(0, 5).filter((area) =>
     picture?.meta.planet_notes?.[area]?.trim(),
   );
-  const areas = pictureAreas.length ? pictureAreas : [...PLANETS.slice(0, 5)];
+  const why = currentWhy(p);
+  const whySources = new Set(why?.source_ids || []);
+  const whyAreas = Array.from(
+    new Set([
+      ...p.entries
+        .filter(
+          (e) =>
+            whySources.has(e.id) ||
+            e.source_ids.some((id) => whySources.has(id)),
+        )
+        .filter(
+          (e) =>
+            ["value", "interest", "strength"].includes(e.kind) &&
+            !["let_go", "released", "paused", "ember"].includes(e.state),
+        )
+        .map(
+          (e) =>
+            e.meta.planet ||
+            (e.kind === "value"
+              ? "Be"
+              : e.kind === "strength"
+                ? "Grow"
+                : "Passions"),
+        ),
+      ...p.intentions
+        .filter(
+          (i) => whySources.has(i.id) && i.planet && i.planet !== "Surprise",
+        )
+        .map((i) => i.planet!),
+    ]),
+  ).filter((area) => area !== "Surprise");
+  const areas = pictureAreas.length
+    ? pictureAreas
+    : whyAreas.length
+      ? whyAreas
+      : [...PLANETS.slice(0, 5)];
   const recent = p.intentions
     .filter(
       (i) =>
@@ -358,8 +430,16 @@ export function whyRevisitDue(p: Practice, day: string) {
     .sort()[0];
   const last = reviews.sort().at(-1) || started;
   if (!last) return false;
-  const due = new Date(last);
+  const due = new Date(
+    `${dayInZone(p.profile.timezone, new Date(last))}T12:00:00Z`,
+  );
+  const dayOfMonth = due.getUTCDate();
+  due.setUTCDate(1);
   due.setUTCMonth(due.getUTCMonth() + 3);
+  const monthEnd = new Date(
+    Date.UTC(due.getUTCFullYear(), due.getUTCMonth() + 1, 0),
+  ).getUTCDate();
+  due.setUTCDate(Math.min(dayOfMonth, monthEnd));
   return day >= due.toISOString().slice(0, 10);
 }
 export function weeklyNotices(p: Practice, day: string) {
@@ -464,20 +544,78 @@ export function nextWhyQuestion(p: Practice, day: string) {
   const ordered = [...candidates.slice(start), ...candidates.slice(0, start)];
   return ordered.find((text) => questionAvailable(p, text, day)) || "";
 }
-export function questionAvailable(p: Practice, question: string, day: string) {
-  const normalize = (text: string) =>
-    text
-      .toLowerCase()
-      .replace(/[’']/g, "")
-      .replace(/[^a-z0-9 ]/g, "")
-      .trim();
-  return !entriesOf(p, "question").some(
-    (e) =>
-      normalize(e.title) === normalize(question) &&
-      (e.state === "stopped" ||
-        (e.meta.next_day || "") > day ||
-        (!!e.meta.last_asked_at &&
-          dayInZone(p.profile.timezone, new Date(e.meta.last_asked_at)) >=
-            day)),
-  );
+export function questionKey(text: string) {
+  return text
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/[’']/g, "")
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+export function questionAvailable(
+  p: Practice,
+  question: string,
+  day: string,
+  session?: string,
+) {
+  if (!question.trim()) return false;
+  const key = questionKey(question);
+  const entry = entriesOf(p, "question")
+    .filter((e) => questionKey(e.title) === key)
+    .sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0];
+  if (
+    entry &&
+    (entry.state === "stopped" ||
+      (entry.meta.next_day || "") > day ||
+      (!!session && entry.meta.last_asked_session === session) ||
+      (!!entry.meta.last_asked_at &&
+        dayInZone(p.profile.timezone, new Date(entry.meta.last_asked_at)) >=
+          day))
+  )
+    return false;
+  const lastQuestion = entriesOf(p, "preferences").find(
+    (e) => e.title === "Check-in session",
+  )?.meta.last_question;
+  return !lastQuestion || questionKey(lastQuestion) !== key;
+}
+export function availableQuestion(
+  p: Practice,
+  candidates: readonly string[],
+  day: string,
+  session?: string,
+  sameTopic = false,
+) {
+  if (
+    sameTopic &&
+    candidates.some((question) => {
+      const latest = entriesOf(p, "question")
+        .filter((e) => questionKey(e.title) === questionKey(question))
+        .sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0];
+      return (
+        latest &&
+        latest.state !== "answered" &&
+        !questionAvailable(p, question, day, session)
+      );
+    })
+  )
+    return "";
+  return candidates.find((q) => questionAvailable(p, q, day, session)) || "";
+}
+export function eligibleOpenQuestion(
+  p: Practice,
+  day: string,
+  session?: string,
+) {
+  return entriesOf(p, "question")
+    .filter(
+      (e) =>
+        !["stopped", "answered"].includes(e.state) &&
+        questionAvailable(p, e.title, day, session),
+    )
+    .sort((a, b) =>
+      (a.meta.last_asked_at || a.created_at).localeCompare(
+        b.meta.last_asked_at || b.created_at,
+      ),
+    )[0];
 }

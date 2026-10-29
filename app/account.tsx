@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import { afterSignIn } from "../src/access";
 import { supabase } from "../src/supabase";
 import { authRedirect, useAuthRedirect } from "../src/auth-redirect";
 import {
@@ -40,7 +41,7 @@ export default function Account() {
   }>();
   const [intent, setIntent] = useState({
     returnTo: safeDestination(params.returnTo),
-    reason: params.reason || "save",
+    reason: params.reason || "join",
     question: params.question || "",
   });
   const [mode, setMode] = useState<"link" | "password" | "reset">("link");
@@ -74,10 +75,17 @@ export default function Account() {
     return () => clearInterval(timer);
   }, [retryAt]);
   const remaining = Math.max(0, Math.ceil((retryAt - now) / 1000));
+  const destination = afterSignIn(intent.returnTo, data.profile.onboarded);
+  const joining = intent.reason === "join";
+  const continueLabel =
+    destination === "/onboarding" ? "Meet Chloe" : "Continue to my practice";
   const returnToPractice = () => {
     if (intent.returnTo === "/chloe" && intent.question)
-      router.replace({pathname: "/chloe", params: {question: intent.question, mode: "discovery"}});
-    else router.replace(safeDestination(intent.returnTo));
+      router.replace({
+        pathname: "/chloe",
+        params: { question: intent.question, mode: "discovery" },
+      });
+    else router.replace(destination);
   };
   const submit = async () => {
     setBusy(true);
@@ -108,7 +116,7 @@ export default function Account() {
         });
         if (error) throw error;
         setNotice(
-          `Check ${email.trim()} for a sign-in link. It works for new and existing accounts. Open it on this device to bring your local practice with you. Your draft stays here.`,
+          `Check ${email.trim()} for your sign-in link. Open it to ${joining ? "finish creating your account and meet Chloe" : "return to your practice"}. Check your spam folder too.`,
         );
         setRetryAt(Date.now() + 60000);
       }
@@ -147,9 +155,11 @@ export default function Account() {
   return (
     <Page header={<TopBar title="Your private space" />}>
       <Eyebrow>
-        {intent.reason === "chloe"
-          ? "CONTINUE WITH CHLOE"
-          : "YOUR PRACTICE, WITH YOU"}
+        {joining
+          ? "JOIN THE BETA"
+          : intent.reason === "chloe"
+            ? "CONTINUE WITH CHLOE"
+            : "YOUR PRACTICE, WITH YOU"}
       </Eyebrow>
       <Title>
         {session
@@ -158,7 +168,9 @@ export default function Account() {
             ? "A fresh way in."
             : intent.reason === "chloe"
               ? "A private space to talk."
-              : "Keep what you’ve started."}
+              : joining
+                ? "Create your account."
+                : "Welcome back."}
       </Title>
       {session ? (
         <>
@@ -169,7 +181,7 @@ export default function Account() {
                 text={`${importResult.imported} new intentions imported. ${importResult.skipped_days.length ? `${importResult.skipped_days.length} days already had an intention in your account; those local moments remain in your device copy.` : "Your account is ready."} Your local backup is still here.`}
               />
               <Button
-                label="Continue to my practice"
+                label={continueLabel}
                 loading={busy}
                 onPress={async () => {
                   setBusy(true);
@@ -219,7 +231,7 @@ export default function Account() {
             </>
           ) : (
             <Button
-              label="Continue to my practice"
+              label={continueLabel}
               loading={busy}
               onPress={continuePractice}
             />
@@ -234,8 +246,23 @@ export default function Account() {
           <Body>
             {intent.reason === "chloe"
               ? "Chloe needs an account to use your saved values and reflections. Messages are processed by our AI provider. We’ll bring you back to your conversation."
-              : "Use one email link to sign in or create your account. After connecting, choose whether to import this device’s practice."}
+              : joining
+                ? "First, your own space. Then Chloe will guide you through a few picture picks and short stories. Your answers will save to your account."
+                : "Enter your email to return to your practice. New here? The same link can create your account."}
           </Body>
+          <View style={s.card}>
+            <Eyebrow>Before you start</Eyebrow>
+            <Body style={{ fontSize: 13, lineHeight: 20 }}>
+              Your reflections are private to your account. When you talk to
+              Chloe, Anthropic processes your messages and relevant saved
+              context to write a reply. You can delete your practice from
+              Settings.
+            </Body>
+            <TextButton
+              label="Read the privacy note"
+              onPress={() => router.push("/privacy")}
+            />
+          </View>
           <Field
             label="EMAIL"
             placeholder="you@example.com"
@@ -264,7 +291,7 @@ export default function Account() {
                   ? `Send another link in ${remaining}s`
                   : mode === "reset"
                     ? "Send reset link"
-                    : "Email me a sign-in link"
+                    : "Send me a sign-in link"
             }
             disabled={
               !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ||
@@ -292,8 +319,8 @@ export default function Account() {
             />
           )}
           <TextButton
-            label="Continue on this device"
-            onPress={returnToPractice}
+            label="Back to the introduction"
+            onPress={() => router.replace("/")}
           />
         </>
       )}

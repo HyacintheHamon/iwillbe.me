@@ -1,3 +1,4 @@
+import { withAccount } from "../src/access-gate";
 import React, { useState } from "react";
 import { Image, View } from "react-native";
 import { router } from "expo-router";
@@ -21,7 +22,7 @@ import {
   TopBar,
   s,
 } from "../src/ui";
-export default function Explore() {
+function Explore() {
   const { data, putEntry } = usePractice();
   const today = useToday();
   const [domain, setDomain] = useState("All"),
@@ -187,3 +188,5 @@ export default function Explore() {
     </Page>
   );
 }
+
+export default withAccount(Explore);

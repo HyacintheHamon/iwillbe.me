@@ -50,8 +50,9 @@
     "test": "node --import tsx --test tests/*.test.ts",
     "format": "prettier --write app src tests scripts supabase/functions",
     "check": "npm run typecheck && npm run lint && npm test",
-    "test:browser": "node scripts/verify-ui.mjs && node scripts/verify-auth.mjs",
-    "preview": "node scripts/preview.mjs"
+    "test:browser": "node scripts/verify-entry.mjs && node scripts/verify-ui.mjs && node scripts/verify-guidance.mjs && node scripts/verify-onboarding.mjs && node scripts/verify-chloe.mjs && node scripts/verify-sync.mjs && node scripts/verify-auth.mjs",
+    "preview": "node scripts/preview.mjs",
+    "test:entry": "node scripts/verify-entry.mjs"
   },
   "private": true
 }

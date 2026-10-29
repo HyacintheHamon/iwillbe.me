@@ -89,7 +89,7 @@ export default function Invite() {
         <Body>You have blocked invitations from this sender.</Body>
       ) : limited ? (
         <Body>
-          You have already opened a comet today on this device. This one can
+          You have already opened an idea today on this device. This one can
           wait until tomorrow.
         </Body>
       ) : inv && !done ? (
@@ -172,7 +172,7 @@ export default function Invite() {
                     await putEntry(
                       entryInput("interest", inv.message.slice(0, 80), {
                         body: inv.message,
-                        source: "Comet · accepted by you",
+                        source: "Shared idea · accepted by you",
                         state: "spark",
                       }),
                     );
@@ -211,7 +211,7 @@ export default function Invite() {
               />
               <Body style={{ fontSize: 13 }}>
                 The sender cannot see whether you accepted, saved or passed.
-                Before connecting an account, the one-comet-a-day limit and
+                Before connecting an account, the one-idea-a-day limit and
                 blocked senders apply to this device.
               </Body>
             </>

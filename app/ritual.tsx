@@ -1,3 +1,4 @@
+import { withAccount } from "../src/access-gate";
 import React, { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
@@ -16,12 +17,16 @@ import {
   suggestedPlanet,
   entriesOf,
   currentVision,
+  currentWhy,
+  eligibleOpenQuestion,
   entryInput,
   formatCommitment,
   returningToPractice,
   questionAvailable,
   type Planet,
 } from "../src/journey";
+import { morningCue } from "../src/guidance";
+import { isUnreadyAnswer } from "../src/onboarding";
 import { useToday } from "../src/use-today";
 import {
   Body,
@@ -29,7 +34,6 @@ import {
   Chip,
   Eyebrow,
   Field,
-  Illustration,
   Notice,
   Page,
   TextButton,
@@ -69,7 +73,7 @@ type Step =
   | "person"
   | "done";
 
-export default function Ritual() {
+function Ritual() {
   const { data } = usePractice();
   const params = useLocalSearchParams<Params>();
   const today = useToday();
@@ -105,6 +109,7 @@ function IntentionForm({
   );
   const fixedArea = season?.meta.pace === "stay";
   const preferred = suggestedPlanet(data, day);
+  const why = currentWhy(data);
   const [returning] = useState(() => returningToPractice(data, today));
   const pending = entriesOf(data, "backlog")
     .filter(
@@ -159,11 +164,20 @@ function IntentionForm({
       saveOthers: false,
       backlog_id: params.backlog || firstBacklog?.id || "",
       skipped: false,
+      revision: current?.revision ?? 0,
+      whyLinked: entriesOf(data, "story").some(
+        (e) =>
+          e.meta.period === `why-action:${day}` &&
+          e.state === "active" &&
+          !!why &&
+          e.source_ids.includes(why.id),
+      ),
     },
   );
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [notice, setNotice] = useState("");
+  const [carried, setCarried] = useState("");
   const area = fixedArea
     ? preferred
     : draft.planet === "Surprise"
@@ -186,9 +200,19 @@ function IntentionForm({
           : ""
       : "";
   const daySeed = Math.floor(Date.parse(`${day}T12:00:00Z`) / 86400000);
-  const opener = openers.length
-    ? openers[(daySeed + draft.opener) % openers.length]
-    : `A little room for ${area.toLowerCase()} today.`;
+  const cue =
+    !returning && day === today && !draft.opener && daySeed % 3 !== 2
+      ? morningCue(data, day, area)
+      : null;
+  const openQuestion =
+    !returning && day === today && daySeed % 7 === 1
+      ? eligibleOpenQuestion(data, day, `morning:${day}`)
+      : undefined;
+  const opener =
+    cue?.question ||
+    (openers.length
+      ? openers[(daySeed + draft.opener) % openers.length]
+      : `A little room for ${area.toLowerCase()} today.`);
   const rawCommitment = formatCommitment(draft.action, draft.kind);
   const beWords = rawCommitment
     .replace(/^I will be\s+/i, "")
@@ -264,7 +288,11 @@ function IntentionForm({
     await putEntry(
       entryInput("preferences", "Check-in session", {
         id: prior?.id,
-        meta: { ...prior?.meta, last_check_in_at: new Date().toISOString() },
+        meta: {
+          ...prior?.meta,
+          last_check_in_at: new Date().toISOString(),
+          last_question: opener,
+        },
       }),
     );
   };
@@ -281,12 +309,27 @@ function IntentionForm({
         draft.interest,
         {
           planet: area,
+          revision: draft.revision,
           kind: commitmentKind,
           when_context: draft.when_context.trim(),
           place: draft.place,
           with_person: draft.with_person,
         },
       );
+      const whyLink = entriesOf(data, "story").find(
+        (e) => e.meta.period === `why-action:${day}`,
+      );
+      if (why && (draft.whyLinked || whyLink))
+        await putEntry(
+          entryInput("story", "My why in action", {
+            id: whyLink?.id,
+            body: commitment,
+            state: draft.whyLinked ? "active" : "released",
+            source: "Connected to your why by you",
+            source_ids: [why.id],
+            meta: { period: `why-action:${day}`, commitment_day: day },
+          }),
+        );
       if (draft.saveOthers) {
         for (const title of draft.alternatives.filter(
           (a) => a !== draft.action,
@@ -332,6 +375,10 @@ function IntentionForm({
       update({ step: "done", skipped: true });
     });
   const continueAction = () => {
+    if (isUnreadyAnswer(draft.action)) {
+      void skipAction();
+      return;
+    }
     const items = draft.action
       .split(/\n+/)
       .map((v) => v.trim())
@@ -436,6 +483,14 @@ function IntentionForm({
                   disabled={!draft.fresh.trim()}
                   onPress={() =>
                     run(async () => {
+                      if (isUnreadyAnswer(draft.fresh)) {
+                        await saveQuestion("What's true for you right now?");
+                        update({ step: "action" });
+                        setNotice(
+                          "Let it sit with you today. We can come back to it.",
+                        );
+                        return;
+                      }
                       await putEntry(
                         entryInput("story", "What's true for you right now?", {
                           body: draft.fresh.trim(),
@@ -538,8 +593,8 @@ function IntentionForm({
             </>
           ) : null}
           <Title>{question}</Title>
-          {draft.step === "action" && focusReason ? (
-            <Body>{focusReason}</Body>
+          {draft.step === "action" && (cue?.line || focusReason) ? (
+            <Body>{cue?.line || focusReason}</Body>
           ) : null}
           <Notice text={notice} />
           {draft.step === "fresh" ? (
@@ -712,7 +767,10 @@ function IntentionForm({
                 onPress={() =>
                   router.push({
                     pathname: "/chloe",
-                    params: { mode: "morning" },
+                    params: {
+                      mode: "morning",
+                      question: `Help me choose one small commitment in ${area}.${draft.action.trim() ? ` I’m considering: ${draft.action.trim()}` : ""}`,
+                    },
                   })
                 }
               />
@@ -764,6 +822,18 @@ function IntentionForm({
                 A moment, a place, or the thing you’ll do right before is
                 enough.
               </Body>
+              {why ? (
+                <>
+                  <Chip
+                    label="This expresses my why"
+                    selected={draft.whyLinked}
+                    onPress={() => update({ whyLinked: !draft.whyLinked })}
+                  />
+                  {draft.whyLinked ? (
+                    <Body style={{ fontSize: 13 }}>{why.body}</Body>
+                  ) : null}
+                </>
+              ) : null}
               <View style={s.wrap}>
                 <Chip
                   label="For me"
@@ -804,10 +874,6 @@ function IntentionForm({
             </>
           ) : draft.step === "done" ? (
             <>
-              <Illustration
-                source={require("../assets/illustrations/morning-orbit.png")}
-                height={180}
-              />
               {draft.skipped ? (
                 <Body>
                   We can come back to it. There’s nothing else to answer now.
@@ -831,6 +897,35 @@ function IntentionForm({
                 label="Done for now"
                 onPress={() => router.replace("/")}
               />
+              {!draft.skipped && openQuestion && !carried ? (
+                <TextButton
+                  label="Carry a question today"
+                  onPress={() =>
+                    run(async () => {
+                      const preference = entriesOf(data, "preferences").find(
+                        (e) => e.title === "Check-in session",
+                      );
+                      await putEntry(
+                        entryInput("preferences", "Check-in session", {
+                          id: preference?.id,
+                          meta: {
+                            ...preference?.meta,
+                            carried_question_id: openQuestion.id,
+                            carried_question_day: day,
+                          },
+                        }),
+                      );
+                      setCarried(openQuestion.title);
+                    })
+                  }
+                />
+              ) : null}
+              {carried ? (
+                <>
+                  <Body>{carried}</Body>
+                  <Body>No need to answer now. Take it with you.</Body>
+                </>
+              ) : null}
             </>
           ) : null}
         </>
@@ -838,3 +933,5 @@ function IntentionForm({
     </Page>
   );
 }
+
+export default withAccount(Ritual);

@@ -1,23 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { draftKey } from "./drafts";
+import { safeDestination } from "./access";
+export { safeDestination } from "./access";
 export const AUTH_INTENT_KEY = "iwillbe.auth.intent";
-const destinations = [
-  "/",
-  "/chloe",
-  "/settings",
-  "/galaxy",
-  "/ritual",
-  "/history",
-  "/connections",
-  "/membership",
-  "/why",
-  "/explore",
-  "/rhythms",
-  "/telescope",
-] as const;
-export function safeDestination(value?: string) {
-  return destinations.find((path) => path === value) || "/";
-}
 export async function rememberAuthIntent(
   returnTo?: string,
   reason?: string,

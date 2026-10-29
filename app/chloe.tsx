@@ -1,4 +1,5 @@
-import React, { useRef, useState } from "react";
+import { withAccount } from "../src/access-gate";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -40,6 +41,12 @@ import {
   type EntryKind,
 } from "../src/journey";
 import { useToday } from "../src/use-today";
+import { shiftDay } from "../src/domain";
+import {
+  ChloeReflection,
+  type PendingReflection,
+} from "../src/chloe-reflection";
+import type { WeeklyFocusProposal } from "../supabase/functions/chloe/proposals";
 type Suggestion = {
   action: string;
   value: string;
@@ -49,13 +56,20 @@ type Suggestion = {
   when_context?: string;
   with_person?: string;
 };
-export default function Chloe() {
+function Chloe() {
+  const { session } = usePractice();
+  return <ChloeSession key={session?.user.id || "guest"} />;
+}
+function ChloeSession() {
   const { data, session, addMessages, remember, putEntry } = usePractice();
+  const ownerRef = useRef(session?.user.id);
   const params = useLocalSearchParams<{ mode?: string; question?: string }>();
   const today = useToday();
   const [sessionId, setSessionId] = useState(() => Crypto.randomUUID());
   const [returningToday] = useState(() => returningToPractice(data, today));
   const [notice, setNotice] = useState("");
+  const [startedAt, setStartedAt] = useState(() => new Date().toISOString());
+  const [showHistory, setShowHistory] = useState(false);
   const [selectedQuestionDone, setSelectedQuestionDone] = useState(false);
   const [discovery, setDiscovery] = useState<{
     kind: EntryKind;
@@ -71,7 +85,11 @@ export default function Chloe() {
     } | null>(null);
   const { draft, update, ready, draftError } = useDraft(
     draftKey("chloe", session?.user.id),
-    { input: params.question || "" },
+    {
+      input: params.question || "",
+      reflection: null as PendingReflection | null,
+      weeklyFocus: null as WeeklyFocusProposal | null,
+    },
   );
   const input = draft.input;
   const incoming = useDraft(draftKey("chloe.incoming", session?.user.id), {
@@ -84,6 +102,26 @@ export default function Chloe() {
     [memory, setMemory] = useState<string | null>(null),
     [pending, setPending] = useState("");
   const scroll = useRef<React.ElementRef<typeof ScrollView>>(null);
+  const activeProposal =
+    mode === "night" && draft.reflection
+      ? "reflection"
+      : suggestion
+        ? "intention"
+        : whyProposal
+          ? "why"
+          : discovery
+            ? "discovery"
+            : ["sunday", "explore"].includes(mode) && draft.weeklyFocus
+              ? "focus"
+              : memory
+                ? "memory"
+                : null;
+  useEffect(() => {
+    ownerRef.current = session?.user.id;
+    return () => {
+      ownerRef.current = undefined;
+    };
+  }, [session?.user.id]);
   const send = async (message?: string) => {
     const text = (message ?? input).trim();
     if (!text || busy) return;
@@ -93,6 +131,13 @@ export default function Chloe() {
       );
       return;
     }
+    const owner = session.user.id;
+    const assertOwner = () => {
+      if (ownerRef.current !== owner)
+        throw new Error(
+          "Your account changed. This conversation stays with its original account.",
+        );
+    };
     setBusy(true);
     setError("");
     setPending(text);
@@ -114,9 +159,11 @@ export default function Chloe() {
             },
           }),
         );
+      assertOwner();
       const { data: reply, error } = await supabase.functions.invoke("chloe", {
         body: {
           action: "chat",
+          proposal_cards: true,
           message: text,
           mode,
           session_id: sessionId,
@@ -124,6 +171,7 @@ export default function Chloe() {
           area: suggestedPlanet(data, today),
         },
       });
+      assertOwner();
       if (error) {
         let message =
           "Chloe is unavailable right now. Your practice is still here — try again in a moment.";
@@ -136,8 +184,24 @@ export default function Chloe() {
         } catch {}
         throw new Error(message);
       }
-      await addMessages(reply.messages, session.user.id);
-      if (message === undefined || message === input) setInput("");
+      await addMessages(reply.messages, owner);
+      assertOwner();
+      update({
+        ...(message === undefined || message === input ? { input: "" } : {}),
+        ...(reply.reflection_proposal
+          ? {
+              reflection: {
+                ...reply.reflection_proposal,
+                pending_revision:
+                  data.checkIns.find(
+                    (c) =>
+                      c.intention_id === reply.reflection_proposal.intention_id,
+                  )?.revision ?? 0,
+              },
+            }
+          : {}),
+        ...(reply.weekly_focus ? { weeklyFocus: reply.weekly_focus } : {}),
+      });
       if (message === params.question) setSelectedQuestionDone(true);
       setSuggestion(reply.suggested_intention);
       setMemory(reply.memory_suggestion);
@@ -157,23 +221,27 @@ export default function Chloe() {
               last_asked_session: sessionId,
             },
           });
+        assertOwner();
         const answered = entriesOf(data, "question").find(
           (e) => e.title === question,
         );
         if (answered && !skipped)
           await putEntry({ ...answered, state: "answered", body: text });
+        assertOwner();
       } catch {
+        assertOwner();
         setNotice(
           "Your conversation is saved. The question’s status could not be updated yet.",
         );
       }
       setPending("");
     } catch (e) {
+      if (ownerRef.current !== owner) return;
       setError((e as Error).message);
       if (message === undefined) setInput(text);
       setPending("");
     } finally {
-      setBusy(false);
+      if (ownerRef.current === owner) setBusy(false);
     }
   };
   if (!ready)
@@ -270,8 +338,11 @@ export default function Chloe() {
             key={id}
             label={label}
             selected={mode === id}
+            disabled={busy}
             onPress={() => {
+              if (busy) return;
               setMode(id);
+              setStartedAt(new Date().toISOString());
               setSessionId(Crypto.randomUUID());
               setQuestion(null);
               setSuggestion(null);
@@ -306,6 +377,38 @@ export default function Chloe() {
             </Body>
           </View>
         ) : null}
+        {!params.question &&
+        !data.messages.some((m) => m.created_at >= startedAt) &&
+        !pending ? (
+          <View style={s.card}>
+            <Body>
+              {mode === "night"
+                ? "A brief look at today, then let the night be yours."
+                : mode === "sunday" || mode === "explore"
+                  ? "A little room to notice what is taking shape."
+                  : "One small question, then a step out in your life."}
+            </Body>
+            <Button
+              label={
+                mode === "night"
+                  ? "Begin tonight"
+                  : mode === "sunday"
+                    ? "Begin Sunday Explore"
+                    : "Begin this moment"
+              }
+              loading={busy}
+              onPress={() =>
+                void send(
+                  mode === "night"
+                    ? "Let's reflect on today."
+                    : mode === "sunday"
+                      ? "Let's look at this week."
+                      : "Help me begin with one question.",
+                )
+              }
+            />
+          </View>
+        ) : null}
         {!data.messages.length && (
           <View style={{ gap: 18, paddingTop: 12, paddingBottom: 10 }}>
             <ChloeMark />
@@ -321,35 +424,47 @@ export default function Chloe() {
             />
           </View>
         )}
-        {data.messages.map((m) => (
-          <View
-            key={m.id}
-            style={{
-              maxWidth: "90%",
-              alignSelf: m.role === "user" ? "flex-end" : "flex-start",
-              backgroundColor: m.role === "user" ? "#2D315B" : C.white,
-              borderRadius: 22,
-              borderBottomRightRadius: m.role === "user" ? 6 : 22,
-              borderBottomLeftRadius: m.role === "assistant" ? 6 : 22,
-              padding: 17,
-            }}
-          >
-            <Body
+        {data.messages.some((m) => m.created_at < startedAt) ? (
+          <TextButton
+            label={
+              showHistory
+                ? "Hide earlier conversations"
+                : "Earlier conversations"
+            }
+            onPress={() => setShowHistory(!showHistory)}
+          />
+        ) : null}
+        {data.messages
+          .filter((m) => showHistory || m.created_at >= startedAt)
+          .map((m) => (
+            <View
+              key={m.id}
               style={{
-                color: C.navy,
-                fontSize: 15,
-                lineHeight: 23,
+                maxWidth: "90%",
+                alignSelf: m.role === "user" ? "flex-end" : "flex-start",
+                backgroundColor: m.role === "user" ? "#E9EDE5" : C.white,
+                borderRadius: 22,
+                borderBottomRightRadius: m.role === "user" ? 6 : 22,
+                borderBottomLeftRadius: m.role === "assistant" ? 6 : 22,
+                padding: 17,
               }}
             >
-              {m.content}
-            </Body>
-          </View>
-        ))}
+              <Body
+                style={{
+                  color: C.navy,
+                  fontSize: 15,
+                  lineHeight: 23,
+                }}
+              >
+                {m.content}
+              </Body>
+            </View>
+          ))}
         {!!pending && (
           <View
             style={{
               alignSelf: "flex-end",
-              backgroundColor: "#2D315B",
+              backgroundColor: "#E9EDE5",
               borderRadius: 22,
               padding: 17,
               maxWidth: "90%",
@@ -365,7 +480,69 @@ export default function Chloe() {
             <Body style={{ fontSize: 12 }}>A little space to think…</Body>
           </View>
         )}
-        {!!suggestion && (
+        {draft.reflection && activeProposal === "reflection" ? (
+          <ChloeReflection
+            key={draft.reflection.intention_id}
+            proposal={draft.reflection}
+            onChange={(reflection) => update({ reflection })}
+            onSaved={() => {
+              update({ reflection: null });
+              setQuestion(null);
+              setNotice("Saved. Let the rest of the night be yours.");
+            }}
+            onDismiss={() => update({ reflection: null })}
+          />
+        ) : null}
+        {draft.weeklyFocus && activeProposal === "focus" ? (
+          <View style={s.card}>
+            <Eyebrow>A little direction for your mornings</Eyebrow>
+            <Body>{draft.weeklyFocus.reason}</Body>
+            <Body>
+              This week I’ll lean toward {draft.weeklyFocus.area} in your
+              mornings.
+            </Body>
+            <Button
+              label="Yes, use this focus"
+              onPress={async () => {
+                const focus = draft.weeklyFocus;
+                if (!focus) return;
+                try {
+                  const prefs = entriesOf(data, "preferences").find(
+                    (e) => e.title === "Season",
+                  );
+                  if (
+                    prefs?.meta.pace === "stay" &&
+                    prefs.meta.orbit !== focus.area
+                  )
+                    throw new Error(
+                      "Your fixed focus has changed. Keep it, or choose a new focus in Rhythms.",
+                    );
+                  await putEntry(
+                    entryInput("preferences", "Season", {
+                      ...prefs,
+                      source: "Confirmed in Sunday Explore",
+                      source_ids: focus.source_ids,
+                      meta: {
+                        ...prefs?.meta,
+                        focus_area: focus.area,
+                        focus_until: shiftDay(today, 6),
+                      },
+                    }),
+                  );
+                  update({ weeklyFocus: null });
+                  setNotice("Your mornings will carry this forward.");
+                } catch (e) {
+                  setError((e as Error).message);
+                }
+              }}
+            />
+            <TextButton
+              label="Keep my current focus"
+              onPress={() => update({ weeklyFocus: null })}
+            />
+          </View>
+        ) : null}
+        {!!suggestion && activeProposal === "intention" && (
           <View style={s.card}>
             <Eyebrow>A POSSIBLE INTENTION</Eyebrow>
             <Title style={{ fontSize: 25, lineHeight: 33 }}>
@@ -382,7 +559,7 @@ export default function Chloe() {
             />
           </View>
         )}
-        {!!memory && (
+        {!!memory && activeProposal === "memory" && (
           <View style={s.card}>
             <View style={s.row}>
               <BookmarkSimple size={20} color={C.gold} />
@@ -429,7 +606,7 @@ export default function Chloe() {
           text={error || draftError || incoming.draftError}
           tone="error"
         />
-        {discovery ? (
+        {discovery && activeProposal === "discovery" ? (
           <View style={s.card}>
             <Eyebrow>
               A possible {discovery.kind} · does this feel like you?
@@ -547,7 +724,7 @@ export default function Chloe() {
             />
           </View>
         ) : null}
-        {whyProposal ? (
+        {whyProposal && activeProposal === "why" ? (
           <View style={s.card}>
             <Eyebrow>Here’s what I’m starting to hear</Eyebrow>
             <Body>{whyProposal.text}</Body>
@@ -670,3 +847,5 @@ export default function Chloe() {
     </KeyboardAvoidingView>
   );
 }
+
+export default withAccount(Chloe);
