@@ -4,11 +4,11 @@ An Expo app for finding and living a personal why through small, concrete commit
 
 The implementation follows the Chloe brief supplied on **26 October 2026**: purpose develops through service, responsibility and lived experience; values matter more than mood; there are no streaks, guilt or pep talks.
 
-The [26 October follow-through release note](docs/releases/2026-10-26-followthrough.md) records the audit fixes, verification evidence and remaining launch work. The source described here includes changes that are not yet live; the revision migration and updated Chloe function must be published before the corresponding account flows can be verified in production.
+The [26 October follow-through release note](docs/releases/2026-10-26-followthrough.md) records the original implementation checkpoint. See the [29 October release update](docs/releases/2026-10-29-beta-entry.md) for the applied revision migration and current verification scope. Chloe v8 is active in Supabase.
 
 ## October 29 entry update
 
-The [neutral beta entry release note](docs/releases/2026-10-29-beta-entry.md) describes the four-panel introduction and required sign-in before personal questions. Existing guest data remains available for explicit account import. This update is based on the follow-through branch and still needs its revision migration plus real email/callback verification before external beta testing.
+The [neutral beta entry release note](docs/releases/2026-10-29-beta-entry.md) describes the four-panel introduction and required sign-in before personal questions. Existing guest data remains available for explicit account import. The revision migration is applied and its transactional live checks pass; real email/callback verification remains outstanding before external beta testing.
 
 ## Run locally
 
@@ -96,7 +96,7 @@ Guest storage is versioned (`iwillbe.practice.v2.guest`). Existing v1 practice i
 
 New account writes use compare-and-swap revisions: edits and deletes match the saved revision captured by the editor. A conflict shows the saved version and the person's draft, with explicit choices to keep the saved version, save the draft after review, or decide later. An identical retry can adopt a write that already succeeded; a different draft requires review. Owner-scoped draft writes are ordered, and clearing an owner invalidates late callbacks so they cannot restore cleared text.
 
-**This requires `supabase/migrations/20261026230327_practice_revision_guards.sql`. It is prepared but was not applied at the release-note checkpoint.** The migration adds revisions to profiles, intentions, check-ins, memories and journey entries without changing ownership rules. Older clients remain compatible, but only clients sending revision predicates can detect their own stale edits. The new frontend must not be treated as ready for live account verification until the migration is confirmed applied.
+**`supabase/migrations/20261029154648_practice_revision_guards.sql` was applied on 29 October 2026.** Its SQL is unchanged from the original `20261026230327` candidate; the filename now matches the version assigned by Supabase. The migration adds revisions to profiles, intentions, check-ins, memories and journey entries without changing ownership rules. Live transactional checks passed for stale edits/deletes, legacy-client revision increments and owner isolation. Older clients remain compatible, but only clients sending revision predicates can detect their own stale edits.
 
 After sign-in, importing the guest practice requires explicit consent. The SQL function runs atomically with the caller's RLS and never overwrites account days, profiles, reflections or existing entries. Same-day conflicts remain in the guest backup. Drafts survive navigation; a Chloe draft is never sent automatically after authentication.
 
@@ -104,9 +104,9 @@ All new entities have stable UUIDs and provenance. Intentions link to interest/v
 
 ## Backend
 
-Connected project: `mvhqovdznrzoduntyryh`. Repository migrations include the pending revision migration; do not assume every file is already in the project's applied history. The updated Chloe source is also pending deployment at the release-note checkpoint.
+Connected project: `mvhqovdznrzoduntyryh`. All eight repository migrations match the applied history checked on 29 October 2026. Chloe v8 and connections v3 are active; this release does not change their deployed source. Authenticated AI behavior and real email delivery remain separate live checks.
 
-With an installed, authenticated Supabase CLI, confirm the linked project and applied history before publishing. These are owner-run deployment steps, not claims that they have succeeded for this release:
+For subsequent backend changes, confirm the linked project and applied history before publishing:
 
 ```sh
 supabase link --project-ref YOUR_PROJECT_REF
@@ -186,7 +186,7 @@ supabase db query --linked --file tests/revisions.sql
 supabase db advisors --linked --type security --level warn
 ```
 
-The domain and prompt tests cover timezone boundaries, import conflicts, plain possibility/value states, explicit value retries, accepted why selection, focus preferences, weekly scheduling, calendar-quarter evidence, fresh returns and deferred/stopped question handling. Guidance tests cover source-grounded continuity, current-week custom interests, confirmed future area proposals and All in eligibility. Onboarding tests cover uncertain answers, correcting session-owned picks, resumed drafts, supported proposals and one contextual follow-up. Additional unit tests validate reflection/focus contracts, revision retry comparisons, draft write ordering and calendar output. SQL tests cover ownership, immutable reflected intentions, imports, anonymous denial and server-only functions; the new revision checks cover stale edits/deletes and remain pending live execution until the migration is applied.
+The domain and prompt tests cover timezone boundaries, import conflicts, plain possibility/value states, explicit value retries, accepted why selection, focus preferences, weekly scheduling, calendar-quarter evidence, fresh returns and deferred/stopped question handling. Guidance tests cover source-grounded continuity, current-week custom interests, confirmed future area proposals and All in eligibility. Onboarding tests cover uncertain answers, correcting session-owned picks, resumed drafts, supported proposals and one contextual follow-up. Additional unit tests validate reflection/focus contracts, revision retry comparisons, draft write ordering and calendar output. SQL tests cover ownership, immutable reflected intentions, imports, anonymous denial and server-only functions. The revision checks passed against the live project on 29 October, with all fixtures rolled back.
 
 The browser checks exercise the guest journey through picture picks, one-question stories, growth, why, anchors, a concrete commitment and evening reflection. They also cover multiple ideas, explicit value replacement, returning after time away, Meaning To decisions, exploration, why/future versioning, weekly/monthly flows, focus settings, 320-pixel screens, keyboard interaction, contextual authentication and retained drafts. Targeted Chloe checks cover pending proposals, save failures, partial-save retries, confirmed focus and calendar download with intercepted services. Auth tests mock email and failure cases. Screenshots and results are written locally in `test-results/`; set `UI_BASE_URL` and `UI_ARTIFACT_DIR` to target a specific export or deployment. The dated release note records which checks have passed and which remain pending.
 
