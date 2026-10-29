@@ -1,3 +1,4 @@
+import { withAccount } from "../src/access-gate";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Image, Platform, View } from "react-native";
 import { router } from "expo-router";
@@ -64,7 +65,7 @@ import {
   type PickSnapshot,
 } from "../src/onboarding-picks";
 
-export default function Onboarding() {
+function Onboarding() {
   const { data, session, putEntry, removeEntry, saveProfile } = usePractice();
   const [sessionSeed] = useState(() => Crypto.randomUUID());
   const anchors = entriesOf(data, "preferences").find(
@@ -679,10 +680,7 @@ export default function Onboarding() {
           </Body>
           <Eyebrow>About five minutes · three small steps</Eyebrow>
           <Title>Find your possibilities.</Title>
-          <Image
-            source={require("../assets/illustrations/galaxy-night.jpg")}
-            style={{ width: "100%", height: 200, borderRadius: 28 }}
-          />
+
           <Body>
             Your why will evolve as you live. You don’t need every answer today,
             and you can skip any question.
@@ -1211,3 +1209,5 @@ export default function Onboarding() {
     </Page>
   );
 }
+
+export default withAccount(Onboarding);

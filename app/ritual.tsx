@@ -1,3 +1,4 @@
+import { withAccount } from "../src/access-gate";
 import React, { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
@@ -33,7 +34,6 @@ import {
   Chip,
   Eyebrow,
   Field,
-  Illustration,
   Notice,
   Page,
   TextButton,
@@ -73,7 +73,7 @@ type Step =
   | "person"
   | "done";
 
-export default function Ritual() {
+function Ritual() {
   const { data } = usePractice();
   const params = useLocalSearchParams<Params>();
   const today = useToday();
@@ -874,10 +874,6 @@ function IntentionForm({
             </>
           ) : draft.step === "done" ? (
             <>
-              <Illustration
-                source={require("../assets/illustrations/morning-orbit.png")}
-                height={180}
-              />
               {draft.skipped ? (
                 <Body>
                   We can come back to it. There’s nothing else to answer now.
@@ -937,3 +933,5 @@ function IntentionForm({
     </Page>
   );
 }
+
+export default withAccount(Ritual);

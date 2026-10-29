@@ -1,16 +1,20 @@
+import {
+  installAccountFixture,
+  fixturePracticeKey,
+} from "./account-fixture.mjs";
 import { chromium } from "playwright";
 import { expect } from "playwright/test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 
-// Synthetic guest fixtures only. No sign-in, model requests, or production writes.
+// Synthetic signed-in fixtures only. No live authentication, model requests, or production writes.
 const base = (process.env.UI_BASE_URL || "http://localhost:4173").replace(
   /\/$/,
   "",
 );
 const artifacts = process.env.UI_ARTIFACT_DIR || "test-results/guidance";
-const storageKey = "iwillbe.practice.v2.guest";
+const storageKey = fixturePracticeKey;
 const today = "2026-10-26";
 const checks = [],
   errors = [];
@@ -128,6 +132,7 @@ const newFixture = async (data, day = today) => {
     },
     { key: storageKey, value: data },
   );
+  await installAccountFixture(context);
   const page = await context.newPage();
   active = page;
   page.on("pageerror", (error) => errors.push(error.message));

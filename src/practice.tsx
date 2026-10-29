@@ -1087,13 +1087,13 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
             flex: 1,
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: "#0D0E20",
+            backgroundColor: "#F7F6F2",
             position: "absolute",
             inset: 0,
             zIndex: 100,
           }}
         >
-          <ActivityIndicator color="#AF812C" />
+          <ActivityIndicator color="#48634F" />
         </View>
       )}
       <SyncConflictSheet conflict={conflict} choose={chooseConflict} />

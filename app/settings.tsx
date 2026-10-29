@@ -1,3 +1,4 @@
+import { withAccount } from "../src/access-gate";
 import React, { useState } from "react";
 import { ActivityIndicator, Platform, Share, View } from "react-native";
 import { router } from "expo-router";
@@ -30,7 +31,7 @@ import {
   s,
 } from "../src/ui";
 type Section = "profile" | "reminders" | "memory" | "account" | "delete";
-export default function Settings() {
+function Settings() {
   const {
     data,
     session,
@@ -556,7 +557,7 @@ export default function Settings() {
         )}
         {note("account")}
         <TextButton
-          color="#FFB7B0"
+          color="#993F35"
           label={
             session
               ? "Delete my account and data"
@@ -602,3 +603,5 @@ export default function Settings() {
     </Page>
   );
 }
+
+export default withAccount(Settings);

@@ -1,13 +1,7 @@
+import { withAccount } from "../src/access-gate";
 import React, { useState } from "react";
-import {
-  Image,
-  Pressable,
-  View,
-  useWindowDimensions,
-  ScrollView,
-} from "react-native";
+import { Pressable, View, ScrollView } from "react-native";
 import { router } from "expo-router";
-import { StarFourIcon } from "phosphor-react-native/src/icons/StarFour";
 import { usePractice } from "../src/practice";
 import {
   currentWhy,
@@ -37,14 +31,14 @@ import {
   s,
 } from "../src/ui";
 const colors: Record<string, string> = {
-  Maybe: "#BAB4E8",
-  "Tried it": "#F8DE9A",
-  "Into it": "#92BCFF",
-  "On pause": "#E79980",
-  "All in": "#92BCFF",
-  "Trying it on": "#CDB978",
-  Mine: "#F4C96D",
-  "Let go": "#AEB4C5",
+  Maybe: C.gold,
+  "Tried it": C.ink,
+  "Into it": C.gold,
+  "On pause": C.muted,
+  "All in": C.gold,
+  "Trying it on": C.gold,
+  Mine: C.gold,
+  "Let go": C.muted,
 };
 type Layer = "interest" | "value" | "strength" | "person" | "practice";
 const layers: [Layer, string][] = [
@@ -54,12 +48,9 @@ const layers: [Layer, string][] = [
   ["person", "People I admire"],
   ["practice", "Practices and habits"],
 ];
-export default function Galaxy() {
+function Possibilities() {
   const { data, putEntry, removeEntry } = usePractice();
   const today = useToday();
-  const { width } = useWindowDimensions();
-  const mapSize = Math.min(width, 430) - 48;
-  const mapHeight = Math.min(mapSize, 300);
   const [layer, setLayer] = useState<Layer>("interest"),
     [selected, setSelected] = useState<Entry | null>(null),
     [adding, setAdding] = useState(false),
@@ -151,6 +142,7 @@ export default function Galaxy() {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Open my why"
+        style={[s.card, { backgroundColor: C.soft }]}
         onPress={() => router.push("/why")}
       >
         <Body style={{ color: C.gold, fontStyle: "italic" }}>
@@ -192,81 +184,6 @@ export default function Galaxy() {
           />
         ))}
       </ScrollView>
-      <View
-        style={{
-          width: "100%",
-          height: mapHeight,
-          borderRadius: 28,
-          overflow: "hidden",
-        }}
-      >
-        <Image
-          source={require("../assets/illustrations/galaxy-night.jpg")}
-          resizeMode="cover"
-          style={{ position: "absolute", width: mapSize, height: mapHeight }}
-        />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="My why at the centre"
-          onPress={() => router.push("/why")}
-          style={{
-            position: "absolute",
-            top: "40%",
-            left: "36%",
-            width: "28%",
-            height: "24%",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <StarFourIcon size={36} weight="fill" color={C.gold} />
-          <Body style={{ fontSize: 12, color: C.gold }}>My why</Body>
-        </Pressable>
-        {items.slice(0, 8).map((e, n) => {
-          const a =
-            (((n * 360) / Math.max(items.slice(0, 8).length, 3) - 90) *
-              Math.PI) /
-            180;
-          return (
-            <Pressable
-              key={e.id}
-              accessibilityRole="button"
-              accessibilityLabel={`${e.title} · ${state(e)}`}
-              onPress={() => setSelected(e)}
-              style={{
-                position: "absolute",
-                left: `${41 + 35 * Math.cos(a)}%`,
-                top: `${40 + 35 * Math.sin(a)}%`,
-                width: "20%",
-                minHeight: 58,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <StarFourIcon
-                size={state(e) === "Into it" || state(e) === "All in" ? 24 : 16}
-                weight={state(e) === "All in" ? "duotone" : "fill"}
-                color={colors[state(e)] || C.gold}
-              />
-              <Body
-                style={{
-                  fontSize: 11,
-                  lineHeight: 14,
-                  textAlign: "center",
-                  color: C.navy,
-                }}
-              >
-                {e.title}
-              </Body>
-            </Pressable>
-          );
-        })}
-      </View>
-      {layer === "interest" ? (
-        <Body style={{ fontSize: 12, textAlign: "center" }}>
-          Maybe · Tried it · Into it · On pause · All in
-        </Body>
-      ) : null}
       {!items.length ? (
         <View style={s.card}>
           <Title style={{ fontSize: 23, lineHeight: 30 }}>
@@ -288,16 +205,54 @@ export default function Galaxy() {
         <Pressable
           key={e.id}
           accessibilityRole="button"
+          accessibilityLabel={`${e.title} · ${state(e)}`}
           onPress={() => setSelected(e)}
-          style={s.card}
+          style={[
+            s.card,
+            state(e) === "Maybe" && {
+              borderStyle: "dashed",
+              borderColor: C.muted,
+              backgroundColor: "transparent",
+            },
+            ["Into it", "All in"].includes(state(e)) && {
+              backgroundColor: C.navy,
+              borderColor: C.navy,
+            },
+            ["On pause", "Let go"].includes(state(e)) && {
+              backgroundColor: C.paper,
+            },
+          ]}
         >
           <View style={[s.row, { justifyContent: "space-between" }]}>
-            <Body style={{ color: C.navy, flex: 1 }}>{e.title}</Body>
-            <Body style={{ color: colors[state(e)] || C.gold, fontSize: 13 }}>
+            <Body
+              style={{
+                color: ["Into it", "All in"].includes(state(e))
+                  ? C.paper
+                  : C.navy,
+                flex: 1,
+              }}
+            >
+              {e.title}
+            </Body>
+            <Body
+              style={{
+                color: ["Into it", "All in"].includes(state(e))
+                  ? C.paper
+                  : colors[state(e)] || C.gold,
+                fontSize: 13,
+              }}
+            >
               {state(e)}
             </Body>
           </View>
-          <Body style={{ fontSize: 12 }}>{e.body || e.source}</Body>
+          <Body
+            style={{
+              fontSize: 12,
+              color: ["Into it", "All in"].includes(state(e)) ? C.paper : C.ink,
+            }}
+          >
+            {e.body || e.source}
+          </Body>
         </Pressable>
       ))}
       <TextButton
@@ -306,7 +261,7 @@ export default function Galaxy() {
       />
       <Button label="Try one today" onPress={() => router.push("/ritual")} />
       <TextButton
-        label="The people in my constellation"
+        label="The people I show up for"
         onPress={() => router.push("/connections")}
       />
       <TextButton
@@ -498,3 +453,5 @@ export default function Galaxy() {
     </Page>
   );
 }
+
+export default withAccount(Possibilities);

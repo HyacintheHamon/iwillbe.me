@@ -1,10 +1,14 @@
 # iwillbe.me
 
-An Expo app for finding and living a personal why through small, concrete commitments. Chloe helps a person notice what matters, choose how to show up, then get off the screen. React Native serves iOS/Android and Expo web, with optional Supabase accounts and an Anthropic-powered guide.
+An Expo app for finding and living a personal why through small, concrete commitments. Chloe helps a person notice what matters, choose how to show up, then get off the screen. React Native serves iOS/Android and Expo web, with Supabase accounts and an Anthropic-powered guide.
 
 The implementation follows the Chloe brief supplied on **26 October 2026**: purpose develops through service, responsibility and lived experience; values matter more than mood; there are no streaks, guilt or pep talks.
 
 The [26 October follow-through release note](docs/releases/2026-10-26-followthrough.md) records the audit fixes, verification evidence and remaining launch work. The source described here includes changes that are not yet live; the revision migration and updated Chloe function must be published before the corresponding account flows can be verified in production.
+
+## October 29 entry update
+
+The [neutral beta entry release note](docs/releases/2026-10-29-beta-entry.md) describes the four-panel introduction and required sign-in before personal questions. Existing guest data remains available for explicit account import. This update is based on the follow-through branch and still needs its revision migration plus real email/callback verification before external beta testing.
 
 ## Run locally
 
@@ -68,7 +72,7 @@ Morning and night anchors describe what happens just before each check-in and ar
 | Open Questions       | Questions to let sit, answer later, or stop asking.                                                                                                                                  |
 | Meaning To           | Things postponed until done or released. Older items or repeated passes invite a decision without guilt.                                                                             |
 
-The visual galaxy also has an accessible list. A completed experience can establish Tried it; it does not establish enjoyment. Energy comes from explicit reflection. All in becomes eligible based on time actually spent Into it, not the age of an old Maybe. Practical exploration gives a small real-world try-on, with generic time/cost/access information rather than invented local availability or bookings.
+Possibilities use an accessible card list with distinct borders and surfaces for their stages. A completed experience can establish Tried it; it does not establish enjoyment. Energy comes from explicit reflection. All in becomes eligible based on time actually spent Into it, not the age of an old Maybe. Practical exploration gives a small real-world try-on, with generic time/cost/access information rather than invented local availability or bookings.
 
 ### Weekly and future views
 

@@ -1,5 +1,6 @@
+import { withAccount } from "../src/access-gate";
 import React, { useState } from "react";
-import { Image, View, useWindowDimensions } from "react-native";
+import { View, useWindowDimensions } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { usePractice } from "../src/practice";
 import { entriesOf, entryInput, PLANETS, type Planet } from "../src/journey";
@@ -22,7 +23,7 @@ import {
   TopBar,
   s,
 } from "../src/ui";
-export default function Telescope() {
+function Telescope() {
   const params = useLocalSearchParams<{ horizon?: string; changed?: string }>();
   const [horizon, setHorizon] = useState<"year" | "life">(
     params.horizon === "life" ? "life" : "year",
@@ -201,20 +202,17 @@ function Vision({
             style={{
               width: lens,
               height: lens,
-              borderRadius: lens / 2,
+              borderRadius: 24,
               borderWidth: 2,
               borderColor: C.line,
               overflow: "hidden",
               alignSelf: "center",
               alignItems: "center",
               justifyContent: "center",
-              padding: 35,
+              padding: 28,
+              backgroundColor: C.white,
             }}
           >
-            <Image
-              source={require("../assets/illustrations/galaxy-night.jpg")}
-              style={{ position: "absolute", width: lens, height: lens }}
-            />
             <Body
               numberOfLines={7}
               style={{
@@ -396,3 +394,5 @@ function Vision({
     </Page>
   );
 }
+
+export default withAccount(Telescope);

@@ -1,3 +1,4 @@
+import { withAccount } from "../src/access-gate";
 import React, { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
@@ -32,7 +33,6 @@ import {
   Chip,
   Eyebrow,
   Field,
-  Illustration,
   Notice,
   Page,
   TextButton,
@@ -50,7 +50,7 @@ type Step =
   | "possibility"
   | "wrap";
 
-export default function Reflect() {
+function Reflect() {
   const { data } = usePractice();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const today = useToday();
@@ -250,10 +250,6 @@ function QuietNight({ today }: { today: string }) {
       {!question ? <Notice text={error || draftError} tone="error" /> : null}
       {done || !question ? (
         <>
-          <Illustration
-            source={require("../assets/illustrations/evening-reflection.png")}
-            height={180}
-          />
           <Body>Leave it here. Enjoy the rest of your evening.</Body>
           <Button
             label="Done for tonight"
@@ -756,10 +752,6 @@ function ReflectionForm({
       </Title>
       {done ? (
         <>
-          <Illustration
-            source={require("../assets/illustrations/evening-reflection.png")}
-            height={180}
-          />
           {insight ? <Body>{insight}</Body> : null}
           <Body>
             {skipped
@@ -941,3 +933,5 @@ function ReflectionForm({
     </Page>
   );
 }
+
+export default withAccount(Reflect);

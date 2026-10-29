@@ -286,7 +286,7 @@ const shot = async (name) => {
 };
 try {
   await page.goto(baseURL);
-  await button("Find your possibilities").waitFor();
+  await button("Join the beta").waitFor();
   await page.evaluate((p) => {
     localStorage.setItem("iwillbe.practice.v1.guest", JSON.stringify(p));
     localStorage.setItem(
@@ -299,25 +299,19 @@ try {
       "/chloe?mode=discovery&question=" +
       encodeURIComponent(selectedQuestion),
   );
-  await expect(page.getByText(selectedQuestion, { exact: true })).toBeVisible();
   await expect(
-    page.getByRole("textbox", {
-      name: "DRAFT FOR CHLOE · OPTIONAL",
+    page.getByRole("heading", {
+      name: "A private space to talk.",
       exact: true,
     }),
-  ).toHaveValue("My local unfinished thought");
-  assert.equal(
-    chatCalls,
-    0,
-    "Selecting an Open Question must not send a draft",
-  );
-  await button("Connect and continue with Chloe").click();
+  ).toBeVisible();
+  assert.equal(chatCalls, 0, "A private deep link must not send a draft");
   await page
     .getByRole("textbox", { name: "EMAIL", exact: true })
     .fill("fixture@example.test");
-  await button("Email me a sign-in link").click();
+  await button("Send me a sign-in link").click();
   await page
-    .getByText(/Check fixture@example.test for a sign-in link/)
+    .getByText(/Check fixture@example.test for your sign-in link/)
     .waitFor();
   assert.equal(emailCalls, 1);
   assert(

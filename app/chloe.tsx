@@ -1,3 +1,4 @@
+import { withAccount } from "../src/access-gate";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -55,7 +56,7 @@ type Suggestion = {
   when_context?: string;
   with_person?: string;
 };
-export default function Chloe() {
+function Chloe() {
   const { session } = usePractice();
   return <ChloeSession key={session?.user.id || "guest"} />;
 }
@@ -441,7 +442,7 @@ function ChloeSession() {
               style={{
                 maxWidth: "90%",
                 alignSelf: m.role === "user" ? "flex-end" : "flex-start",
-                backgroundColor: m.role === "user" ? "#2D315B" : C.white,
+                backgroundColor: m.role === "user" ? "#E9EDE5" : C.white,
                 borderRadius: 22,
                 borderBottomRightRadius: m.role === "user" ? 6 : 22,
                 borderBottomLeftRadius: m.role === "assistant" ? 6 : 22,
@@ -463,7 +464,7 @@ function ChloeSession() {
           <View
             style={{
               alignSelf: "flex-end",
-              backgroundColor: "#2D315B",
+              backgroundColor: "#E9EDE5",
               borderRadius: 22,
               padding: 17,
               maxWidth: "90%",
@@ -846,3 +847,5 @@ function ChloeSession() {
     </KeyboardAvoidingView>
   );
 }
+
+export default withAccount(Chloe);

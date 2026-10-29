@@ -20,21 +20,22 @@ import {
 import { ArrowLeftIcon as ArrowLeft } from "phosphor-react-native/src/icons/ArrowLeft";
 import { ArrowRightIcon as ArrowRight } from "phosphor-react-native/src/icons/ArrowRight";
 import { CheckIcon as Check } from "phosphor-react-native/src/icons/Check";
-import { StarFourIcon as StarFour } from "phosphor-react-native/src/icons/StarFour";
+import { ChatCircleIcon } from "phosphor-react-native/src/icons/ChatCircle";
 import { XIcon as X } from "phosphor-react-native/src/icons/X";
 import { router } from "expo-router";
 export const C = {
-  paper: "#0D0E20",
-  navy: "#F1F0F8",
-  ink: "#D1D2E3",
-  gold: "#F4C96D",
-  goldDecorative: "#F4C96D",
-  goldLight: "#F4C96D",
-  line: "#333750",
-  muted: "#A6ABC3",
-  white: "#191B34",
-  blue: "#7FB3FF",
-  clay: "#DF9EAC",
+  soft: "#E9EDE5",
+  paper: "#F7F6F2",
+  navy: "#252C27",
+  ink: "#535B55",
+  gold: "#48634F",
+  goldDecorative: "#48634F",
+  goldLight: "#48634F",
+  line: "#DADDD5",
+  muted: "#69716A",
+  white: "#FFFFFF",
+  blue: "#436578",
+  clay: "#946451",
 };
 export const F = {
   serif: "Fraunces_500Medium",
@@ -173,7 +174,7 @@ export function Chip({
       style={[
         s.chip,
         disabled && { opacity: 0.55 },
-        selected && { borderColor: C.gold, backgroundColor: "#363044" },
+        selected && { borderColor: C.gold, backgroundColor: "#E9EDE5" },
       ]}
     >
       {selected && <Check size={15} color={C.gold} />}
@@ -214,13 +215,13 @@ export function Notice({
     <View
       accessibilityRole={tone === "error" ? "alert" : "status"}
       accessibilityLiveRegion="polite"
-      style={[s.notice, tone === "error" && { backgroundColor: "#3B2332" }]}
+      style={[s.notice, tone === "error" && { backgroundColor: "#FAEDE8" }]}
     >
       <Body
         style={{
           fontSize: 13,
           lineHeight: 20,
-          color: tone === "error" ? "#FFB7B0" : C.ink,
+          color: tone === "error" ? "#993F35" : C.ink,
         }}
       >
         {text}
@@ -310,13 +311,13 @@ export function ChloeMark({ small = false }: { small?: boolean }) {
   return (
     <View
       style={{
-        backgroundColor: "#363044",
+        backgroundColor: "#E9EDE5",
         padding: small ? 6 : 12,
         borderRadius: 40,
         alignSelf: "flex-start",
       }}
     >
-      <StarFour size={small ? 16 : 24} weight="fill" color={C.gold} />
+      <ChatCircleIcon size={small ? 16 : 24} weight="regular" color={C.gold} />
     </View>
   );
 }

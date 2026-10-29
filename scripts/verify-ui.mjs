@@ -1,3 +1,7 @@
+import {
+  installAccountFixture,
+  fixturePracticeKey,
+} from "./account-fixture.mjs";
 import { chromium } from "playwright";
 import { expect } from "playwright/test";
 import { existsSync } from "node:fs";
@@ -9,7 +13,7 @@ const base = (process.env.UI_BASE_URL || "http://localhost:4173").replace(
   /\/$/,
   "",
 );
-const storageKey = "iwillbe.practice.v2.guest";
+const storageKey = fixturePracticeKey;
 await mkdir(root, { recursive: true });
 const errors = [];
 const checks = [];
@@ -82,6 +86,7 @@ const record = (check) => {
 try {
   browser = await chromium.launch(launchOptions);
   const context = await browser.newContext(contextOptions);
+  await installAccountFixture(context);
   page = await context.newPage();
   activePage = page;
   page.on("pageerror", (error) => errors.push(error.message));
@@ -413,7 +418,7 @@ try {
   // Reaffirming the visible picture must never commit this hidden draft.
   await page.evaluate(() =>
     localStorage.setItem(
-      "iwillbe.draft.v1.guest.vision.year",
+      "iwillbe.draft.v1.aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.vision.year",
       JSON.stringify({
         text: "An unfinished move to another country",
         notes: { Grow: "A hidden draft detail" },
@@ -620,6 +625,7 @@ try {
     },
     { key: storageKey, practice: returningPractice },
   );
+  await installAccountFixture(returnContext);
   const returnPage = await returnContext.newPage();
   activePage = returnPage;
   returnPage.on("pageerror", (error) => errors.push(error.message));
@@ -698,6 +704,7 @@ try {
     },
     { key: storageKey, practice: emptyFixture },
   );
+  await installAccountFixture(zoneContext);
   const zonePage = await zoneContext.newPage();
   activePage = zonePage;
   zonePage.on("pageerror", (error) => errors.push(error.message));
@@ -768,7 +775,11 @@ try {
   );
   await questionPage.evaluate(() => {
     for (const key of Object.keys(localStorage))
-      if (key.startsWith("iwillbe.draft.v1.guest.brief.review.week:"))
+      if (
+        key.startsWith(
+          "iwillbe.draft.v1.aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.brief.review.week:",
+        )
+      )
         localStorage.removeItem(key);
   });
   await go("/rhythms", questionPage);

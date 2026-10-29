@@ -1,3 +1,4 @@
+import { withAccount } from "../src/access-gate";
 import React, { useState } from "react";
 import { View } from "react-native";
 import { router } from "expo-router";
@@ -37,7 +38,7 @@ import {
   s,
 } from "../src/ui";
 
-export default function Rhythms() {
+function Rhythms() {
   const { data } = usePractice();
   const due = rhythmDue(data);
   const [mode, setMode] = useState<"weekly" | "monthly">(
@@ -717,3 +718,5 @@ function RhythmForm({
     </Page>
   );
 }
+
+export default withAccount(Rhythms);

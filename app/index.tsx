@@ -1,13 +1,8 @@
 import React from "react";
-import {
-  Image,
-  Platform,
-  Pressable,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { Platform, Pressable, View, useWindowDimensions } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { GearSixIcon as GearSix } from "phosphor-react-native/src/icons/GearSix";
+import { Landing } from "../src/landing";
 import { usePractice } from "../src/practice";
 import { dayLabel, outcomeLabel, shiftDay } from "../src/domain";
 import {
@@ -28,7 +23,12 @@ import {
   Title,
   s,
 } from "../src/ui";
-export default function Today() {
+export default function Home() {
+  const { session } = usePractice();
+  return session ? <Today /> : <Landing />;
+}
+
+function Today() {
   const { data, session, error, reminderError } = usePractice();
   const { height } = useWindowDimensions();
   const { saved } = useLocalSearchParams<{ saved?: string }>();
@@ -121,14 +121,6 @@ export default function Today() {
             ? "Every small step becomes part of your story."
             : `One small promise${data.profile.display_name ? `, ${data.profile.display_name}` : ""}. Room to be human.`}
       </Body>
-      <Image
-        source={require("../assets/illustrations/galaxy-night.jpg")}
-        resizeMode="cover"
-        style={{
-          width: "100%",
-          height: Math.min(intention ? 140 : 230, height * 0.25),
-        }}
-      />
       {newVisitor ? (
         <TextButton label="Choose an intention instead" onPress={begin} />
       ) : (

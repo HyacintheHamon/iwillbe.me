@@ -1,3 +1,4 @@
+import { withAccount } from "../src/access-gate";
 import React, { useCallback, useEffect, useState } from "react";
 import { Share, View } from "react-native";
 import { router } from "expo-router";
@@ -22,7 +23,7 @@ import {
 } from "../src/ui";
 type Invite = { id: string; kind: string; message: string; expires_at: string };
 type Suggestion = { id: string; content: string; friend_name: string | null };
-export default function Connections() {
+function Connections() {
   const { data, session, putEntry } = usePractice();
   const action = useAction();
   const [kind, setKind] = useState("comet"),
@@ -62,12 +63,12 @@ export default function Connections() {
     )
     .sort((a, b) => b.day.localeCompare(a.day));
   return (
-    <Page header={<TopBar title="Your constellation" />}>
+    <Page header={<TopBar title="Your people" />}>
       <Eyebrow>People, not points</Eyebrow>
       <Title>The moments you shared.</Title>
       <Body>
-        A constellation of moments when you showed up for someone. No rankings,
-        counts or comparisons.
+        The moments when you showed up for someone. No rankings, counts or
+        comparisons.
       </Body>
       {moments.map((i) => (
         <View key={i.id} style={s.card}>
@@ -76,11 +77,11 @@ export default function Connections() {
           </Eyebrow>
           <Body>{i.action}</Body>
           <TextButton
-            label="Share a North Star note"
+            label="Share a note"
             onPress={() =>
               action.run(async () => {
                 await Share.share({
-                  message: `You were my North Star today. ${i.action}`,
+                  message: `I showed up for you today. ${i.action}`,
                 });
               })
             }
@@ -96,7 +97,7 @@ export default function Connections() {
       <View style={s.section}>
         <Eyebrow>Send a little possibility</Eyebrow>
         <Title style={{ fontSize: 25, lineHeight: 33 }}>
-          A comet, with no obligation.
+          A small idea, with no obligation.
         </Title>
         <Body>
           A link a friend can open without an account. They can try it, save it,
@@ -104,7 +105,7 @@ export default function Connections() {
         </Body>
         <View style={s.wrap}>
           {[
-            ["comet", "Send a Comet"],
+            ["comet", "Send an idea"],
             ["friend", "Ask a friend"],
             ["coach", "Invite a client"],
           ].map(([v, label]) => (
@@ -318,3 +319,5 @@ export default function Connections() {
     </Page>
   );
 }
+
+export default withAccount(Connections);

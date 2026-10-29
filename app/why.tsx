@@ -1,3 +1,4 @@
+import { withAccount } from "../src/access-gate";
 import React, { useState } from "react";
 import { View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
@@ -34,7 +35,7 @@ import {
 } from "../src/ui";
 
 type Step = "evidence" | "question" | "draft" | "test" | "future";
-export default function Why() {
+function Why() {
   const { data, session, putEntry } = usePractice();
   const { revisit } = useLocalSearchParams<{ revisit?: string }>();
   const today = useToday();
@@ -518,3 +519,5 @@ export default function Why() {
     </Page>
   );
 }
+
+export default withAccount(Why);

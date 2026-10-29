@@ -1,3 +1,4 @@
+import { withAccount } from "../src/access-gate";
 import React, { useState } from "react";
 import { View } from "react-native";
 import { router } from "expo-router";
@@ -15,7 +16,7 @@ import {
   TopBar,
   s,
 } from "../src/ui";
-export default function Membership() {
+function Membership() {
   const { session } = usePractice();
   const [code, setCode] = useState(""),
     [redeemed, setRedeemed] = useState(false);
@@ -25,8 +26,8 @@ export default function Membership() {
       <Eyebrow>Founding beta</Eyebrow>
       <Title>Room to explore, freely.</Title>
       <Body>
-        The beta includes your daily practice, galaxy, Chloe, exploration and
-        reflections. There is no payment or trial countdown.
+        The beta includes your daily practice, possibilities, Chloe, exploration
+        and reflections. There is no payment or trial countdown.
       </Body>
       <View style={s.card}>
         <Eyebrow>ALWAYS AT THE HEART</Eyebrow>
@@ -80,3 +81,5 @@ export default function Membership() {
     </Page>
   );
 }
+
+export default withAccount(Membership);

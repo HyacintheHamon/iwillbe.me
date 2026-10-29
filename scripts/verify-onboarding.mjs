@@ -1,3 +1,8 @@
+import {
+  installAccountFixture,
+  fixturePracticeKey,
+  fixtureDraftPrefix,
+} from "./account-fixture.mjs";
 import { chromium } from "playwright";
 import { expect } from "playwright/test";
 import assert from "node:assert/strict";
@@ -18,8 +23,8 @@ const browser = await chromium.launch({
 const checks = [],
   errors = [];
 let active;
-const practiceKey = "iwillbe.practice.v2.guest";
-const draftKey = "iwillbe.draft.v1.guest.discovery";
+const practiceKey = fixturePracticeKey;
+const draftKey = `${fixtureDraftPrefix}.discovery`;
 const button = (page, name) => page.getByRole("button", { name, exact: true });
 const field = (page, name) => page.getByRole("textbox", { name, exact: true });
 const heading = (page, name) =>
@@ -40,6 +45,7 @@ const newPage = async () => {
     viewport: { width: 390, height: 844 },
     timezoneId: "UTC",
   });
+  await installAccountFixture(context);
   const page = await context.newPage();
   page.on("pageerror", (error) => errors.push(error.message));
   active = page;
@@ -206,7 +212,7 @@ try {
   await photo(page, "01-confirmed-story-clues-320");
   await page.setViewportSize({ width: 390, height: 844 });
   record(
-    "Guest story-derived interest, admired person, strength and value each require explicit consent and retain evidence",
+    "Story-derived interest, admired person, strength and value each require explicit consent and retain evidence",
   );
 
   await button(page, "Find my check-in rhythm").click();
@@ -250,6 +256,7 @@ try {
   await protectedFlow.page.goto(base);
   const manual = {
     id: "existing-manual-interest",
+    revision: 1,
     kind: "interest",
     title: "Ceramics",
     body: "My existing notes",
