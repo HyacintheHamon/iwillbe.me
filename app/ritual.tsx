@@ -1,37 +1,26 @@
 import { withAccount } from "../src/access-gate";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import * as Crypto from "expo-crypto";
 import { usePractice } from "../src/practice";
-import {
-  INTERESTS,
-  VALUES,
-  dayLabel,
-  nextIntentionDay,
-  shiftDay,
-} from "../src/domain";
+import { supabase } from "../src/supabase";
 import { draftKey, useDraft } from "../src/drafts";
 import {
   PLANETS,
   PLANET_OPENERS,
-  suggestedPlanet,
-  entriesOf,
-  currentVision,
-  currentWhy,
-  eligibleOpenQuestion,
   entryInput,
   formatCommitment,
-  returningToPractice,
-  questionAvailable,
+  suggestedPlanet,
   type Planet,
 } from "../src/journey";
-import { morningCue } from "../src/guidance";
-import { isUnreadyAnswer } from "../src/onboarding";
+import { shiftDay } from "../src/domain";
 import { useToday } from "../src/use-today";
 import {
   Body,
   Button,
   Chip,
+  C,
   Eyebrow,
   Field,
   Notice,
@@ -41,897 +30,641 @@ import {
   TopBar,
   s,
 } from "../src/ui";
-
+import { IWillBe } from "../src/priority-onboarding";
+import {
+  loadMissions,
+  ladderStep,
+  missionTrio,
+  missionTag,
+  type Mission,
+} from "../src/missions";
+import { MissionCards } from "../src/mission-cards";
+import { beneficiaries, detectBeneficiary } from "../src/beneficiaries";
+import { SupportNotice } from "../src/support";
+import { supportLevel } from "../supabase/functions/_shared/safety";
+type Step = "area" | "chat" | "when" | "person" | "review" | "done";
+type Turn = { role: "user" | "assistant"; text: string };
 type Params = {
   day?: string;
-  value?: string;
   action?: string;
-  person?: string;
   interest?: string;
+  value?: string;
+  person?: string;
   planet?: string;
+  mission_id?: string;
+  mission_step?: string;
   when_context?: string;
   with_person?: string;
   backlog?: string;
+  from_map?: string;
 };
-const VALUE_WORDS: Record<string, string> = {
-  Patience: "patient",
-  Kindness: "kind",
-  Curiosity: "curious",
-  Courage: "brave",
-  Presence: "present",
-  Creativity: "creative",
-  Connection: "connected",
-  Balance: "balanced",
-};
-type Step =
-  | "fresh"
-  | "meaning"
-  | "action"
-  | "choose"
-  | "fit"
-  | "when"
-  | "person"
-  | "done";
-
 function Ritual() {
-  const { data } = usePractice();
   const params = useLocalSearchParams<Params>();
   const today = useToday();
-  const tomorrow = shiftDay(today, 1);
-  const day = [today, tomorrow].includes(params.day || "")
-    ? params.day!
-    : nextIntentionDay(data, today);
+  const day = params.day === shiftDay(today, 1) ? params.day : today;
+  const { session } = usePractice();
   return (
-    <IntentionForm
-      key={`${day}:${params.action || ""}`}
-      day={day}
-      today={today}
+    <Morning
+      key={`${session?.user.id}:${day}:${params.action || ""}`}
       params={params}
+      day={day}
     />
   );
 }
-
-function IntentionForm({
-  day,
-  today,
-  params,
-}: {
-  day: string;
-  today: string;
-  params: Params;
-}) {
+function Morning({ params, day }: { params: Params; day: string }) {
+  const today = useToday();
   const { data, session, saveIntention, putEntry } = usePractice();
   const current = data.intentions.find((i) => i.day === day);
   const locked =
     !!current && data.checkIns.some((c) => c.intention_id === current.id);
-  const season = entriesOf(data, "preferences").find(
-    (e) => e.title === "Season",
-  );
-  const fixedArea = season?.meta.pace === "stay";
-  const preferred = suggestedPlanet(data, day);
-  const why = currentWhy(data);
-  const [returning] = useState(() => returningToPractice(data, today));
-  const pending = entriesOf(data, "backlog")
-    .filter(
-      (e) =>
-        ["open", "active"].includes(e.state) &&
-        (!e.meta.next_day || e.meta.next_day <= day),
-    )
-    .filter((e) => !fixedArea || e.meta.planet === preferred)
-    .sort((a, b) => a.created_at.localeCompare(b.created_at))
-    .find(
-      (e) =>
-        (e.meta.passes || 0) >= 3 ||
-        e.created_at.slice(0, 10) <= shiftDay(day, -14),
-    );
-  const [firstBacklog] = useState(() =>
-    !returning && !current && !params.action ? pending : undefined,
-  );
+  const initialRecipient = params.action
+    ? detectBeneficiary(params.action, beneficiaries(data))
+    : null;
+  const [seed] = useState(() => Crypto.randomUUID());
   const { draft, update, clear, ready, draftError } = useDraft(
-    draftKey(`ritual.${day}`, session?.user.id),
+    draftKey(
+      `morning.v2.${day}.${params.from_map ? params.mission_id || "map" : "daily"}`,
+      session?.user.id,
+    ),
     {
-      step: (returning && !current && !params.action
-        ? "fresh"
-        : firstBacklog
-          ? "meaning"
-          : "action") as Step,
-      fresh: "",
-      value:
-        params.value ||
-        (current && !INTERESTS.includes(current.value) ? current.value : "") ||
-        "",
-      interest:
-        params.interest ||
-        current?.interest ||
-        (current && INTERESTS.includes(current.value) ? current.value : ""),
+      step: (params.action ? "when" : "area") as Step,
+      sessionId: seed,
+      area: (params.planet || "") as Planet | "",
+      input: "",
       action: params.action || current?.action || "",
-      person: params.person || current?.person || "",
-      planet: (fixedArea
-        ? preferred
-        : PLANETS.includes(params.planet as Planet) &&
-            params.planet !== "Surprise"
-          ? params.planet
-          : current?.planet && current.planet !== "Surprise"
-            ? current.planet
-            : preferred) as Planet,
-      kind: (current?.kind ||
-        (params.value && !params.action ? "be" : "action")) as "action" | "be",
-      when_context: params.when_context || current?.when_context || "",
-      place: current?.place || "",
-      with_person: params.with_person || current?.with_person || "",
+      interest: params.interest || current?.interest || "",
+      value: params.value || current?.value || "",
+      when: params.when_context || current?.when_context || "",
+      person:
+        params.person ||
+        (params.action
+          ? initialRecipient?.name || ""
+          : current?.for_me
+            ? "For me"
+            : current?.for_whom || current?.person || ""),
+      newPerson: "",
+      addingPerson: false,
+      missionId:
+        params.mission_id || (!params.action ? current?.mission_id : "") || "",
+      missionStep: Number(params.mission_step) || current?.mission_step || 1,
+      turns: [] as Turn[],
       opener: 0,
+      spotted: initialRecipient?.match || "",
+      support: 0,
+      revision: current?.revision || 0,
       alternatives: [] as string[],
       saveOthers: false,
-      backlog_id: params.backlog || firstBacklog?.id || "",
-      skipped: false,
-      revision: current?.revision ?? 0,
-      whyLinked: entriesOf(data, "story").some(
-        (e) =>
-          e.meta.period === `why-action:${day}` &&
-          e.state === "active" &&
-          !!why &&
-          e.source_ids.includes(why.id),
-      ),
     },
   );
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [notice, setNotice] = useState("");
-  const [carried, setCarried] = useState("");
-  const area = fixedArea
-    ? preferred
-    : draft.planet === "Surprise"
-      ? preferred
-      : draft.planet;
-  const openers = PLANET_OPENERS[area].filter((text) =>
-    questionAvailable(data, text, day),
-  );
-  const picture = currentVision(data, "year");
-  const focusReason =
-    !fixedArea &&
-    season?.meta.pace !== "vary" &&
-    area === preferred &&
-    !params.planet &&
-    !current
-      ? picture?.meta.planet_notes?.[area]?.trim()
-        ? `${area} is part of the life you’re picturing.`
-        : data.intentions.some((i) => i.day < day && i.day >= shiftDay(day, -7))
-          ? `A little room for ${area.toLowerCase()} today.`
-          : ""
-      : "";
-  const daySeed = Math.floor(Date.parse(`${day}T12:00:00Z`) / 86400000);
-  const cue =
-    !returning && day === today && !draft.opener && daySeed % 3 !== 2
-      ? morningCue(data, day, area)
-      : null;
-  const openQuestion =
-    !returning && day === today && daySeed % 7 === 1
-      ? eligibleOpenQuestion(data, day, `morning:${day}`)
-      : undefined;
-  const opener =
-    cue?.question ||
-    (openers.length
-      ? openers[(daySeed + draft.opener) % openers.length]
-      : `A little room for ${area.toLowerCase()} today.`);
-  const rawCommitment = formatCommitment(draft.action, draft.kind);
-  const beWords = rawCommitment
-    .replace(/^I will be\s+/i, "")
-    .replace(/[.!]$/, "")
-    .trim();
-  const explicitValue = /^I will be\s+/i.test(rawCommitment)
-    ? Object.entries(VALUE_WORDS).find(([name, word]) =>
-        [name.toLowerCase(), word].includes(beWords.toLowerCase()),
-      )
-    : undefined;
-  const commitment = explicitValue
-    ? `I will be ${explicitValue[1]}`
-    : rawCommitment;
-  const selectedValue = draft.value || explicitValue?.[0] || "";
-  const commitmentKind = /^I will be\b/i.test(commitment) ? "be" : draft.kind;
-  const backlogId =
-    draft.backlog_id ||
-    (params.backlog && params.action === draft.action ? params.backlog : "");
-  const selectedBacklog = entriesOf(data, "backlog").find(
-    (e) => e.id === backlogId && ["open", "active"].includes(e.state),
-  );
-  const isBe = draft.kind === "be";
-  const choices = Array.from(
-    new Set([
-      ...entriesOf(data, "value")
-        .filter((e) => !["let_go", "released"].includes(e.state))
-        .map((e) => e.title),
-      ...data.profile.values,
-      ...VALUES,
-    ]),
-  );
-  const interests = entriesOf(data, "interest").filter(
-    (e) =>
-      !["ember", "paused", "on_pause"].includes(e.state) &&
-      (!e.meta.planet || e.meta.planet === area),
-  );
+    [ideasError, setIdeasError] = useState(""),
+    [missions, setMissions] = useState<Mission[]>([]),
+    [loadingIdeas, setLoadingIdeas] = useState(false),
+    [ideasTag, setIdeasTag] = useState("");
+  const latestIdeas = useRef(0);
+  const inFlight = useRef(false),
+    alive = useRef(true);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
   const run = async (work: () => Promise<void>) => {
-    if (busy) return;
+    if (inFlight.current) return;
+    inFlight.current = true;
     setBusy(true);
     setError("");
     try {
       await work();
     } catch (e) {
-      setError((e as Error).message);
+      if (alive.current) setError((e as Error).message);
     } finally {
-      setBusy(false);
+      inFlight.current = false;
+      if (alive.current) setBusy(false);
     }
   };
-  const saveQuestion = async (question: string) => {
-    if (!question.endsWith("?")) return;
-    const prior = entriesOf(data, "question").find(
-      (e) => e.title === question && e.state !== "answered",
-    );
-    if (prior?.state === "stopped") return;
-    await putEntry(
-      entryInput("question", question, {
-        id: prior?.id,
-        state: "open",
-        source: "Morning · saved for later",
-        meta: {
-          ...prior?.meta,
-          next_day: shiftDay(day, 2),
-          last_asked_at: new Date().toISOString(),
-          last_asked_session: `morning:${day}`,
-        },
-      }),
-    );
+  const area =
+    draft.area === "Surprise" ? suggestedPlanet(data, day) : draft.area;
+  const people = beneficiaries(data);
+  const openers = area ? PLANET_OPENERS[area] : [];
+  const options = missionTrio(missions);
+  const recommended = options.find((m) => m.size === "Normal");
+  const loadIdeas = async (tag: string) => {
+    const request = ++latestIdeas.current;
+    setIdeasTag(tag);
+    setLoadingIdeas(true);
+    setIdeasError("");
+    setMissions([]);
+    try {
+      const entry = data.entries.find(
+        (e) => e.title === tag && e.kind === "interest",
+      );
+      const result = await loadMissions(
+        tag,
+        entry ? ladderStep(data, entry) : 1,
+      );
+      if (alive.current && request === latestIdeas.current)
+        setMissions(result.missions);
+    } catch (e) {
+      if (alive.current && request === latestIdeas.current)
+        setIdeasError((e as Error).message);
+    } finally {
+      if (alive.current && request === latestIdeas.current)
+        setLoadingIdeas(false);
+    }
   };
-  const markSession = async () => {
-    const prior = entriesOf(data, "preferences").find(
-      (e) => e.title === "Check-in session",
-    );
-    await putEntry(
-      entryInput("preferences", "Check-in session", {
-        id: prior?.id,
-        meta: {
-          ...prior?.meta,
-          last_check_in_at: new Date().toISOString(),
-          last_question: opener,
-        },
-      }),
-    );
+  const chooseAction = (action: string, mission?: Mission) => {
+    if (action.trim().length > 500) {
+      setError(
+        "Keep today’s action to 500 characters so it stays clear and doable.",
+      );
+      return;
+    }
+    const detected = detectBeneficiary(action, people);
+    update({
+      action,
+      step: "when",
+      missionId: mission?.id || "",
+      missionStep: mission?.ladder_step || 1,
+      ...(mission
+        ? {
+            area: mission.area,
+            interest: mission.priorities.some(
+              (p) => missionTag(p) === missionTag(ideasTag),
+            )
+              ? ""
+              : ideasTag,
+            value: mission.priorities.some(
+              (p) => missionTag(p) === missionTag(ideasTag),
+            )
+              ? ideasTag
+              : "",
+          }
+        : {}),
+      person: detected?.name || "",
+      spotted: detected?.match || "",
+    });
   };
+  const begin = () =>
+    run(async () => {
+      if (!area) return;
+      const started = await supabase.functions.invoke("chloe", {
+        body: { action: "start_checkin", session_id: draft.sessionId },
+      });
+      if (started.error || started.data?.error)
+        throw new Error("Your check-in couldn’t start. Please try again.");
+      update({
+        step: "chat",
+        turns: [
+          {
+            role: "assistant",
+            text:
+              openers[draft.opener % openers.length] ||
+              "What would you like to do today?",
+          },
+        ],
+      });
+      const entry = data.entries
+        .filter(
+          (e) =>
+            e.kind === (area === "Be" ? "value" : "interest") &&
+            !["let_go", "paused", "ember", "on_pause"].includes(e.state),
+        )
+        .filter(
+          (e) => area === "Be" || !e.meta.planet || e.meta.planet === area,
+        )
+        .sort(
+          (a, b) =>
+            Number(
+              ["working_on", "trying", "want_to_try", "tried"].includes(
+                b.state,
+              ),
+            ) -
+            Number(
+              ["working_on", "trying", "want_to_try", "tried"].includes(
+                a.state,
+              ),
+            ),
+        )[0];
+      const tag = params.interest || params.value || entry?.title;
+      if (tag) void loadIdeas(tag);
+    });
+  const send = () =>
+    run(async () => {
+      const text = draft.input.trim();
+      if (!text) return;
+      const level = supportLevel(text);
+      const turns = [...draft.turns, { role: "user" as const, text }];
+      update({ input: "", turns, support: Math.max(draft.support, level) });
+      const result = await supabase.functions.invoke("chloe", {
+        body: {
+          action: "chat",
+          mode: "morning",
+          message: text,
+          area,
+          session_id: draft.sessionId,
+          proposal_cards: true,
+          ritual: {
+            action: draft.action,
+            interest: ideasTag || draft.interest,
+            when_context: draft.when,
+            ladder_step: options[0]?.ladder_step || 1,
+          },
+        },
+      });
+      if (!alive.current) return;
+      if (result.error || result.data?.error) {
+        update({ input: text });
+        throw new Error(
+          "Chloe couldn’t reply. Your words are still here; try again or use them as your action.",
+        );
+      }
+      const reply = result.data;
+      const suggestion = reply.suggested_intention;
+      const serverLevel = Number(reply.support_level) || 0;
+      update({
+        turns: [
+          ...turns,
+          {
+            role: "assistant",
+            text:
+              reply.messages
+                ?.filter((m: { role: string }) => m.role === "assistant")
+                .at(-1)?.content ||
+              "What would make this a concrete action today?",
+          },
+        ],
+        support: Math.max(draft.support, level, serverLevel),
+        ...(suggestion && level < 2 && serverLevel < 2
+          ? {
+              action: suggestion.action,
+              interest: suggestion.interest || draft.interest,
+              value: suggestion.value || draft.value,
+              when: suggestion.when_context || draft.when,
+              person: suggestion.person || "",
+            }
+          : {}),
+      });
+      if (suggestion?.interest && level < 2 && serverLevel < 2)
+        void loadIdeas(suggestion.interest);
+    });
   const save = () =>
     run(async () => {
-      if (!draft.when_context.trim())
-        await saveQuestion("When will you do it?");
-      const bareAction = commitment.replace(/^I will\s+/i, "").trim();
+      if (draft.support >= 2) return;
       await saveIntention(
-        bareAction,
-        selectedValue,
-        draft.person,
+        draft.action.replace(/^I will\s+/i, ""),
+        draft.value,
+        draft.person === "For me" ? "" : draft.person,
         day,
         draft.interest,
         {
-          planet: area,
+          planet: area || "Passions",
+          kind: /^I will be\b|^be\b/i.test(draft.action) ? "be" : "action",
+          when_context: draft.when.trim(),
+          for_whom: draft.person === "For me" ? "" : draft.person,
+          for_me: draft.person === "For me",
+          mission_id: draft.missionId || null,
+          mission_step: draft.missionId ? draft.missionStep : null,
           revision: draft.revision,
-          kind: commitmentKind,
-          when_context: draft.when_context.trim(),
-          place: draft.place,
-          with_person: draft.with_person,
         },
       );
-      const whyLink = entriesOf(data, "story").find(
-        (e) => e.meta.period === `why-action:${day}`,
-      );
-      if (why && (draft.whyLinked || whyLink))
-        await putEntry(
-          entryInput("story", "My why in action", {
-            id: whyLink?.id,
-            body: commitment,
-            state: draft.whyLinked ? "active" : "released",
-            source: "Connected to your why by you",
-            source_ids: [why.id],
-            meta: { period: `why-action:${day}`, commitment_day: day },
-          }),
-        );
-      if (draft.saveOthers) {
-        for (const title of draft.alternatives.filter(
-          (a) => a !== draft.action,
+      if (draft.saveOthers)
+        for (const text of draft.alternatives.filter(
+          (t) => t !== draft.action,
         )) {
           if (
-            !entriesOf(data, "backlog").some(
-              (e) => e.title === title && ["open", "active"].includes(e.state),
+            !data.entries.some(
+              (e) =>
+                e.kind === "backlog" && e.title === text && e.state === "open",
             )
           )
             await putEntry(
-              entryInput("backlog", title, {
+              entryInput("backlog", text, {
                 state: "open",
-                source: "Another day, chosen by you",
-                meta: { planet: area, passes: 0 },
+                source: "Another idea for later",
+                meta: { planet: area || "Passions" },
               }),
             );
         }
+      if (params.backlog) {
+        const entry = data.entries.find((e) => e.id === params.backlog);
+        if (entry)
+          await putEntry({
+            ...entry,
+            meta: { ...entry.meta, commitment_day: day },
+          });
       }
-      for (const item of entriesOf(data, "backlog").filter(
-        (e) =>
-          ["open", "active"].includes(e.state) &&
-          e.meta.commitment_day === day &&
-          e.id !== selectedBacklog?.id,
-      ))
-        await putEntry({
-          ...item,
-          meta: { ...item.meta, commitment_day: undefined },
-        });
-      if (selectedBacklog && ["open", "active"].includes(selectedBacklog.state))
-        await putEntry({
-          ...selectedBacklog,
-          meta: { ...selectedBacklog.meta, commitment_day: day, next_day: day },
-        });
-      await markSession();
       await clear();
-      update({ step: "done", skipped: false });
+      router.replace({ pathname: "/", params: { saved: day } });
     });
-  const skipAction = () =>
-    run(async () => {
-      await saveQuestion(opener);
-      await markSession();
-      await clear();
-      update({ step: "done", skipped: true });
-    });
-  const continueAction = () => {
-    if (isUnreadyAnswer(draft.action)) {
-      void skipAction();
-      return;
-    }
-    const items = draft.action
-      .split(/\n+/)
-      .map((v) => v.trim())
-      .filter(Boolean);
-    if (items.length > 1) {
-      update({ alternatives: items, step: "choose" });
-      return;
-    }
-    const needsFit =
-      rawCommitment !== commitment ||
-      /^(?:I\s+(?:want|hope)\s+to|I(?:'|’)ll\s+try\s+to|I\s+will\s+try\s+to)\b/i.test(
-        draft.action.trim(),
-      );
-    update({ step: needsFit ? "fit" : "when" });
-  };
-  const chooseArea = (planet: Planet) => {
-    const next =
-      planet === "Surprise"
-        ? PLANETS[(PLANETS.indexOf(area) + 1 + draft.opener) % 5]
-        : planet;
-    update({
-      planet: next,
-      opener: planet === "Surprise" ? draft.opener + 1 : 0,
-    });
-    setNotice(planet === "Surprise" ? `A ${next} morning, then.` : "");
-  };
-  const release = () =>
-    run(async () => {
-      if (selectedBacklog)
-        await putEntry({ ...selectedBacklog, state: "released" });
-      update({ backlog_id: "", step: "action" });
-      setNotice("Letting it go is a choice too.");
-    });
-  const defer = () =>
-    run(async () => {
-      if (selectedBacklog)
-        await putEntry({
-          ...selectedBacklog,
-          meta: {
-            ...selectedBacklog.meta,
-            passes: (selectedBacklog.meta.passes || 0) + 1,
-            next_day: shiftDay(day, 3),
-          },
-        });
-      update({ backlog_id: "", step: "action" });
-      setNotice("It can wait. Let's start with today.");
-    });
-  const question =
-    draft.step === "fresh"
-      ? "What's true for you right now?"
-      : draft.step === "meaning"
-        ? "Do it this week, or let it go?"
-        : draft.step === "choose"
-          ? "Which one do you want to focus on today?"
-          : draft.step === "fit"
-            ? "Keep it?"
-            : draft.step === "when"
-              ? "When will you do it?"
-              : draft.step === "person"
-                ? "Who is it for?"
-                : draft.step === "done"
-                  ? draft.skipped
-                    ? "Let it sit with you today."
-                    : "Take this into your day."
-                  : opener;
-
   if (!ready)
-    return <ActivityIndicator accessibilityLabel="Restoring your morning" />;
+    return <ActivityIndicator accessibilityLabel="Restoring your action" />;
+  const primaryLabel =
+    draft.step === "chat"
+      ? "Send to Chloe"
+      : draft.step === "review"
+        ? day === today
+          ? "Done · save for today"
+          : "Done · save for tomorrow"
+        : "Continue";
+  const primaryDisabled =
+    draft.step === "chat"
+      ? !draft.input.trim()
+      : draft.step === "area"
+        ? !draft.area
+        : draft.step === "review"
+          ? !draft.action.trim()
+          : draft.step === "person" && draft.addingPerson
+            ? !draft.newPerson.trim()
+            : false;
+  const advance = () => {
+    if (draft.step === "chat") void send();
+    else if (draft.step === "area") void begin();
+    else if (draft.step === "when") update({ step: "person" });
+    else if (draft.step === "person")
+      update({
+        step: "review",
+        person: draft.addingPerson ? draft.newPerson.trim() : draft.person,
+        addingPerson: false,
+      });
+    else if (draft.step === "review") void save();
+  };
   return (
     <Page
       header={
         <TopBar
-          title="Morning"
-          onBack={() => {
-            if (["when", "fit", "choose"].includes(draft.step))
-              update({ step: "action" });
-            else if (draft.step === "person") update({ step: "when" });
-            else if (router.canGoBack()) router.back();
-            else router.replace("/");
-          }}
+          title="Today’s action"
+          onBack={() =>
+            draft.step === "review"
+              ? update({ step: "person" })
+              : draft.step === "person"
+                ? update({ step: "when" })
+                : draft.step === "when"
+                  ? update({ step: "chat" })
+                  : router.replace("/")
+          }
         />
       }
       footer={
-        draft.step !== "done" && !locked ? (
-          <>
-            <Notice text={error || draftError} tone="error" />
-            {draft.step === "action" ? (
-              <>
-                <Button
-                  label="Continue"
-                  disabled={!draft.action.trim()}
-                  loading={busy}
-                  onPress={continueAction}
-                />
-                <TextButton label="Skip for now" onPress={skipAction} />
-              </>
-            ) : draft.step === "fresh" ? (
-              <>
-                <Button
-                  label="Continue"
-                  loading={busy}
-                  disabled={!draft.fresh.trim()}
-                  onPress={() =>
-                    run(async () => {
-                      if (isUnreadyAnswer(draft.fresh)) {
-                        await saveQuestion("What's true for you right now?");
-                        update({ step: "action" });
-                        setNotice(
-                          "Let it sit with you today. We can come back to it.",
-                        );
-                        return;
-                      }
-                      await putEntry(
-                        entryInput("story", "What's true for you right now?", {
-                          body: draft.fresh.trim(),
-                          source: "A fresh morning",
-                        }),
-                      );
-                      update({ step: "action" });
-                    })
-                  }
-                />
-                <TextButton
-                  label="Skip for now"
-                  onPress={() =>
-                    run(async () => {
-                      await saveQuestion("What's true for you right now?");
-                      update({ step: "action" });
-                      setNotice(
-                        "Let it sit with you today. We can come back to it.",
-                      );
-                    })
-                  }
-                />
-              </>
-            ) : draft.step === "fit" ? (
-              <Button
-                label="Yes, keep it"
-                onPress={() => update({ step: "when" })}
-              />
-            ) : draft.step === "when" ? (
-              <>
-                <Button
-                  label={`Save for ${day === today ? "today" : "tomorrow"}`}
-                  loading={busy}
-                  onPress={save}
-                />
-              </>
-            ) : draft.step === "person" ? (
-              <>
-                <Button
-                  label="Keep this"
-                  onPress={() => update({ step: "when" })}
-                />
-                <TextButton
-                  label="Skip for now"
-                  onPress={() =>
-                    run(async () => {
-                      await saveQuestion("Who is it for?");
-                      update({ step: "when", person: "" });
-                    })
-                  }
-                />
-              </>
-            ) : null}
-          </>
-        ) : (
+        <>
           <Notice text={error || draftError} tone="error" />
-        )
+          {["area", "chat", "when", "person", "review"].includes(draft.step) &&
+            !locked &&
+            (draft.step === "chat" || draft.support < 2) && (
+              <Button
+                label={primaryLabel}
+                disabled={primaryDisabled}
+                onPress={advance}
+                loading={busy}
+                commitPulse={draft.step === "review"}
+              />
+            )}
+        </>
       }
     >
-      <Eyebrow>{dayLabel(day)} · About two minutes</Eyebrow>
       {locked ? (
         <>
-          <Title>A new day can hold a different thing.</Title>
-          <Body>This moment already has its reflection.</Body>
-          <Button
-            label="Plan tomorrow"
-            onPress={() =>
-              router.replace({
-                pathname: "/ritual",
-                params: { day: shiftDay(today, 1) },
-              })
-            }
-          />
+          <Title>Today’s reflection is saved.</Title>
+          <Body>
+            Keep this moment in your history. Tomorrow can be something
+            different.
+          </Body>
+          <Button label="Back to Today" onPress={() => router.replace("/")} />
         </>
       ) : (
         <>
-          {draft.step === "action" ? (
+          {draft.step === "area" && (
             <>
-              <Eyebrow>Where to today?</Eyebrow>
-              {fixedArea ? (
-                <>
-                  <Body>{preferred} is your focus.</Body>
-                  <TextButton
-                    label="Change my focus"
-                    onPress={() => router.push("/rhythms")}
+              <Eyebrow>One action, out in your life</Eyebrow>
+              <Title>Pick one area for today.</Title>
+              <Body>
+                Start with what matters now. Chloe will help you choose a
+                concrete next step.
+              </Body>
+              <View style={s.wrap}>
+                {PLANETS.map((value) => (
+                  <Chip
+                    key={value}
+                    label={value === "Surprise" ? "Surprise me" : value}
+                    selected={draft.area === value}
+                    onPress={() => update({ area: value })}
                   />
-                </>
+                ))}
+              </View>
+            </>
+          )}
+          {draft.step === "chat" && (
+            <>
+              <View style={s.wrap}>
+                {PLANETS.map((value) => (
+                  <Chip
+                    key={value}
+                    label={value === "Surprise" ? "Surprise me" : value}
+                    selected={draft.area === value}
+                    onPress={() => {
+                      update({
+                        area: value,
+                        step: "area",
+                        action: "",
+                        missionId: "",
+                        turns: [],
+                      });
+                      latestIdeas.current += 1;
+                      setMissions([]);
+                    }}
+                  />
+                ))}
+              </View>
+              {draft.turns.map((turn, i) => (
+                <View
+                  key={i}
+                  style={[
+                    s.card,
+                    {
+                      backgroundColor: turn.role === "user" ? C.soft : C.white,
+                      alignSelf: turn.role === "user" ? "flex-end" : "stretch",
+                      maxWidth: "95%",
+                    },
+                  ]}
+                >
+                  <Body>{turn.text}</Body>
+                </View>
+              ))}
+              {draft.support >= 2 ? (
+                <SupportNotice level={draft.support} />
               ) : (
-                <View style={s.wrap}>
-                  {PLANETS.map((planet) => (
-                    <Chip
-                      key={planet}
-                      label={planet === "Surprise" ? "Surprise me" : planet}
-                      selected={area === planet}
-                      onPress={() => chooseArea(planet)}
+                <>
+                  <TextButton
+                    label="Ask me something else"
+                    onPress={() =>
+                      update({
+                        opener: draft.opener + 1,
+                        turns: [
+                          ...draft.turns,
+                          {
+                            role: "assistant",
+                            text:
+                              openers[(draft.opener + 1) % openers.length] ||
+                              "What have you been meaning to try?",
+                          },
+                        ],
+                      })
+                    }
+                  />
+                  {loadingIdeas ? (
+                    <Body>Finding a few ideas…</Body>
+                  ) : (
+                    options.length > 0 && (
+                      <>
+                        <Body>
+                          Something to try{ideasTag ? ` with ${ideasTag}` : ""}:
+                        </Body>
+                        <MissionCards
+                          missions={options}
+                          selected={recommended?.id || ""}
+                          onSelect={(m) => chooseAction(m.mission_text, m)}
+                        />
+                      </>
+                    )
+                  )}
+                  <Notice text={ideasError} />
+                  {!!draft.action && (
+                    <View style={s.card}>
+                      <Body>{formatCommitment(draft.action)}</Body>
+                      <Button
+                        secondary
+                        label="Use this action"
+                        onPress={() => chooseAction(draft.action)}
+                      />
+                    </View>
+                  )}
+                </>
+              )}
+              <Field
+                label="Your reply"
+                placeholder="Tell Chloe, or write your own action…"
+                multiline
+                value={draft.input}
+                onChangeText={(input) => update({ input })}
+                maxLength={2000}
+              />
+
+              {draft.support < 2 && (
+                <TextButton
+                  label="Use my words as today’s action"
+                  onPress={() => {
+                    const level = supportLevel(draft.input);
+                    if (level >= 2) {
+                      update({ support: level });
+                      return;
+                    }
+                    const alternatives = draft.input
+                      .split(/\n+/)
+                      .map((t) => t.trim())
+                      .filter(Boolean);
+                    if (alternatives.length > 1) update({ alternatives });
+                    else if (draft.input.trim())
+                      chooseAction(draft.input.trim());
+                  }}
+                />
+              )}
+              {draft.alternatives.length > 1 && (
+                <>
+                  <Body>Which one do you want to focus on today?</Body>
+                  {draft.alternatives.map((text) => (
+                    <Button
+                      key={text}
+                      label={text}
+                      secondary
+                      onPress={() => chooseAction(text)}
                     />
                   ))}
-                </View>
+                  <Chip
+                    label="Save the others for later"
+                    selected={draft.saveOthers}
+                    onPress={() => update({ saveOthers: !draft.saveOthers })}
+                  />
+                </>
               )}
             </>
-          ) : null}
-          <Title>{question}</Title>
-          {draft.step === "action" && (cue?.line || focusReason) ? (
-            <Body>{cue?.line || focusReason}</Body>
-          ) : null}
-          <Notice text={notice} />
-          {draft.step === "fresh" ? (
+          )}
+          {draft.step === "when" && (
             <>
-              <Body>Good to see you. Start wherever you are.</Body>
+              <Body>{formatCommitment(draft.action)}</Body>
+              <Title>When will you do it?</Title>
               <Field
-                label="RIGHT NOW"
-                multiline
-                value={draft.fresh}
-                onChangeText={(fresh) => update({ fresh })}
-                maxLength={2000}
-                placeholder="A thought, a moment, anything that's true."
-              />
-            </>
-          ) : draft.step === "meaning" ? (
-            <>
-              <View style={s.card}>
-                <Body>{selectedBacklog?.title}</Body>
-              </View>
-              <Button
-                label="Do it today"
-                loading={busy}
-                onPress={() =>
-                  update({
-                    action: selectedBacklog?.title || "",
-                    backlog_id: selectedBacklog?.id || "",
-                    step: "when",
-                  })
-                }
-              />
-              <Button
-                secondary
-                label="Let it go"
-                loading={busy}
-                onPress={release}
-              />
-              <TextButton label="Not ready to decide" onPress={defer} />
-            </>
-          ) : draft.step === "action" ? (
-            <>
-              <View style={s.wrap}>
-                <Chip
-                  label="Today"
-                  selected={day === today}
-                  onPress={() =>
-                    router.replace({
-                      pathname: "/ritual",
-                      params: { day: today },
-                    })
-                  }
-                />
-                <Chip
-                  label="Tomorrow"
-                  selected={day !== today}
-                  onPress={() =>
-                    router.replace({
-                      pathname: "/ritual",
-                      params: { day: shiftDay(today, 1) },
-                    })
-                  }
-                />
-              </View>
-              {params.action && draft.action !== params.action ? (
-                <TextButton
-                  label="Use the suggestion I just chose"
-                  onPress={() =>
-                    update({
-                      action: params.action!,
-                      value: params.value || "",
-                      interest: params.interest || "",
-                      person: params.person || "",
-                      backlog_id: params.backlog || "",
-                    })
-                  }
-                />
-              ) : null}
-              <View style={s.wrap}>
-                <Chip
-                  label="I will…"
-                  selected={!isBe}
-                  onPress={() => update({ kind: "action" })}
-                />
-                <Chip
-                  label="I will be…"
-                  selected={isBe}
-                  onPress={() => update({ kind: "be" })}
-                />
-              </View>
-              <Field
-                label={
-                  isBe
-                    ? "I WILL BE…"
-                    : `${day === today ? "TODAY" : "TOMORROW"}, I WILL…`
-                }
-                multiline
-                placeholder={
-                  isBe
-                    ? "Patient, brave, kind…"
-                    : "Call my aunt, read a few pages, take a walk…"
-                }
-                value={draft.action}
-                onChangeText={(action) =>
-                  update({
-                    action,
-                    backlog_id:
-                      selectedBacklog &&
-                      formatCommitment(action, draft.kind) ===
-                        formatCommitment(selectedBacklog.title, draft.kind)
-                        ? selectedBacklog.id
-                        : "",
-                  })
-                }
-                maxLength={500}
-              />
-              {area === "Be" || isBe ? (
-                <>
-                  <Eyebrow>A value to try on</Eyebrow>
-                  <View style={s.wrap}>
-                    {choices.map((v) => (
-                      <Chip
-                        key={v}
-                        label={v}
-                        selected={selectedValue === v}
-                        onPress={() =>
-                          update({
-                            value: v,
-                            kind: VALUE_WORDS[v] ? "be" : "action",
-                            action: VALUE_WORDS[v]
-                              ? `be ${VALUE_WORDS[v]}`
-                              : `practice ${v.toLowerCase()}`,
-                            backlog_id: "",
-                          })
-                        }
-                      />
-                    ))}
-                  </View>
-                </>
-              ) : null}
-              {interests.length ? (
-                <>
-                  <Eyebrow>A possibility of yours · optional</Eyebrow>
-                  <View style={s.wrap}>
-                    {interests.slice(0, 6).map((e) => (
-                      <Chip
-                        key={e.id}
-                        label={e.title}
-                        selected={draft.interest === e.title}
-                        onPress={() =>
-                          update({
-                            interest: draft.interest === e.title ? "" : e.title,
-                          })
-                        }
-                      />
-                    ))}
-                  </View>
-                </>
-              ) : null}
-              <TextButton
-                label="Ask me something else"
-                onPress={() =>
-                  run(async () => {
-                    await saveQuestion(opener);
-                    update({ opener: draft.opener + 1 });
-                    setNotice("Let it sit with you. Here’s another way in.");
-                  })
-                }
-              />
-              <TextButton
-                label="Talk it through with Chloe"
-                onPress={() =>
-                  router.push({
-                    pathname: "/chloe",
-                    params: {
-                      mode: "morning",
-                      question: `Help me choose one small commitment in ${area}.${draft.action.trim() ? ` I’m considering: ${draft.action.trim()}` : ""}`,
-                    },
-                  })
-                }
-              />
-            </>
-          ) : draft.step === "choose" ? (
-            <>
-              <Body>Tomorrow’s one thing can be different.</Body>
-              <Chip
-                label="Save the others to Meaning To"
-                selected={draft.saveOthers}
-                onPress={() => update({ saveOthers: !draft.saveOthers })}
-              />
-              {draft.alternatives.map((action, index) => (
-                <Button
-                  key={`${index}:${action}`}
-                  secondary
-                  label={action}
-                  onPress={() => update({ action, step: "when" })}
-                />
-              ))}
-            </>
-          ) : draft.step === "fit" ? (
-            <>
-              <View style={s.card}>
-                <Body>{commitment}</Body>
-              </View>
-              <TextButton
-                label="Change the words"
-                onPress={() => update({ step: "action" })}
-              />
-            </>
-          ) : draft.step === "when" ? (
-            <>
-              <View style={s.card}>
-                <Body>{commitment}</Body>
-                {selectedValue ? (
-                  <Eyebrow>Trying on {selectedValue}</Eyebrow>
-                ) : null}
-              </View>
-              <Field
-                label="WHEN OR AFTER WHAT? · OPTIONAL"
-                placeholder="After my coffee. At lunch, in the park…"
-                multiline
-                value={draft.when_context}
-                onChangeText={(when_context) => update({ when_context })}
+                label="When, or right after what?"
+                placeholder="After lunch, when I get home…"
+                value={draft.when}
+                onChangeText={(when) => update({ when })}
                 maxLength={200}
               />
+              <Body>You can leave this open if you don’t know yet.</Body>
+            </>
+          )}
+          {draft.step === "person" && (
+            <>
+              <Title>For whom?</Title>
               <Body>
-                A moment, a place, or the thing you’ll do right before is
-                enough.
+                A person, your community, or yourself. You can also leave this
+                open.
               </Body>
-              {why ? (
-                <>
-                  <Chip
-                    label="This expresses my why"
-                    selected={draft.whyLinked}
-                    onPress={() => update({ whyLinked: !draft.whyLinked })}
-                  />
-                  {draft.whyLinked ? (
-                    <Body style={{ fontSize: 13 }}>{why.body}</Body>
-                  ) : null}
-                </>
-              ) : null}
+              {!!draft.spotted && (
+                <Body>Spotted in your action: {draft.spotted}.</Body>
+              )}
               <View style={s.wrap}>
+                {people.map((person) => (
+                  <Chip
+                    key={person}
+                    label={person}
+                    selected={draft.person === person && !draft.addingPerson}
+                    onPress={() =>
+                      update({
+                        person: draft.person === person ? "" : person,
+                        addingPerson: false,
+                      })
+                    }
+                  />
+                ))}
                 <Chip
-                  label="For me"
-                  selected={/^(me|myself|for me)$/i.test(draft.person)}
-                  onPress={() => update({ person: "me" })}
-                />
-                <Chip
-                  label={
-                    draft.person && !/^(me|myself|for me)$/i.test(draft.person)
-                      ? `For ${draft.person}`
-                      : "Name someone · optional"
+                  label="+ Someone"
+                  selected={draft.addingPerson}
+                  onPress={() =>
+                    update({ addingPerson: !draft.addingPerson, person: "" })
                   }
-                  onPress={() => update({ step: "person" })}
                 />
               </View>
-              {draft.alternatives.length > 1 ? (
-                <Chip
-                  label="Save the others to Meaning To"
-                  selected={draft.saveOthers}
-                  onPress={() => update({ saveOthers: !draft.saveOthers })}
+              {draft.addingPerson && (
+                <Field
+                  label="Name"
+                  value={draft.newPerson}
+                  onChangeText={(newPerson) => update({ newPerson })}
+                  maxLength={120}
                 />
-              ) : null}
-            </>
-          ) : draft.step === "person" ? (
-            <>
-              <Field
-                label="FOR"
-                value={draft.person}
-                onChangeText={(person) => update({ person })}
-                placeholder="Me, my aunt, my neighbours…"
-                maxLength={120}
-              />
-              <Chip
-                label="For me"
-                selected={/^(me|myself|for me)$/i.test(draft.person)}
-                onPress={() => update({ person: "me", step: "when" })}
-              />
-            </>
-          ) : draft.step === "done" ? (
-            <>
-              {draft.skipped ? (
-                <Body>
-                  We can come back to it. There’s nothing else to answer now.
-                </Body>
-              ) : (
-                <>
-                  <View style={s.card}>
-                    <Body>
-                      {commitment}
-                      {draft.when_context ? ` — ${draft.when_context}` : ""}
-                    </Body>
-                  </View>
-                  <Body>
-                    {day === today
-                      ? "Tonight I'll ask how it went. For now, go live it."
-                      : "That's tomorrow's one thing. Leave it here for now."}
-                  </Body>
-                </>
               )}
-              <Button
-                label="Done for now"
-                onPress={() => router.replace("/")}
-              />
-              {!draft.skipped && openQuestion && !carried ? (
-                <TextButton
-                  label="Carry a question today"
-                  onPress={() =>
-                    run(async () => {
-                      const preference = entriesOf(data, "preferences").find(
-                        (e) => e.title === "Check-in session",
-                      );
-                      await putEntry(
-                        entryInput("preferences", "Check-in session", {
-                          id: preference?.id,
-                          meta: {
-                            ...preference?.meta,
-                            carried_question_id: openQuestion.id,
-                            carried_question_day: day,
-                          },
-                        }),
-                      );
-                      setCarried(openQuestion.title);
-                    })
-                  }
-                />
-              ) : null}
-              {carried ? (
-                <>
-                  <Body>{carried}</Body>
-                  <Body>No need to answer now. Take it with you.</Body>
-                </>
-              ) : null}
             </>
-          ) : null}
+          )}
+          {draft.step === "review" && (
+            <>
+              <Eyebrow>{day === today ? "Today" : "Tomorrow"}</Eyebrow>
+              <IWillBe>
+                {draft.interest || draft.value || "taking a small step"}
+              </IWillBe>
+              <Title>{formatCommitment(draft.action)}</Title>
+              {!!draft.when && <Body>{draft.when}</Body>}
+              {!!draft.person && (
+                <Body>
+                  {draft.person === "For me" ? "For me" : `For ${draft.person}`}
+                </Body>
+              )}
+              <Body>I’ll ask how it went tonight.</Body>
+            </>
+          )}
         </>
       )}
     </Page>
   );
 }
-
 export default withAccount(Ritual);

@@ -1,0 +1,4594 @@
+[
+  {
+    "id": 1,
+    "format": "quote",
+    "text": "\"First say to yourself what you would be; and then do what you have to do.\"",
+    "person": "Epictetus",
+    "source": "Discourses 3.23 (tr. George Long)",
+    "credit": "Epictetus, Discourses 3.23 (tr. George Long)",
+    "priorities": [
+      "ambitious",
+      "disciplined",
+      "wise"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked in Long's text by Kelly, Oct 27, 2026",
+    "checked_against": "Long's Discourses, Standard Ebooks",
+    "source_urls": [
+      "https://standardebooks.org/ebooks/epictetus/discourses/george-long/text"
+    ]
+  },
+  {
+    "id": 2,
+    "format": "quote",
+    "text": "\"No longer talk at all about the kind of man that a good man ought to be, but be such.\"",
+    "person": "Marcus Aurelius",
+    "source": "Meditations 10.16 (tr. George Long, 1862)",
+    "credit": "Marcus Aurelius, Meditations 10.16 (tr. George Long, 1862)",
+    "priorities": [
+      "honest",
+      "brave",
+      "disciplined"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified with correction: the popular \"Waste no more time arguing…\" is Staniforth's 1964 translation, still in copyright",
+    "checked_against": "Translations compared, wist.info",
+    "source_urls": [
+      "https://wist.info/marcus-aureleus/28892/"
+    ]
+  },
+  {
+    "id": 3,
+    "format": "quote",
+    "text": "\"Such as are thy habitual thoughts, such also will be the character of thy mind; for the soul is dyed by the thoughts.\"",
+    "person": "Marcus Aurelius",
+    "source": "Meditations 5.16 (tr. George Long)",
+    "credit": "Marcus Aurelius, Meditations 5.16 (tr. George Long)",
+    "priorities": [
+      "calm",
+      "wise",
+      "a clear thinker"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: section 5.16 checked by Kelly, Oct 27, 2026",
+    "checked_against": "wist.info, Long's text, Project Gutenberg",
+    "source_urls": [
+      "https://wist.info/marcus-aureleus/43042/",
+      "https://gutenberg.org/cache/epub/6920/pg6920-images.html"
+    ]
+  },
+  {
+    "id": 4,
+    "format": "quote",
+    "text": "\"Hold every hour in your grasp. Lay hold of to-day's task, and you will not need to depend so much upon to- morrow's.\"",
+    "person": "Seneca",
+    "source": "Moral Letters to Lucilius, Letter 1 (tr. Richard M. Gummere)",
+    "credit": "Seneca, Moral Letters to Lucilius, Letter 1 (tr. Richard M. Gummere)",
+    "priorities": [
+      "disciplined",
+      "persistent"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Wikisource",
+    "source_urls": [
+      "https://en.wikisource.org/wiki/Moral_letters_to_Lucilius/Letter_1"
+    ]
+  },
+  {
+    "id": 5,
+    "format": "quote",
+    "text": "\"The journey of a thousand lî commenced with a single step.\"",
+    "person": "Laozi",
+    "source": "Tao Te Ching, ch. 64 (tr. James Legge, 1891)",
+    "credit": "Laozi, Tao Te Ching, ch. 64 (tr. James Legge, 1891)",
+    "priorities": [
+      "persistent",
+      "brave",
+      "hopeful"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified with correction: \"miles\" versions are loose; the literal sense is \"starts beneath one's feet\"",
+    "checked_against": "Legge text, sacred-texts.com",
+    "source_urls": [
+      "https://sacred-texts.com/tao/sbe39/sbe39071.htm"
+    ]
+  },
+  {
+    "id": 6,
+    "format": "quote",
+    "text": "\"Of things some are in our power, and others are not.\"",
+    "person": "Epictetus",
+    "source": "Enchiridion 1 (tr. George Long, 1887)",
+    "credit": "Epictetus, Enchiridion 1 (tr. George Long, 1887)",
+    "priorities": [
+      "calm",
+      "wise"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Perseus, Long tr.",
+    "source_urls": [
+      "https://cts.perseids.org/read/greekLit/tlg0557/tlg002/perseus-eng3/1"
+    ]
+  },
+  {
+    "id": 7,
+    "format": "quote",
+    "text": "\"Everything can be taken from a man but one thing: the last of the human freedoms—to choose one's attitude in any given set of circumstances, to choose one's own way.\"",
+    "person": "Viktor Frankl",
+    "source": "Man's Search for Meaning",
+    "credit": "Viktor Frankl, Man's Search for Meaning",
+    "priorities": [
+      "free",
+      "brave",
+      "independent"
+    ],
+    "traditions": [],
+    "once_only": true,
+    "status": "verified",
+    "verification_note": "Verified (in copyright: once only)",
+    "checked_against": "Wikiquote",
+    "source_urls": [
+      "https://en.wikiquote.org/wiki/Man%27s_Search_for_Meaning"
+    ]
+  },
+  {
+    "id": 8,
+    "format": "quote",
+    "text": "\"Ultimately, man should not ask what the meaning of his life is, but rather must recognize that it is he who is asked.\"",
+    "person": "Viktor Frankl",
+    "source": "Man's Search for Meaning",
+    "credit": "Viktor Frankl, Man's Search for Meaning",
+    "priorities": [
+      "of service",
+      "wise"
+    ],
+    "traditions": [],
+    "once_only": true,
+    "status": "verified",
+    "verification_note": "Verified (in copyright: once only)",
+    "checked_against": "Wikiquote",
+    "source_urls": [
+      "https://en.wikiquote.org/wiki/Man%27s_Search_for_Meaning"
+    ]
+  },
+  {
+    "id": 9,
+    "format": "quote",
+    "text": "\"How we spend our days is, of course, how we spend our lives.\"",
+    "person": "Annie Dillard",
+    "source": "The Writing Life (1989)",
+    "credit": "Annie Dillard, The Writing Life (1989)",
+    "priorities": [
+      "disciplined",
+      "wise"
+    ],
+    "traditions": [],
+    "once_only": true,
+    "status": "verified",
+    "verification_note": "Verified (in copyright: once only)",
+    "checked_against": "The Marginalian",
+    "source_urls": [
+      "https://www.themarginalian.org/2013/06/07/annie-dillard-the-writing-life-1/"
+    ]
+  },
+  {
+    "id": 10,
+    "format": "quote",
+    "text": "\"How wonderful it is that nobody need wait a single moment before starting to improve the world.\"",
+    "person": "Anne Frank",
+    "source": "essay \"Give!\" (March 26, 1944), in Tales from the Secret Annex",
+    "credit": "Anne Frank, essay \"Give!\" (March 26, 1944), in Tales from the Secret Annex",
+    "priorities": [
+      "of service",
+      "hopeful",
+      "brave"
+    ],
+    "traditions": [],
+    "once_only": true,
+    "status": "verified",
+    "verification_note": "Verified with correction: usually credited to her diary, but it comes from a separate essay; wording checked by Kelly, Oct 27, 2026 (in copyright: once only)",
+    "checked_against": "USHMM on her stories and \"Give!\", UEN teacher guide",
+    "source_urls": [
+      "https://www.ushmm.org/exhibition/anne-frank/htmlsite/artifact_2_0.html",
+      "https://uen.org/annefrank"
+    ]
+  },
+  {
+    "id": 11,
+    "format": "quote",
+    "text": "\"I know one thing: the only ones among you who will be really happy are those who have sought and found how to serve.\"",
+    "person": "Albert Schweitzer",
+    "source": "speech at Silcoates School, England, Dec 3, 1935 (via interpreter)",
+    "credit": "Albert Schweitzer, speech at Silcoates School, England, Dec 3, 1935 (via interpreter)",
+    "priorities": [
+      "of service",
+      "kind"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: checked by Kelly, Oct 27, 2026; recorded in the school magazine (The Silcoatian, No. 25)",
+    "checked_against": "wist.info",
+    "source_urls": [
+      "https://wist.info/schweitzer-albert/78664/"
+    ]
+  },
+  {
+    "id": 12,
+    "format": "quote",
+    "text": "\"Look for the helpers. You will always find people who are helping.\"",
+    "person": "Fred Rogers",
+    "source": "recalling his mother's advice",
+    "credit": "Fred Rogers, recalling his mother's advice",
+    "priorities": [
+      "kind",
+      "hopeful",
+      "calm"
+    ],
+    "traditions": [],
+    "once_only": true,
+    "status": "verified",
+    "verification_note": "Verified (in copyright: once only)",
+    "checked_against": "Snopes, PBS NewsHour",
+    "source_urls": [
+      "https://www.snopes.com/radiotv/tv/scarynews.asp",
+      "https://www.pbs.org/newshour/nation/fred-rogers-post-goes-viral"
+    ]
+  },
+  {
+    "id": 13,
+    "format": "story",
+    "text": "Marcus Aurelius, emperor of Rome, wrote his private notebook partly while on military campaign. Notes in it place Book 1 among the Quadi on the Granova river and Book 2 at Carnuntum. He never meant anyone else to read it.",
+    "person": "Marcus Aurelius",
+    "source": "Meditations",
+    "credit": "Marcus Aurelius, Meditations",
+    "priorities": [
+      "wise",
+      "calm",
+      "humble"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Wikipedia: Meditations",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/Meditations"
+    ]
+  },
+  {
+    "id": 14,
+    "format": "story",
+    "text": "Frankl lost the manuscript of his first book on arriving at Auschwitz. Later, sick with typhus, he rebuilt it at night on scraps of paper. He published it after the war as The Doctor and the Soul.",
+    "person": "Viktor Frankl",
+    "source": "",
+    "credit": "Viktor Frankl",
+    "priorities": [
+      "persistent",
+      "brave",
+      "hopeful"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "GTU Frankl archive, Wikipedia",
+    "source_urls": [
+      "https://oac.cdlib.org/findaid/ark:/13030/tf7g5005bh/admin/",
+      "https://en.wikipedia.org/wiki/The_Doctor_and_the_Soul"
+    ]
+  },
+  {
+    "id": 15,
+    "format": "story",
+    "text": "Accepting a lifetime achievement Emmy in 1997, Fred Rogers asked the audience for ten seconds of silence to think of the people who helped them become who they are. Then he timed it on his watch.",
+    "person": "Fred Rogers",
+    "source": "",
+    "credit": "Fred Rogers",
+    "priorities": [
+      "grateful",
+      "loving"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Transcript, American Rhetoric",
+    "source_urls": [
+      "https://www.americanrhetoric.com/speeches/fredrogerslifetimeachievementemmyaward.htm"
+    ]
+  },
+  {
+    "id": 16,
+    "format": "story",
+    "text": "Cellist Pablo Casals practiced every day into old age. Asked around age 80 why he still practiced, he said he thought he was making progress.",
+    "person": "Pablo Casals",
+    "source": "",
+    "credit": "Pablo Casals",
+    "priorities": [
+      "persistent",
+      "always learning",
+      "disciplined",
+      "humble"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified with correction: the popular \"at 93\" version isn't documented; recorded versions date from his late 60s to early 80s",
+    "checked_against": "Quote Investigator",
+    "source_urls": [
+      "https://quoteinvestigator.com/2014/02/12/casals-progress/"
+    ]
+  },
+  {
+    "id": 17,
+    "format": "story",
+    "text": "The day his polio vaccine was announced safe in 1955, Jonas Salk was asked on TV who owned the patent. \"The people, I would say,\" he answered, and asked whether you could patent the sun.",
+    "person": "Jonas Salk",
+    "source": "",
+    "credit": "Jonas Salk",
+    "priorities": [
+      "of service",
+      "humble",
+      "kind"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Retro Report",
+    "source_urls": [
+      "https://bunkhistory.org/resources/could-you-patent-the-sun-retro-report"
+    ]
+  },
+  {
+    "id": 18,
+    "format": "story",
+    "text": "Wangari Maathai often told of a hummingbird carrying single drops of water to a forest fire while bigger animals watched. Asked what it thought it could do, it said it was doing the best it could.",
+    "person": "Wangari Maathai (teller)",
+    "source": "",
+    "credit": "Wangari Maathai (teller)",
+    "priorities": [
+      "brave",
+      "of service",
+      "persistent"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified with correction: she told it, but it's a traditional South American Indigenous tale; credit her as the teller",
+    "checked_against": "Her telling, Dirt! The Movie, book note on origin",
+    "source_urls": [
+      "https://thekidshouldseethis.com/post/wangari-maathai-i-will-be-a-hummingbird",
+      "https://www.librarycat.org/lib/vnfc/item/166483077"
+    ]
+  },
+  {
+    "id": 19,
+    "format": "story",
+    "text": "When arthritis made embroidery too painful, Anna Mary Robertson Moses took her sister's advice and tried painting. She began in earnest at 78, painted for over two decades, and lived to 101.",
+    "person": "Grandma Moses",
+    "source": "",
+    "credit": "Grandma Moses",
+    "priorities": [
+      "brave",
+      "always learning",
+      "creative",
+      "hopeful"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Wikipedia, Sotheby's",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/Grandma_Moses",
+      "https://sothebys.com/en/artists/grandma-moses"
+    ]
+  },
+  {
+    "id": 20,
+    "format": "story",
+    "text": "Frustrated after Gettysburg, Lincoln wrote General Meade a stinging letter, then put it away. The envelope reads, in his hand: \"Meade, never sent, or signed.\"",
+    "person": "Abraham Lincoln",
+    "source": "",
+    "credit": "Abraham Lincoln",
+    "priorities": [
+      "calm",
+      "patient",
+      "forgiving"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "American Battlefield Trust",
+    "source_urls": [
+      "https://www.battlefields.org/learn/primary-sources/lincolns-unsent-letter-george-meade"
+    ]
+  },
+  {
+    "id": 21,
+    "format": "quote",
+    "text": "\"O God, give us the serenity to accept what cannot be changed, the courage to change what can be changed, and the wisdom to know the one from the other.\"",
+    "person": "Reinhold Niebuhr",
+    "source": "earliest recorded version of the Serenity Prayer (1932–33)",
+    "credit": "Reinhold Niebuhr, earliest recorded version of the Serenity Prayer (1932–33)",
+    "priorities": [
+      "calm",
+      "brave",
+      "wise",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": true,
+    "status": "verified",
+    "verification_note": "Verified with correction: the familiar \"God grant me the serenity…\" wording came later; Niebuhr's authorship was disputed, then confirmed by Fred Shapiro in 2014 (treat as in copyright: once only)",
+    "checked_against": "Yale Alumni Magazine, Snopes",
+    "source_urls": [
+      "https://www.yalealumnimagazine.com/blog_posts/1776-who-wrote-the-serenity-prayer-br-looks-like-niebuhr-after-all",
+      "https://www.snopes.com/fact-check/serenity-prayer/"
+    ]
+  },
+  {
+    "id": 22,
+    "format": "quote",
+    "text": "\"Seek not that the things which happen should happen as you wish; but wish the things which happen to be as they are, and you will have a tranquil flow of life.\"",
+    "person": "Epictetus",
+    "source": "Enchiridion 8 (tr. George Long)",
+    "credit": "Epictetus, Enchiridion 8 (tr. George Long)",
+    "priorities": [
+      "calm",
+      "patient"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Wikisource",
+    "source_urls": [
+      "https://en.wikisource.org/wiki/Encheiridion_of_Epictetus_(George_Long)"
+    ]
+  },
+  {
+    "id": 23,
+    "format": "quote",
+    "text": "\"If thou art pained by any external thing, it is not this thing that disturbs thee, but thy own judgment about it. And it is in thy power to wipe out this judgment now.\"",
+    "person": "Marcus Aurelius",
+    "source": "Meditations 8.47 (tr. George Long)",
+    "credit": "Marcus Aurelius, Meditations 8.47 (tr. George Long)",
+    "priorities": [
+      "calm",
+      "a clear thinker",
+      "wise"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Lexundria, Long tr.",
+    "source_urls": [
+      "https://lexundria.com/m_aur_med/8.47/lg"
+    ]
+  },
+  {
+    "id": 24,
+    "format": "quote",
+    "text": "\"Not being able to govern events, I govern myself, and apply myself to them, if they will not apply themselves to me.\"",
+    "person": "Michel de Montaigne",
+    "source": "Essays 2.17, \"Of Presumption\" (tr. Cotton/Hazlitt, 1877)",
+    "credit": "Michel de Montaigne, Essays 2.17, \"Of Presumption\" (tr. Cotton/Hazlitt, 1877)",
+    "priorities": [
+      "calm",
+      "independent"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Translations compared, wist.info",
+    "source_urls": [
+      "https://wist.info/montaigne-michel-de/82684/"
+    ]
+  },
+  {
+    "id": 25,
+    "format": "quote",
+    "text": "\"The greatest thing in the world is to know how to belong to oneself.\"",
+    "person": "Michel de Montaigne",
+    "source": "Essays 1.39, \"Of Solitude\" (tr. George B. Ives, 1925)",
+    "credit": "Michel de Montaigne, Essays 1.39, \"Of Solitude\" (tr. George B. Ives, 1925)",
+    "priorities": [
+      "independent",
+      "free",
+      "calm"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Translations compared, wist.info",
+    "source_urls": [
+      "https://wist.info/montaigne-michel-de/79914/"
+    ]
+  },
+  {
+    "id": 26,
+    "format": "quote",
+    "text": "\"Is virtue a thing remote? I wish to be virtuous, and lo! virtue is at hand.\"",
+    "person": "Confucius",
+    "source": "Analects 7 (tr. James Legge)",
+    "credit": "Confucius, Analects 7 (tr. James Legge)",
+    "priorities": [
+      "disciplined",
+      "honest"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "MIT Classics, Legge tr.",
+    "source_urls": [
+      "https://classics.mit.edu/Confucius/analects.2.2.html"
+    ]
+  },
+  {
+    "id": 27,
+    "format": "quote",
+    "text": "\"We are what we repeatedly do. Excellence, then, is not an act but a habit.\"",
+    "person": "Will Durant",
+    "source": "The Story of Philosophy (1926), summarizing Aristotle",
+    "credit": "Will Durant, The Story of Philosophy (1926), summarizing Aristotle",
+    "priorities": [
+      "disciplined",
+      "persistent"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified with correction: almost always credited to Aristotle, but these are Durant's words",
+    "checked_against": "Wikipedia: The Story of Philosophy, Check Your Fact",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/The_Story_of_Philosophy",
+      "https://checkyourfact.com/2019/06/26/fact-check-aristotle-excellence-habit-repeatedly-do/"
+    ]
+  },
+  {
+    "id": 28,
+    "format": "quote",
+    "text": "\"Trust thyself: every heart vibrates to that iron string.\"",
+    "person": "Ralph Waldo Emerson",
+    "source": "\"Self- Reliance\" (1841)",
+    "credit": "Ralph Waldo Emerson, \"Self- Reliance\" (1841)",
+    "priorities": [
+      "independent",
+      "brave"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "UVA, first edition text",
+    "source_urls": [
+      "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance"
+    ]
+  },
+  {
+    "id": 29,
+    "format": "quote",
+    "text": "\"If one advances confidently in the direction of his dreams, and endeavors to live the life which he has imagined, he will meet with a success unexpected in common hours.\"",
+    "person": "Henry David Thoreau",
+    "source": "Walden, Conclusion (1854)",
+    "credit": "Henry David Thoreau, Walden, Conclusion (1854)",
+    "priorities": [
+      "ambitious",
+      "brave",
+      "adventurous",
+      "hopeful"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Lit2Go, USF",
+    "source_urls": [
+      "https://etc.usf.edu/lit2go/90/walden-or-life-in-the-woods/1698/conclusion/"
+    ]
+  },
+  {
+    "id": 30,
+    "format": "quote",
+    "text": "\"If there is no struggle there is no progress.\"",
+    "person": "Frederick Douglass",
+    "source": "West India Emancipation speech, Canandaigua, NY, August 1857",
+    "credit": "Frederick Douglass, West India Emancipation speech, Canandaigua, NY, August 1857",
+    "priorities": [
+      "persistent",
+      "brave",
+      "fair"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified (sources give August 3 or 4)",
+    "checked_against": "CUNY American Social History Project",
+    "source_urls": [
+      "https://shec.ashp.cuny.edu/items/show/1245"
+    ]
+  },
+  {
+    "id": 31,
+    "format": "quote",
+    "text": "\"Who at the worst, if he fails, at least fails while daring greatly.\"",
+    "person": "Theodore Roosevelt",
+    "source": "\"Citizenship in a Republic,\" Sorbonne, April 23, 1910",
+    "credit": "Theodore Roosevelt, \"Citizenship in a Republic,\" Sorbonne, April 23, 1910",
+    "priorities": [
+      "brave",
+      "ambitious",
+      "persistent"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Wikisource",
+    "source_urls": [
+      "https://en.wikisource.org/wiki/Citizenship_in_a_Republic"
+    ]
+  },
+  {
+    "id": 32,
+    "format": "story",
+    "text": "In 1887, Anne Sullivan held seven-year-old Helen Keller's hand under a water spout and spelled \"water\" into the other. Keller later wrote: \"That living word awakened my soul.\"",
+    "person": "Helen Keller",
+    "source": "The Story of My Life (1903)",
+    "credit": "Helen Keller, The Story of My Life (1903)",
+    "priorities": [
+      "curious",
+      "always learning",
+      "grateful"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "American Foundation for the Blind, ch. 4",
+    "source_urls": [
+      "https://afb.org/online-library/story-my-life/part-1/chapter-iv"
+    ]
+  },
+  {
+    "id": 33,
+    "format": "story",
+    "text": "Shot down over Vietnam in 1965, James Stockdale spent over seven years as a prisoner of war. He held on to what he'd memorized from Epictetus: some things are in our power and some are not.",
+    "person": "James Stockdale",
+    "source": "Courage Under Fire (1993)",
+    "credit": "James Stockdale, Courage Under Fire (1993)",
+    "priorities": [
+      "persistent",
+      "calm",
+      "brave"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Stockdale's essay, Hoover Institution",
+    "source_urls": [
+      "https://www.hoover.org/sites/default/files/uploads/documents/StockdaleCourage.pdf"
+    ]
+  },
+  {
+    "id": 34,
+    "format": "story",
+    "text": "Epictetus was born a slave and lived with a lasting disability. He became one of Rome's best- known teachers, and his lessons on what is in our power still travel.",
+    "person": "Epictetus",
+    "source": "",
+    "credit": "Epictetus",
+    "priorities": [
+      "persistent",
+      "independent",
+      "wise"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Stockdale's essay, Hoover Institution",
+    "source_urls": [
+      "https://www.hoover.org/sites/default/files/uploads/documents/StockdaleCourage.pdf"
+    ]
+  },
+  {
+    "id": 35,
+    "format": "story",
+    "text": "Exiled to a small town in 1080, the poet Su Shi farmed a plot on an eastern slope and took its name: Dongpo. His habit of finding joy in hardship became part of Chinese culture, and a pork dish still carries his name.",
+    "person": "Su Shi (Su Dongpo)",
+    "source": "",
+    "credit": "Su Shi (Su Dongpo)",
+    "priorities": [
+      "grateful",
+      "calm",
+      "hopeful"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Wikipedia, Library of Congress",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/Su_Shi",
+      "https://www.loc.gov/item/2021666499/"
+    ]
+  },
+  {
+    "id": 36,
+    "format": "story",
+    "text": "In 1802, losing his hearing, Beethoven wrote a despairing letter to his brothers. Then he went back to work, and many of his greatest pieces came after.",
+    "person": "Ludwig van Beethoven",
+    "source": "Heiligenstadt Testament",
+    "credit": "Ludwig van Beethoven, Heiligenstadt Testament",
+    "priorities": [
+      "persistent",
+      "brave",
+      "creative"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Beethoven-Haus Bonn",
+    "source_urls": [
+      "https://www.beethoven.de/en/g/schicksal"
+    ]
+  },
+  {
+    "id": 37,
+    "format": "story",
+    "text": "After a stroke in 1995 left him able to move only his left eyelid, Jean- Dominique Bauby wrote a whole book by blinking, one letter at a time.",
+    "person": "Jean- Dominique Bauby",
+    "source": "The Diving Bell and the Butterfly",
+    "credit": "Jean- Dominique Bauby, The Diving Bell and the Butterfly",
+    "priorities": [
+      "persistent",
+      "brave",
+      "creative"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Wikipedia",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/The_Diving_Bell_and_the_Butterfly"
+    ]
+  },
+  {
+    "id": 38,
+    "format": "story",
+    "text": "Julia Child's first meal in France, sole meunière in Rouen, changed her life. She enrolled at Le Cordon Bleu in her late thirties, failed her first exam, and was 51 when her TV show began.",
+    "person": "Julia Child",
+    "source": "",
+    "credit": "Julia Child",
+    "priorities": [
+      "adventurous",
+      "ambitious",
+      "curious",
+      "creative"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "CNN via KRDO, Late Bloomer",
+    "source_urls": [
+      "https://krdo.com/entertainment/cnn-style/2022/05/25/the-french-meal-julia-child-called-life-changing/",
+      "https://laterbloomer.com/julia-child/"
+    ]
+  },
+  {
+    "id": 39,
+    "format": "story",
+    "text": "When the ice crushed his ship in 1915, Ernest Shackleton sailed 800 miles in an open lifeboat to find help. Every man of his crew came home.",
+    "person": "Ernest Shackleton",
+    "source": "",
+    "credit": "Ernest Shackleton",
+    "priorities": [
+      "brave",
+      "a leader",
+      "loyal",
+      "a team player"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Smithsonian",
+    "source_urls": [
+      "https://www.smithsonianmag.com/history/reliving-shackletons-epic-endurance-expedition-102707360/?page=1"
+    ]
+  },
+  {
+    "id": 40,
+    "format": "story",
+    "text": "Polio left Wilma Rudolph in a leg brace as a child, and her family massaged her leg every day. In 1960 she won three Olympic golds in Rome.",
+    "person": "Wilma Rudolph",
+    "source": "",
+    "credit": "Wilma Rudolph",
+    "priorities": [
+      "persistent",
+      "there for family",
+      "brave",
+      "loving"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Team USA",
+    "source_urls": [
+      "https://www.teamusa.com/hall-of-fame/hall-of-fame-members/wilma-rudolph"
+    ]
+  },
+  {
+    "id": 41,
+    "format": "story",
+    "text": "On Robben Island, Nelson Mandela recited a Victorian poem about self- mastery to fellow prisoners. Years later, he gave South Africa's rugby captain Roosevelt's \"man in the arena\" passage.",
+    "person": "Nelson Mandela",
+    "source": "",
+    "credit": "Nelson Mandela",
+    "priorities": [
+      "persistent",
+      "brave",
+      "a leader"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified with correction: the film Invictus shows him giving the captain the poem; in reality it was the Roosevelt passage",
+    "checked_against": "Wikipedia: Invictus, Vox Populi",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/Invictus",
+      "https://voxpopulisphere.com/2020/03/28/audio-invictus-recited-by-morgan-freeman"
+    ]
+  },
+  {
+    "id": 42,
+    "format": "quote",
+    "text": "\"From my grandfather Verus I learned good morals and the government of my temper.\"",
+    "person": "Marcus Aurelius",
+    "source": "Meditations 1.1 (tr. George Long)",
+    "credit": "Marcus Aurelius, Meditations 1.1 (tr. George Long)",
+    "priorities": [
+      "there for family",
+      "grateful",
+      "calm",
+      "patient"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Lexundria, Long tr.",
+    "source_urls": [
+      "https://www.lexundria.com/m_aur_med/1.1/lg"
+    ]
+  },
+  {
+    "id": 43,
+    "format": "quote",
+    "text": "\"From my brother Severus, to love my kin, and to love truth, and to love justice.\"",
+    "person": "Marcus Aurelius",
+    "source": "Meditations, Book 1 (tr. George Long)",
+    "credit": "Marcus Aurelius, Meditations, Book 1 (tr. George Long)",
+    "priorities": [
+      "there for family",
+      "honest",
+      "fair",
+      "loving"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Standard Ebooks, Long tr.",
+    "source_urls": [
+      "https://standardebooks.org/ebooks/marcus-aurelius/meditations/george-long/text/book-1"
+    ]
+  },
+  {
+    "id": 44,
+    "format": "story",
+    "text": "Marie Curie shared a Nobel Prize with her husband Pierre, then won a second on her own. Their daughter Irène grew up in the lab and shared her own Nobel in 1935 with her husband. The family has five in all.",
+    "person": "Curie family",
+    "source": "",
+    "credit": "Curie family",
+    "priorities": [
+      "curious",
+      "always learning",
+      "there for family"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "NobelPrize.org, Wikipedia: Irène Joliot-Curie",
+    "source_urls": [
+      "https://www.nobelprize.org/family-matters-meet-the-families-with-nobel-prizes/",
+      "https://en.wikipedia.org/wiki/Ir%C3%A8ne_Joliot-Curie"
+    ]
+  },
+  {
+    "id": 45,
+    "format": "quote",
+    "text": "\"A friend is a person with whom I may be sincere. Before him I may think aloud.\"",
+    "person": "Ralph Waldo Emerson",
+    "source": "\"Friendship\" (1841)",
+    "credit": "Ralph Waldo Emerson, \"Friendship\" (1841)",
+    "priorities": [
+      "a good friend",
+      "honest"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "The Marginalian",
+    "source_urls": [
+      "https://www.themarginalian.org/2014/08/13/emerson-on-friendship/"
+    ]
+  },
+  {
+    "id": 46,
+    "format": "quote",
+    "text": "\"Ponder for a long time whether you shall admit a given person to your friendship; but when you have decided to admit him, welcome him with all your heart and soul.\"",
+    "person": "Seneca",
+    "source": "Moral Letters to Lucilius, Letter 3 (tr. Richard M. Gummere)",
+    "credit": "Seneca, Moral Letters to Lucilius, Letter 3 (tr. Richard M. Gummere)",
+    "priorities": [
+      "a good friend",
+      "loyal",
+      "loving"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Pomona College, Gummere tr.",
+    "source_urls": [
+      "https://pages.pomona.edu/~cmc24747/sources/seneca/sen_ep_1.htm"
+    ]
+  },
+  {
+    "id": 47,
+    "format": "story",
+    "text": "At 73, Hokusai wrote that nothing he'd drawn before 70 was worth counting. He said he was only beginning to understand nature, and hoped that by 110 every dot and line he drew would be alive.",
+    "person": "Katsushika Hokusai",
+    "source": "One Hundred Views of Mount Fuji (1834)",
+    "credit": "Katsushika Hokusai, One Hundred Views of Mount Fuji (1834)",
+    "priorities": [
+      "always learning",
+      "curious",
+      "humble",
+      "persistent"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "British Museum, Wikipedia",
+    "source_urls": [
+      "https://www.britishmuseum.org/collection/object/A_1979-0305-0-454-1",
+      "https://en.wikipedia.org/wiki/One_Hundred_Views_of_Mount_Fuji"
+    ]
+  },
+  {
+    "id": 48,
+    "format": "quote",
+    "text": "\"Whatsoever thy hand findeth to do, do it with thy might.\"",
+    "person": "Ecclesiastes 9:10 (King James Version)",
+    "source": "",
+    "credit": "Ecclesiastes 9:10 (King James Version)",
+    "priorities": [
+      "disciplined",
+      "energetic",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Bible Study Tools, KJV",
+    "source_urls": [
+      "https://biblestudytools.com/kjv/ecclesiastes/9-10.html"
+    ]
+  },
+  {
+    "id": 49,
+    "format": "quote",
+    "text": "\"It is not your duty to finish the work, but neither are you at liberty to neglect it.\"",
+    "person": "Rabbi Tarfon",
+    "source": "Pirkei Avot 2:16",
+    "credit": "Rabbi Tarfon, Pirkei Avot 2:16",
+    "priorities": [
+      "of service",
+      "persistent",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified (check the translation's license with Sefaria before launch)",
+    "checked_against": "Sefaria",
+    "source_urls": [
+      "https://voices.sefaria.org/sheets/344288"
+    ]
+  },
+  {
+    "id": 50,
+    "format": "quote",
+    "text": "\"If you tell the truth you don't have to remember anything.\"",
+    "person": "Mark Twain",
+    "source": "notebook entry, 1894",
+    "credit": "Mark Twain, notebook entry, 1894",
+    "priorities": [
+      "honest"
+    ],
+    "traditions": [],
+    "once_only": true,
+    "status": "needs_check",
+    "verification_note": "Verified with caveat: the only source is Mark Twain's Notebook, edited by Albert Bigelow Paine (1935) (in copyright: once only)",
+    "checked_against": "Barry Popik, twainquotes.com",
+    "source_urls": [
+      "https://barrypopik.com/blog/if_you_tell_the_truth",
+      "https://twainquotes.com/Truth.html"
+    ]
+  },
+  {
+    "id": 51,
+    "format": "quote",
+    "text": "\"The mountains are calling & I must go & I will work on while I can, studying incessantly.\"",
+    "person": "John Muir",
+    "source": "letter to his sister Sarah, Sept 3, 1873",
+    "credit": "John Muir, letter to his sister Sarah, Sept 3, 1873",
+    "priorities": [
+      "close to nature",
+      "curious",
+      "always learning",
+      "energetic"
+    ],
+    "traditions": [],
+    "once_only": true,
+    "status": "verified",
+    "verification_note": "Verified with correction: the famous version cuts the sentence short (unpublished letters held by the Muir-Hanna Trust: once only)",
+    "checked_against": "University of the Pacific archive",
+    "source_urls": [
+      "https://scholarlycommons.pacific.edu/muir-correspondence/1535/"
+    ]
+  },
+  {
+    "id": 52,
+    "format": "quote",
+    "text": "\"'Hope' is the thing with feathers / That perches in the soul.\"",
+    "person": "Emily Dickinson",
+    "source": "written about 1861, published 1891",
+    "credit": "Emily Dickinson, written about 1861, published 1891",
+    "priorities": [
+      "hopeful"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Representative Poetry Online, U of Toronto",
+    "source_urls": [
+      "https://rpo.library.utoronto.ca/content/hope-thing-feathers-254"
+    ]
+  },
+  {
+    "id": 53,
+    "format": "quote",
+    "text": "\"All that we are is the result of what we have thought: it is founded on our thoughts, it is made up of our thoughts.\"",
+    "person": "Dhammapada",
+    "source": "verse 1 (tr. F. Max Müller, 1881)",
+    "credit": "Dhammapada, verse 1 (tr. F. Max Müller, 1881)",
+    "priorities": [
+      "calm",
+      "a clear thinker",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Buddhist"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Project Gutenberg",
+    "source_urls": [
+      "https://gutenberg.org/cache/epub/2017/pg2017-images.html"
+    ]
+  },
+  {
+    "id": 54,
+    "format": "story",
+    "text": "In 1947, after speaking in a Munich church, Corrie ten Boom was approached by a former guard from the camp where she had been held. He asked for her forgiveness, and after a long moment she took his hand.",
+    "person": "Corrie ten Boom",
+    "source": "",
+    "credit": "Corrie ten Boom",
+    "priorities": [
+      "forgiving",
+      "guided by faith",
+      "brave"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "PBS: The Question of God, Guideposts, 1972",
+    "source_urls": [
+      "https://www.pbs.org/wgbh/questionofgod/voices/boom.html",
+      "https://guideposts.org/?p=21828"
+    ]
+  },
+  {
+    "id": 55,
+    "format": "story",
+    "text": "Leonardo da Vinci kept to-do lists in his notebooks. One, written around 1510, includes the reminder: describe the tongue of the woodpecker.",
+    "person": "Leonardo da Vinci",
+    "source": "",
+    "credit": "Leonardo da Vinci",
+    "priorities": [
+      "curious",
+      "always learning"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Open Culture",
+    "source_urls": [
+      "https://www.openculture.com/2020/11/leonardo-da-vincis-to-do-list-from-1490-the-plan-of-a-renaissance-man.html"
+    ]
+  },
+  {
+    "id": 56,
+    "format": "quote",
+    "text": "\"While we are postponing, life speeds by.\"",
+    "person": "Seneca",
+    "source": "Moral Letters to Lucilius, Letter 1 (tr. Richard M. Gummere)",
+    "credit": "Seneca, Moral Letters to Lucilius, Letter 1 (tr. Richard M. Gummere)",
+    "priorities": [
+      "disciplined"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Standard Ebooks, Gummere tr.",
+    "source_urls": [
+      "https://standardebooks.org/ebooks/seneca/moral-letters-to-lucilius/richard-m-gummere/text/letter-1"
+    ]
+  },
+  {
+    "id": 57,
+    "format": "quote",
+    "text": "\"In solitude, be company for thyself.\"",
+    "person": "Michel de Montaigne",
+    "source": "\"Of Solitude\" (tr. Charles Cotton)",
+    "credit": "Michel de Montaigne, \"Of Solitude\" (tr. Charles Cotton)",
+    "priorities": [
+      "calm",
+      "independent"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Monadnock Valley Press",
+    "source_urls": [
+      "https://monadnock.net/montaigne/solitude2.html"
+    ]
+  },
+  {
+    "id": 58,
+    "format": "quote",
+    "text": "\"Men are disturbed not by the things which happen, but by the opinions about the things.\"",
+    "person": "Epictetus",
+    "source": "Enchiridion 5 (tr. George Long)",
+    "credit": "Epictetus, Enchiridion 5 (tr. George Long)",
+    "priorities": [
+      "calm",
+      "a clear thinker"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Wikisource",
+    "source_urls": [
+      "https://en.wikisource.org/wiki/Encheiridion_of_Epictetus_(George_Long)"
+    ]
+  },
+  {
+    "id": 59,
+    "format": "quote",
+    "text": "\"For hatred does not cease by hatred at any time: hatred ceases by love, this is an old rule.\"",
+    "person": "Dhammapada",
+    "source": "verse 5 (tr. F. Max Müller, 1881)",
+    "credit": "Dhammapada, verse 5 (tr. F. Max Müller, 1881)",
+    "priorities": [
+      "forgiving",
+      "loving",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Buddhist"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Lulu edition of Müller tr.",
+    "source_urls": [
+      "https://www.lulu.com/shop/f-max-muller/the-dhammapada-a-collection-of-verses-being-one-of-the-canonical-books-of-the-buddhists/ebook/product-1yn9mkk8.html"
+    ]
+  },
+  {
+    "id": 60,
+    "format": "quote",
+    "text": "\"If a man does not keep pace with his companions, perhaps it is because he hears a different drummer.\"",
+    "person": "Henry David Thoreau",
+    "source": "Walden, Conclusion (1854)",
+    "credit": "Henry David Thoreau, Walden, Conclusion (1854)",
+    "priorities": [
+      "independent",
+      "free"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "LitCharts",
+    "source_urls": [
+      "https://assets.litcharts.com/lit/walden/quotes"
+    ]
+  },
+  {
+    "id": 61,
+    "format": "quote",
+    "text": "\"A man is relieved and gay [happy] when he has put his heart into his work and done his best.\"",
+    "person": "Ralph Waldo Emerson",
+    "source": "\"Self- Reliance\" (1841)",
+    "credit": "Ralph Waldo Emerson, \"Self- Reliance\" (1841)",
+    "priorities": [
+      "disciplined",
+      "energetic"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified (\" [happy]\" added at Kelly's request, Nov 3, 2026, to explain the old meaning of \"gay\"; the brackets show it isn't Emerson's word)",
+    "checked_against": "UVA, first edition text",
+    "source_urls": [
+      "https://anthology.lib.virginia.edu/work/Emerson/emerson-self-reliance"
+    ]
+  },
+  {
+    "id": 62,
+    "format": "quote",
+    "text": "\"Be economical & learn to do without things & gain leisure to look up.\"",
+    "person": "John Muir",
+    "source": "letter to his sister Sarah, Nov 14, 1873",
+    "credit": "John Muir, letter to his sister Sarah, Nov 14, 1873",
+    "priorities": [
+      "free",
+      "close to nature",
+      "secure"
+    ],
+    "traditions": [],
+    "once_only": true,
+    "status": "verified",
+    "verification_note": "Verified (unpublished letters held by the Muir-Hanna Trust: once only)",
+    "checked_against": "University of the Pacific archive",
+    "source_urls": [
+      "https://scholarlycommons.pacific.edu/muir-correspondence/1545"
+    ]
+  },
+  {
+    "id": 63,
+    "format": "quote",
+    "text": "\"Weeping may endure for a night, but joy cometh in the morning.\"",
+    "person": "Psalm 30:5 (King James Version)",
+    "source": "",
+    "credit": "Psalm 30:5 (King James Version)",
+    "priorities": [
+      "hopeful",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "YouVersion, KJV",
+    "source_urls": [
+      "https://www.bible.com/bible/1/PSA.30.5"
+    ]
+  },
+  {
+    "id": 64,
+    "format": "quote",
+    "text": "\"All shall be well, and all shall be well, and all manner of thing shall be well.\"",
+    "person": "Julian of Norwich",
+    "source": "Revelations of Divine Love, ch. 27 (late 1300s)",
+    "credit": "Julian of Norwich, Revelations of Divine Love, ch. 27 (late 1300s)",
+    "priorities": [
+      "hopeful",
+      "guided by faith",
+      "calm"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified (often misquoted as \"all manner of things\")",
+    "checked_against": "Shmoop, ch. 27 text",
+    "source_urls": [
+      "https://www.shmoop.com/study-guides/medieval-english-literature/the-church-characteristic-julian-norwich-example.html"
+    ]
+  },
+  {
+    "id": 65,
+    "format": "quote",
+    "text": "\"But lo! with hardship goeth ease.\"",
+    "person": "Qur'an 94:5 (tr. Marmaduke Pickthall, 1930)",
+    "source": "",
+    "credit": "Qur'an 94:5 (tr. Marmaduke Pickthall, 1930)",
+    "priorities": [
+      "hopeful",
+      "guided by faith",
+      "patient"
+    ],
+    "traditions": [
+      "Muslim"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified (1930 translation, public domain in the US since 2026; modern translations, like \"With hardship comes ease,\" are still in copyright)",
+    "checked_against": "Alim, translations compared",
+    "source_urls": [
+      "https://www.alim.org/quran/compare/surah/94/5/"
+    ]
+  },
+  {
+    "id": 66,
+    "format": "quote",
+    "text": "\"I think that I cannot preserve my health and spirits, unless I spend four hours a day at least— and it is commonly more than that— sauntering through the woods and over the hills and fields, absolutely free from all worldly engagements.\"",
+    "person": "Henry David Thoreau",
+    "source": "\"Walking\" (1862)",
+    "credit": "Henry David Thoreau, \"Walking\" (1862)",
+    "priorities": [
+      "healthy",
+      "close to nature",
+      "free"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Standard Ebooks",
+    "source_urls": [
+      "https://standardebooks.org/ebooks/henry-david-thoreau/essays/text/walking"
+    ]
+  },
+  {
+    "id": 67,
+    "format": "story",
+    "text": "Charles Darwin walked the same quarter-mile gravel path at Down House every day, kicking a flint aside on each lap so he didn't have to count. His son said the walks were for his hardest thinking.",
+    "person": "Charles Darwin",
+    "source": "the Sandwalk",
+    "credit": "Charles Darwin, the Sandwalk",
+    "priorities": [
+      "healthy",
+      "a clear thinker",
+      "curious",
+      "disciplined"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified with correction: it's often called his \"thinking path,\" but no source shows Darwin calling it that",
+    "checked_against": "Darwin Online, English Heritage",
+    "source_urls": [
+      "https://darwin-online.org.uk/life19.html",
+      "https://www.english-heritage.org.uk/visit/places/home-of-charles-darwin-down-house/history/description/"
+    ]
+  },
+  {
+    "id": 68,
+    "format": "story",
+    "text": "As a busy medical student, Roger Bannister trained mostly in short, hard lunchtime sessions. On May 6, 1954, he ran the first mile under four minutes, then retired that year to become a neurologist.",
+    "person": "Roger Bannister",
+    "source": "",
+    "credit": "Roger Bannister",
+    "priorities": [
+      "healthy",
+      "disciplined",
+      "persistent"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "History.com, EBSCO",
+    "source_urls": [
+      "https://www.history.com/this-day-in-history/may-6/first-four-minute-mile",
+      "https://www.ebsco.com/research-starters/history/bannister-beats-four-minute-mile"
+    ]
+  },
+  {
+    "id": 69,
+    "format": "quote",
+    "text": "\"Against the assault of laughter nothing can stand.\"",
+    "person": "Mark Twain",
+    "source": "The Mysterious Stranger (published 1916)",
+    "credit": "Mark Twain, The Mysterious Stranger (published 1916)",
+    "priorities": [
+      "funny"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "needs_check",
+    "verification_note": "Verified with caveat: the 1916 edition was altered by his editors, but this line is in Twain's own manuscript too",
+    "checked_against": "Kenyon Review, Utrecht University thesis",
+    "source_urls": [
+      "https://kenyonreview.org/2013/11/twain-wilde-shall-meet/",
+      "https://studenttheses.uu.nl/handle/20.500.12932/2421"
+    ]
+  },
+  {
+    "id": 70,
+    "format": "quote",
+    "text": "\"Angels can fly because they can take themselves lightly.\"",
+    "person": "G. K. Chesterton",
+    "source": "Orthodoxy (1908)",
+    "credit": "G. K. Chesterton, Orthodoxy (1908)",
+    "priorities": [
+      "funny",
+      "humble",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "The Chesterton Society",
+    "source_urls": [
+      "https://chesterton.org/angels-fly"
+    ]
+  },
+  {
+    "id": 71,
+    "format": "story",
+    "text": "Leaving his 72nd birthday party in 1951, tired of smiling for photographers, Albert Einstein stuck out his tongue at the camera. He loved the photo so much he ordered prints to send to friends.",
+    "person": "Albert Einstein",
+    "source": "",
+    "credit": "Albert Einstein",
+    "priorities": [
+      "funny",
+      "free"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "History.com",
+    "source_urls": [
+      "https://www.history.com/news/einstein-tongue-photo"
+    ]
+  },
+  {
+    "id": 72,
+    "format": "story",
+    "text": "Frederick Douglass saw his mother only a few times as a child. She walked twelve miles at night after a full day in the fields to be with him, and was gone before he woke.",
+    "person": "Frederick Douglass",
+    "source": "Narrative (1845)",
+    "credit": "Frederick Douglass, Narrative (1845)",
+    "priorities": [
+      "there for family",
+      "loving",
+      "loyal"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Narrative, ch. 1",
+    "source_urls": [
+      "https://open.maricopa.edu/earlyamericanliteratureanthology/chapter/narrative-of-the-life-of-frederick-douglass-american-slave-1845-chapter-1/"
+    ]
+  },
+  {
+    "id": 73,
+    "format": "story",
+    "text": "Encouraged by her daughter Rose, Laura Ingalls Wilder began writing about her childhood in her sixties. Little House in the Big Woods came out in 1932, when she was 65.",
+    "person": "Laura Ingalls Wilder",
+    "source": "",
+    "credit": "Laura Ingalls Wilder",
+    "priorities": [
+      "there for family",
+      "always learning",
+      "creative"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "needs_check",
+    "verification_note": "Verified with caveat: Rose edited heavily, and scholars still debate how much she shaped the books",
+    "checked_against": "PBS American Masters",
+    "source_urls": [
+      "https://www.pbs.org/wnet/americanmasters/8-interesting-facts-about-laura-ingalls-wilder/16581"
+    ]
+  },
+  {
+    "id": 74,
+    "format": "quote",
+    "text": "\"For friendship adds a brighter radiance to prosperity and lessens the burden of adversity by dividing and sharing it.\"",
+    "person": "Cicero",
+    "source": "On Friendship (tr. W. A. Falconer, 1923)",
+    "credit": "Cicero, On Friendship (tr. W. A. Falconer, 1923)",
+    "priorities": [
+      "a good friend",
+      "loyal"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Perseus, Falconer tr.",
+    "source_urls": [
+      "https://cts.perseids.org/read/latinLit/phi0474/phi052/perseus-eng2/21-24"
+    ]
+  },
+  {
+    "id": 75,
+    "format": "story",
+    "text": "For years, C. S. Lewis was Tolkien's only audience for The Lord of the Rings. Tolkien later said he owed Lewis an unpayable debt of \"sheer encouragement,\" without which he'd never have finished.",
+    "person": "J. R. R. Tolkien and C. S. Lewis",
+    "source": "",
+    "credit": "J. R. R. Tolkien and C. S. Lewis",
+    "priorities": [
+      "a good friend",
+      "loyal",
+      "creative",
+      "persistent"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Oxford English Faculty podcast, Maggs Bros., citing Carpenter",
+    "source_urls": [
+      "https://media.podcasts.ox.ac.uk/engfac/fantasy_lit/2024-11-28-enfac-fantasy_lit-Ward.srt",
+      "https://store.maggs.com/products/prince-caspian-return-narnia-uwgwifxp"
+    ]
+  },
+  {
+    "id": 76,
+    "format": "story",
+    "text": "Defending a friend in court in 54 BC, Cicero said that of all virtues he most wanted to be grateful, calling gratitude not only the greatest virtue but the parent of all the others.",
+    "person": "Cicero",
+    "source": "Pro Plancio",
+    "credit": "Cicero, Pro Plancio",
+    "priorities": [
+      "grateful"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Wikiquote",
+    "source_urls": [
+      "https://en.wikiquote.org/wiki/Cicero"
+    ]
+  },
+  {
+    "id": 77,
+    "format": "story",
+    "text": "On December 1, 1955, Rosa Parks refused to give up her bus seat in Montgomery. She wasn't tired; she refused on principle. Her arrest started a 381-day boycott, and she lost her job for it.",
+    "person": "Rosa Parks",
+    "source": "",
+    "credit": "Rosa Parks",
+    "priorities": [
+      "fair",
+      "brave"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified with correction: the popular story says she was tired from work",
+    "checked_against": "National Constitution Center",
+    "source_urls": [
+      "https://constitutioncenter.org/blog/it-was-on-this-day-that-rosa-parks-made-history-by-riding-a-bus"
+    ]
+  },
+  {
+    "id": 78,
+    "format": "quote",
+    "text": "\"From Maximus I learned self- government, and not to be led aside by anything; and cheerfulness in all circumstances, as well as in illness.\"",
+    "person": "Marcus Aurelius",
+    "source": "Meditations, Book 1 (tr. George Long)",
+    "credit": "Marcus Aurelius, Meditations, Book 1 (tr. George Long)",
+    "priorities": [
+      "healthy",
+      "calm",
+      "disciplined"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "MIT Classics, Long tr.",
+    "source_urls": [
+      "https://classics.mit.edu/Antoninus/meditations.1.one.html"
+    ]
+  },
+  {
+    "id": 79,
+    "format": "quote",
+    "text": "\"To cherish good hopes, and to believe that I am loved by my friends.\"",
+    "person": "Marcus Aurelius",
+    "source": "Meditations, Book 1, on his brother Severus (tr. George Long)",
+    "credit": "Marcus Aurelius, Meditations, Book 1, on his brother Severus (tr. George Long)",
+    "priorities": [
+      "a good friend",
+      "hopeful"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Lexundria, Long tr.",
+    "source_urls": [
+      "https://lexundria.com/m_aur_med/1/lg"
+    ]
+  },
+  {
+    "id": 80,
+    "format": "quote",
+    "text": "\"In my walks I would fain return to my senses.\"",
+    "person": "Henry David Thoreau",
+    "source": "\"Walking\" (1862)",
+    "credit": "Henry David Thoreau, \"Walking\" (1862)",
+    "priorities": [
+      "close to nature",
+      "healthy",
+      "calm"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "USC Scalar, Atlantic text",
+    "source_urls": [
+      "https://scalar.usc.edu/works/bodies/henry-david-thoreau-walking-abbreviated-version"
+    ]
+  },
+  {
+    "id": 81,
+    "format": "quote",
+    "text": "\"Nothing, Lucilius, is ours, except time.\"",
+    "person": "Seneca",
+    "source": "Moral Letters to Lucilius, Letter 1 (tr. Richard M. Gummere)",
+    "credit": "Seneca, Moral Letters to Lucilius, Letter 1 (tr. Richard M. Gummere)",
+    "priorities": [
+      "calm",
+      "wise"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Standard Ebooks, Gummere tr.",
+    "source_urls": [
+      "https://standardebooks.org/ebooks/seneca/moral-letters-to-lucilius/richard-m-gummere/text/letter-1"
+    ]
+  },
+  {
+    "id": 82,
+    "format": "quote",
+    "text": "\"Receive every person with a pleasant countenance.\"",
+    "person": "Shammai",
+    "source": "Pirkei Avot 1:15",
+    "credit": "Shammai, Pirkei Avot 1:15",
+    "priorities": [
+      "kind",
+      "good with people",
+      "respectful",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified (check the translation's license with Sefaria before launch)",
+    "checked_against": "Sefaria",
+    "source_urls": [
+      "https://voices.sefaria.org/sheets/40480"
+    ]
+  },
+  {
+    "id": 83,
+    "format": "quote",
+    "text": "\"Do not judge your fellow man until you have reached his place.\"",
+    "person": "Hillel",
+    "source": "Pirkei Avot 2:4",
+    "credit": "Hillel, Pirkei Avot 2:4",
+    "priorities": [
+      "fair",
+      "respectful",
+      "humble",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified (check the translation's license with Sefaria before launch)",
+    "checked_against": "Sefaria",
+    "source_urls": [
+      "https://voices.sefaria.org/sheets/344288"
+    ]
+  },
+  {
+    "id": 84,
+    "format": "story",
+    "text": "As a young man, Benjamin Franklin made a little book with a page for each of thirteen virtues. He gave one virtue his full attention each week, then started the cycle again.",
+    "person": "Benjamin Franklin",
+    "source": "Autobiography",
+    "credit": "Benjamin Franklin, Autobiography",
+    "priorities": [
+      "disciplined",
+      "always learning",
+      "persistent"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Franklin's Autobiography, excerpt",
+    "source_urls": [
+      "https://press.rebus.community/openamlit/?p=70"
+    ]
+  },
+  {
+    "id": 85,
+    "format": "quote",
+    "text": "\"If it is not right, do not do it: if it is not true, do not say it.\"",
+    "person": "Marcus Aurelius",
+    "source": "Meditations 12.17 (tr. George Long)",
+    "credit": "Marcus Aurelius, Meditations 12.17 (tr. George Long)",
+    "priorities": [
+      "honest"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "MIT Classics, Long tr.",
+    "source_urls": [
+      "https://classics.mit.edu/Antoninus/meditations.12.twelve.html"
+    ]
+  },
+  {
+    "id": 86,
+    "format": "quote",
+    "text": "\"When you know a thing, to hold that you know it; and when you do not know a thing, to allow that you do not know it — this is knowledge.\"",
+    "person": "Confucius",
+    "source": "Analects 2.17 (tr. James Legge)",
+    "credit": "Confucius, Analects 2.17 (tr. James Legge)",
+    "priorities": [
+      "honest",
+      "humble",
+      "curious",
+      "wise"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Monadnock Valley Press, Legge tr.",
+    "source_urls": [
+      "https://monadnock.net/confucius/analects-2.html"
+    ]
+  },
+  {
+    "id": 87,
+    "format": "quote",
+    "text": "\"I do not know how a man without truthfulness is to get on.\"",
+    "person": "Confucius",
+    "source": "Analects 2 (tr. James Legge)",
+    "credit": "Confucius, Analects 2 (tr. James Legge)",
+    "priorities": [
+      "honest"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Monadnock Valley Press, Legge tr.",
+    "source_urls": [
+      "https://monadnock.net/confucius/analects-2.html"
+    ]
+  },
+  {
+    "id": 88,
+    "format": "quote",
+    "text": "\"When you have faults, do not fear to abandon them.\"",
+    "person": "Confucius",
+    "source": "Analects 1 (tr. James Legge)",
+    "credit": "Confucius, Analects 1 (tr. James Legge)",
+    "priorities": [
+      "humble",
+      "always learning"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "sacred- texts.com, Legge tr.",
+    "source_urls": [
+      "https://sacred-texts.com/cfu/conf1.htm"
+    ]
+  },
+  {
+    "id": 89,
+    "format": "quote",
+    "text": "\"Is it not delightful to have friends coming from distant quarters?\"",
+    "person": "Confucius",
+    "source": "Analects 1.1 (tr. James Legge)",
+    "credit": "Confucius, Analects 1.1 (tr. James Legge)",
+    "priorities": [
+      "a good friend"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "sacred- texts.com, Legge tr.",
+    "source_urls": [
+      "https://sacred-texts.com/cfu/conf1.htm"
+    ]
+  },
+  {
+    "id": 90,
+    "format": "quote",
+    "text": "\"This above all: to thine own self be true, / And it must follow, as the night the day, / Thou canst not then be false to any man.\"",
+    "person": "William Shakespeare",
+    "source": "Hamlet, Act 1, Scene 3",
+    "credit": "William Shakespeare, Hamlet, Act 1, Scene 3",
+    "priorities": [
+      "honest",
+      "independent"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "needs_check",
+    "verification_note": "Verified with caveat: spoken by Polonius, a meddling character, so some read it as ironic",
+    "checked_against": "Folger Shakespeare Library",
+    "source_urls": [
+      "https://www.folger.edu/explore/shakespeares-works/hamlet/act-1-scene-3/"
+    ]
+  },
+  {
+    "id": 91,
+    "format": "quote",
+    "text": "\"Those friends thou hast, and their adoption tried, / Grapple them unto thy soul with hoops of steel.\"",
+    "person": "William Shakespeare",
+    "source": "Hamlet, Act 1, Scene 3",
+    "credit": "William Shakespeare, Hamlet, Act 1, Scene 3",
+    "priorities": [
+      "a good friend",
+      "loyal"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "SparkNotes",
+    "source_urls": [
+      "https://www.sparknotes.com/shakespeare/Hamlet/quotes/page/2/"
+    ]
+  },
+  {
+    "id": 92,
+    "format": "quote",
+    "text": "\"For without friends no one would choose to live, though he had all other goods.\"",
+    "person": "Aristotle",
+    "source": "Nicomachean Ethics, Book VIII (tr. W. D. Ross)",
+    "credit": "Aristotle, Nicomachean Ethics, Book VIII (tr. W. D. Ross)",
+    "priorities": [
+      "a good friend"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "MIT Classics, Ross tr.",
+    "source_urls": [
+      "https://classics.mit.edu/Aristotle/nicomachaen.8.viii.html"
+    ]
+  },
+  {
+    "id": 93,
+    "format": "quote",
+    "text": "\"What is sweeter than to have someone with whom you may dare discuss anything as if you were communing with yourself?\"",
+    "person": "Cicero",
+    "source": "On Friendship (tr. W. A. Falconer, 1923)",
+    "credit": "Cicero, On Friendship (tr. W. A. Falconer, 1923)",
+    "priorities": [
+      "a good friend",
+      "honest"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Translations compared, wist.info",
+    "source_urls": [
+      "https://wist.info/cicero-marcus-tullius/46453/"
+    ]
+  },
+  {
+    "id": 94,
+    "format": "quote",
+    "text": "\"Find full reward / Of doing right in right! Let right deeds be / Thy motive, not the fruit which comes from them.\"",
+    "person": "Bhagavad Gita",
+    "source": "ch. 2 (tr. Edwin Arnold, The Song Celestial, 1885)",
+    "credit": "Bhagavad Gita, ch. 2 (tr. Edwin Arnold, The Song Celestial, 1885)",
+    "priorities": [
+      "guided by faith",
+      "disciplined",
+      "humble"
+    ],
+    "traditions": [
+      "Hindu"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Wikisource, Arnold tr.",
+    "source_urls": [
+      "https://en.wikisource.org/wiki/The_Bhagavad_Gita_(Arnold_translation)/Chapter_2"
+    ]
+  },
+  {
+    "id": 95,
+    "format": "quote",
+    "text": "\"Better thine own work is, though done with fault, / Than doing others' work, ev'n excellently.\"",
+    "person": "Bhagavad Gita",
+    "source": "ch. 3 (tr. Edwin Arnold, The Song Celestial, 1885)",
+    "credit": "Bhagavad Gita, ch. 3 (tr. Edwin Arnold, The Song Celestial, 1885)",
+    "priorities": [
+      "independent",
+      "disciplined",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Hindu"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Project Gutenberg, Arnold tr.",
+    "source_urls": [
+      "https://www.gutenberg.org/ebooks/2388"
+    ]
+  },
+  {
+    "id": 96,
+    "format": "quote",
+    "text": "\"Lead me from the unreal to the real, / Lead me from darkness to light, / Lead me from death to immortality.\"",
+    "person": "Brihadaranyaka Upanishad 1.3.28",
+    "source": "",
+    "credit": "Brihadaranyaka Upanishad 1.3.28",
+    "priorities": [
+      "guided by faith",
+      "hopeful"
+    ],
+    "traditions": [
+      "Hindu"
+    ],
+    "once_only": false,
+    "status": "needs_check",
+    "verification_note": "Verified with caveat: a traditional prayer with many close English renderings; use this common one without naming a translator",
+    "checked_against": "America Magazine, Shlokam",
+    "source_urls": [
+      "https://www.americamagazine.org/all-things/2016/03/26/darkness-light-hindu-mantra-during-easter-vigil/",
+      "https://shlokam.org/?p=112596"
+    ]
+  },
+  {
+    "id": 97,
+    "format": "quote",
+    "text": "\"Truth is higher than everything, but higher still is truthful living.\"",
+    "person": "Guru Nanak",
+    "source": "Guru Granth Sahib, p. 62",
+    "credit": "Guru Nanak, Guru Granth Sahib, p. 62",
+    "priorities": [
+      "honest",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Sikh"
+    ],
+    "once_only": false,
+    "status": "needs_check",
+    "verification_note": "Verified with caveat: the most widely used rendering of \"sachahu orai sabh ko upar sach achar\"; some Sikh scholars read the line differently",
+    "checked_against": "Gurbani.org, a differing reading",
+    "source_urls": [
+      "https://www.gurbani.org/gurblog/?p=342",
+      "https://srec.gurmat.info/articles/truth-is-high-yet-higher-is-truthful-living/"
+    ]
+  },
+  {
+    "id": 98,
+    "format": "story",
+    "text": "At 15, Gandhi stole a bit of gold from his brother. Unable to live with it, he wrote out a confession and handed it to his sick father, who read it and wept instead of punishing him. Gandhi said those tears washed his guilt away.",
+    "person": "Mahatma Gandhi",
+    "source": "The Story of My Experiments with Truth",
+    "credit": "Mahatma Gandhi, The Story of My Experiments with Truth",
+    "priorities": [
+      "honest",
+      "there for family",
+      "forgiving",
+      "humble"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Standard Ebooks, mkgandhi.org",
+    "source_urls": [
+      "https://standardebooks.org/ebooks/mahatma-gandhi/the-story-of-my-experiments-with-truth/mahadev-desai/text/chapter-1-8",
+      "https://www.mkgandhi.org/storyofmylife/05stealing.php"
+    ]
+  },
+  {
+    "id": 99,
+    "format": "quote",
+    "text": "\"Two or three hours' walking will carry me to as strange a country as I expect ever to see.\"",
+    "person": "Henry David Thoreau",
+    "source": "\"Walking\" (1862)",
+    "credit": "Henry David Thoreau, \"Walking\" (1862)",
+    "priorities": [
+      "adventurous",
+      "close to nature",
+      "healthy"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "USC Scalar, Atlantic text",
+    "source_urls": [
+      "https://scalar.usc.edu/works/bodies/henry-david-thoreau-walking-abbreviated-version"
+    ]
+  },
+  {
+    "id": 100,
+    "format": "quote",
+    "text": "\"All those things at which thou wishest to arrive by a circuitous road, thou canst have now, if thou dost not refuse them to thyself.\"",
+    "person": "Marcus Aurelius",
+    "source": "Meditations 12.1 (tr. George Long)",
+    "credit": "Marcus Aurelius, Meditations 12.1 (tr. George Long)",
+    "priorities": [
+      "hopeful",
+      "independent"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Lexundria, Long tr.",
+    "source_urls": [
+      "https://lexundria.com/m_aur_med/12/lg"
+    ]
+  },
+  {
+    "id": 101,
+    "format": "quote",
+    "text": "\"If a man keeps cherishing his old knowledge, so as continually to be acquiring new, he may be a teacher of others.\"",
+    "person": "Confucius",
+    "source": "Analects 2 (tr. James Legge)",
+    "credit": "Confucius, Analects 2 (tr. James Legge)",
+    "priorities": [
+      "always learning",
+      "curious",
+      "wise",
+      "of service"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Monadnock Valley Press, Legge tr.",
+    "source_urls": [
+      "https://monadnock.net/confucius/analects-2.html"
+    ]
+  },
+  {
+    "id": 102,
+    "format": "story",
+    "text": "Freed from slavery as a boy, Booker T. Washington begged his mother for a book. Somehow she found him an old spelling book, and he devoured it. He later wrote that she shared his ambition fully and helped in every way she could.",
+    "person": "Booker T. Washington",
+    "source": "Up from Slavery (1901)",
+    "credit": "Booker T. Washington, Up from Slavery (1901)",
+    "priorities": [
+      "there for family",
+      "always learning",
+      "ambitious"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Lit2Go, ch. 2",
+    "source_urls": [
+      "https://etc.usf.edu/lit2go/92/up-from-slavery/1573/chapter-2-boyhood-days/"
+    ]
+  },
+  {
+    "id": 103,
+    "format": "quote",
+    "text": "\"If I have done anything in life worth attention, I feel sure that I inherited the disposition from my mother.\"",
+    "person": "Booker T. Washington",
+    "source": "Up from Slavery (1901)",
+    "credit": "Booker T. Washington, Up from Slavery (1901)",
+    "priorities": [
+      "there for family",
+      "grateful"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Lit2Go, ch. 2",
+    "source_urls": [
+      "https://etc.usf.edu/lit2go/92/up-from-slavery/1573/chapter-2-boyhood-days/"
+    ]
+  },
+  {
+    "id": 104,
+    "format": "story",
+    "text": "In 1828, a woman then called Isabella learned her five-year-old son had been illegally sold to Alabama. She went to court, again and again, and won him back. Years later she renamed herself Sojourner Truth.",
+    "person": "Sojourner Truth",
+    "source": "",
+    "credit": "Sojourner Truth",
+    "priorities": [
+      "there for family",
+      "fair",
+      "brave",
+      "persistent"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "NY State historic marker, Wikipedia",
+    "source_urls": [
+      "https://wgpfoundation.org/historic-markers/sojourner-truth-3",
+      "https://en.wikipedia.org/wiki/Sojourner_Truth"
+    ]
+  },
+  {
+    "id": 105,
+    "format": "story",
+    "text": "In 1878 a traveling father brought his two boys a toy helicopter powered by a rubber band. Wilbur and Orville Wright played with it until it broke, then built their own. Orville later credited it with sparking their interest in flight.",
+    "person": "Wilbur and Orville Wright",
+    "source": "",
+    "credit": "Wilbur and Orville Wright",
+    "priorities": [
+      "curious",
+      "creative",
+      "there for family"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "needs_check",
+    "verification_note": "Verified with caveat: historians note their actual airplane work grew from kites, not the toy",
+    "checked_against": "National Park Service, Centennial of Flight",
+    "source_urls": [
+      "https://www.nps.gov/wrbr/learn/historyculture/theroadtothefirstflight.htm",
+      "https://centennialofflight.net/wbh/wr_experience/1899/past/WBstory.htm"
+    ]
+  },
+  {
+    "id": 106,
+    "format": "story",
+    "text": "Louisa May Alcott took any job she could find to help her struggling family. When her publisher asked for a girls' story, she wrote about growing up with her three sisters. Little Women (1868) finally made her family secure.",
+    "person": "Louisa May Alcott",
+    "source": "",
+    "credit": "Louisa May Alcott",
+    "priorities": [
+      "there for family",
+      "disciplined",
+      "secure"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "MIT Press Bookstore, Penguin",
+    "source_urls": [
+      "https://mitpressbookstore.mit.edu/book/9780349011820",
+      "https://www.penguin.co.uk/books/33402/little-women/9780141192413"
+    ]
+  },
+  {
+    "id": 107,
+    "format": "quote",
+    "text": "\"I would unite with anybody to do right and with nobody to do wrong.\"",
+    "person": "Frederick Douglass",
+    "source": "\"The Anti-Slavery Movement,\" Rochester, 1855",
+    "credit": "Frederick Douglass, \"The Anti-Slavery Movement,\" Rochester, 1855",
+    "priorities": [
+      "fair",
+      "honest"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "National Park Service",
+    "source_urls": [
+      "https://home.nps.gov/frdo/learn/historyculture/thoughts-for-all-time.htm"
+    ]
+  },
+  {
+    "id": 108,
+    "format": "quote",
+    "text": "\"Right is of no sex, Truth is of no color, God is the Father of us all, and we are all Brethren.\"",
+    "person": "Frederick Douglass",
+    "source": "",
+    "credit": "Frederick Douglass",
+    "priorities": [
+      "fair",
+      "respectful",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Wikiquote",
+    "source_urls": [
+      "https://en.wikiquote.org/wiki/Frederick_Douglass"
+    ]
+  },
+  {
+    "id": 109,
+    "format": "quote",
+    "text": "\"What doth the LORD require of thee, but to do justly, and to love mercy, and to walk humbly with thy God?\"",
+    "person": "Micah 6:8 (King James Version)",
+    "source": "",
+    "credit": "Micah 6:8 (King James Version)",
+    "priorities": [
+      "fair",
+      "kind",
+      "humble",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "thebible.ch, KJV",
+    "source_urls": [
+      "https://thebible.ch/KJV/MIC/6/8"
+    ]
+  },
+  {
+    "id": 110,
+    "format": "quote",
+    "text": "\"Is not RECIPROCITY such a word? What you do not want done to yourself, do not do to others.\"",
+    "person": "Confucius",
+    "source": "Analects 15.23 (tr. James Legge)",
+    "credit": "Confucius, Analects 15.23 (tr. James Legge)",
+    "priorities": [
+      "fair",
+      "respectful",
+      "kind"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified (modern numbering: 15.24)",
+    "checked_against": "UCLA, Legge tr.",
+    "source_urls": [
+      "https://international.ucla.edu/institute/article/18490"
+    ]
+  },
+  {
+    "id": 111,
+    "format": "quote",
+    "text": "\"With coarse rice to eat, with water to drink, and my bended arm for a pillow; I still have joy in the midst of these things.\"",
+    "person": "Confucius",
+    "source": "Analects 7.15 (tr. James Legge)",
+    "credit": "Confucius, Analects 7.15 (tr. James Legge)",
+    "priorities": [
+      "grateful",
+      "calm",
+      "free"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Hanover College excerpts",
+    "source_urls": [
+      "https://history.hanover.edu/courses/excerpts/261conf.html"
+    ]
+  },
+  {
+    "id": 112,
+    "format": "quote",
+    "text": "\"A merry heart doeth good like a medicine.\"",
+    "person": "Proverbs 17:22 (King James Version)",
+    "source": "",
+    "credit": "Proverbs 17:22 (King James Version)",
+    "priorities": [
+      "funny",
+      "healthy",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Bible Hub",
+    "source_urls": [
+      "https://biblehub.com/proverbs/17-22.htm"
+    ]
+  },
+  {
+    "id": 113,
+    "format": "quote",
+    "text": "\"A time to weep, and a time to laugh; a time to mourn, and a time to dance.\"",
+    "person": "Ecclesiastes 3:4 (King James Version)",
+    "source": "",
+    "credit": "Ecclesiastes 3:4 (King James Version)",
+    "priorities": [
+      "funny",
+      "calm",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "King James Bible Online",
+    "source_urls": [
+      "https://www.kingjamesbibleonline.org/Ecclesiastes-3-4/"
+    ]
+  },
+  {
+    "id": 114,
+    "format": "story",
+    "text": "In September 1862, before showing his cabinet the Emancipation Proclamation, Lincoln read them a silly piece by his favorite humorist. Some sat stone-faced. He reportedly told them that with the strain on him day and night, if he did not laugh he would die.",
+    "person": "Abraham Lincoln and Artemus Ward",
+    "source": "",
+    "credit": "Abraham Lincoln and Artemus Ward",
+    "priorities": [
+      "funny",
+      "calm",
+      "a leader"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "needs_check",
+    "verification_note": "Verified with caveat: cabinet members remembered the scene differently; the line about laughing comes from their recollections",
+    "checked_against": "American University Magazine, Emerging Civil War",
+    "source_urls": [
+      "https://www.american.edu/magazine/article/artemus-ward.cfm",
+      "https://emergingcivilwar.com/2022/08/18/if-i-did-not-laugh-i-should-die-the-first-in-a-series-of-looks-at-civil-war-humor/"
+    ]
+  },
+  {
+    "id": 115,
+    "format": "quote",
+    "text": "\"I will both lay me down in peace, and sleep: for thou, LORD, only makest me dwell in safety.\"",
+    "person": "Psalm 4:8 (King James Version)",
+    "source": "",
+    "credit": "Psalm 4:8 (King James Version)",
+    "priorities": [
+      "calm",
+      "secure",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Blue Letter Bible, KJV",
+    "source_urls": [
+      "https://www.blueletterbible.org/verse/kjv/psa/4/8"
+    ]
+  },
+  {
+    "id": 116,
+    "format": "quote",
+    "text": "\"In every walk with Nature one receives far more than he seeks.\"",
+    "person": "John Muir",
+    "source": "\"Mormon Lilies\" (1877), reprinted in Steep Trails (1918)",
+    "credit": "John Muir, \"Mormon Lilies\" (1877), reprinted in Steep Trails (1918)",
+    "priorities": [
+      "close to nature",
+      "grateful",
+      "seeing beauty"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified (published work, public domain)",
+    "checked_against": "National Park Service",
+    "source_urls": [
+      "https://home.nps.gov/jomu/learn/historyculture/john-muir-quotes.htm"
+    ]
+  },
+  {
+    "id": 117,
+    "format": "quote",
+    "text": "\"When in doubt, tell the truth.\"",
+    "person": "Mark Twain",
+    "source": "speech of the same title, March 8, 1906",
+    "credit": "Mark Twain, speech of the same title, March 8, 1906",
+    "priorities": [
+      "honest",
+      "funny"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "twainquotes.com",
+    "source_urls": [
+      "https://twainquotes.com/Truth.html"
+    ]
+  },
+  {
+    "id": 118,
+    "format": "quote",
+    "text": "\"Is it not pleasant to learn with a constant perseverance and application?\"",
+    "person": "Confucius",
+    "source": "Analects 1.1 (tr. James Legge)",
+    "credit": "Confucius, Analects 1.1 (tr. James Legge)",
+    "priorities": [
+      "always learning",
+      "persistent",
+      "curious"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "sacred- texts.com, Legge tr.",
+    "source_urls": [
+      "https://sacred-texts.com/cfu/conf1.htm"
+    ]
+  },
+  {
+    "id": 119,
+    "format": "quote",
+    "text": "\"Is he not a man of complete virtue, who feels no discomposure though men may take no note of him?\"",
+    "person": "Confucius",
+    "source": "Analects 1.1 (tr. James Legge)",
+    "credit": "Confucius, Analects 1.1 (tr. James Legge)",
+    "priorities": [
+      "humble",
+      "calm"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "sacred- texts.com, Legge tr.",
+    "source_urls": [
+      "https://sacred-texts.com/cfu/conf1.htm"
+    ]
+  },
+  {
+    "id": 120,
+    "format": "quote",
+    "text": "\"A merry heart maketh a cheerful countenance.\"",
+    "person": "Proverbs 15:13 (King James Version)",
+    "source": "",
+    "credit": "Proverbs 15:13 (King James Version)",
+    "priorities": [
+      "funny",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "KJV Study",
+    "source_urls": [
+      "https://kjvstudy.org/book/Proverbs/chapter/17/verse/22/pdf"
+    ]
+  },
+  {
+    "id": 121,
+    "format": "quote",
+    "text": "\"For the strength of the Pack is the Wolf, and the strength of the Wolf is the Pack.\"",
+    "person": "Rudyard Kipling",
+    "source": "\"The Law of the Jungle,\" The Second Jungle Book (1895)",
+    "credit": "Rudyard Kipling, \"The Law of the Jungle,\" The Second Jungle Book (1895)",
+    "priorities": [
+      "a team player",
+      "part of a community",
+      "loyal"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Kipling Society text",
+    "source_urls": [
+      "https://www.kiplingsociety.co.uk/poem/poems_lawofjungle.htm"
+    ]
+  },
+  {
+    "id": 122,
+    "format": "quote",
+    "text": "\"Two are better than one; because they have a good reward for their labour.\"",
+    "person": "Ecclesiastes 4:9 (King James Version)",
+    "source": "",
+    "credit": "Ecclesiastes 4:9 (King James Version)",
+    "priorities": [
+      "a team player",
+      "a good friend",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "bible.cc KJV",
+    "source_urls": [
+      "https://bible.cc/kjv/ecclesiastes/4-9.htm"
+    ]
+  },
+  {
+    "id": 123,
+    "format": "quote",
+    "text": "\"Iron sharpeneth iron; so a man sharpeneth the countenance of his friend.\"",
+    "person": "Proverbs 27:17 (King James Version)",
+    "source": "",
+    "credit": "Proverbs 27:17 (King James Version)",
+    "priorities": [
+      "a good friend",
+      "a team player",
+      "always learning",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "bible.cc KJV",
+    "source_urls": [
+      "https://bible.cc/kjv/proverbs/27-17.htm"
+    ]
+  },
+  {
+    "id": 124,
+    "format": "quote",
+    "text": "\"Bear ye one another's burdens, and so fulfil the law of Christ.\"",
+    "person": "Galatians 6:2 (King James Version)",
+    "source": "",
+    "credit": "Galatians 6:2 (King James Version)",
+    "priorities": [
+      "part of a community",
+      "kind",
+      "of service",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Christianity.com KJV",
+    "source_urls": [
+      "https://www.christianity.com/bible/kjv/galatians/6-2"
+    ]
+  },
+  {
+    "id": 125,
+    "format": "story",
+    "text": "In an Aesop fable, a father hands each of his quarreling sons a bundle of sticks to break, and none of them can. Then he unties it, and they snap the single sticks easily. The moral: in unity is strength.",
+    "person": "Aesop",
+    "source": "\"The Bundle of Sticks\" (The Aesop for Children)",
+    "credit": "Aesop, \"The Bundle of Sticks\" (The Aesop for Children)",
+    "priorities": [
+      "a team player",
+      "part of a community",
+      "there for family"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Library of Congress, read.gov",
+    "source_urls": [
+      "https://read.gov/aesop/040.html"
+    ]
+  },
+  {
+    "id": 126,
+    "format": "story",
+    "text": "When an explosion crippled Apollo 13 in 1970, carbon dioxide began building up in the lunar module where the crew sheltered. Ed Smylie and about 60 engineers had under two days to make square filters fit round sockets, using only what was on board: plastic bags, cardboard, a suit hose and duct tape. Mission Control talked the astronauts through it step by step, and it worked.",
+    "person": "Ed Smylie and the Apollo 13 team",
+    "source": "",
+    "credit": "Ed Smylie and the Apollo 13 team",
+    "priorities": [
+      "a team player",
+      "a clear thinker",
+      "creative",
+      "calm"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "AP obituary via GV Wire, May 2025",
+    "source_urls": [
+      "https://gvwire.com/2025/05/17/ed-smylie-who-saved-the-apollo-13-crew-with-duct-tape-dies-at-95/"
+    ]
+  },
+  {
+    "id": 127,
+    "format": "story",
+    "text": "In 1731, Benjamin Franklin persuaded the friends in his self- improvement club to pool their money for books none of them could afford alone. Fifty members each paid 40 shillings to start. Their Library Company of Philadelphia still runs on members' support today.",
+    "person": "Benjamin Franklin",
+    "source": "Library Company of Philadelphia",
+    "credit": "Benjamin Franklin, Library Company of Philadelphia",
+    "priorities": [
+      "part of a community",
+      "a team player",
+      "always learning"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Library Company of Philadelphia",
+    "source_urls": [
+      "https://librarycompany.org/about-lcp/"
+    ]
+  },
+  {
+    "id": 128,
+    "format": "story",
+    "text": "In 1736, Benjamin Franklin helped start Philadelphia's Union Fire Company. Each member kept six leather buckets and two linen bags ready and came to every fire, some carrying water and others guarding neighbors' belongings.",
+    "person": "Benjamin Franklin",
+    "source": "Union Fire Company",
+    "credit": "Benjamin Franklin, Union Fire Company",
+    "priorities": [
+      "part of a community",
+      "of service",
+      "a team player"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Wikipedia, Union Fire Company",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/Union_Fire_Company"
+    ]
+  },
+  {
+    "id": 129,
+    "format": "quote",
+    "text": "\"Americans of all ages, all conditions, and all dispositions, constantly form associations.\"",
+    "person": "Alexis de Tocqueville",
+    "source": "Democracy in America, vol. 2 (1840), book 2, ch. 5",
+    "credit": "Alexis de Tocqueville, Democracy in America, vol. 2 (1840), book 2, ch. 5",
+    "priorities": [
+      "part of a community",
+      "a team player",
+      "good with people"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Marxists.org text",
+    "source_urls": [
+      "https://www.marxists.org/reference/archive/de-tocqueville/democracy-america/ch28.htm"
+    ]
+  },
+  {
+    "id": 130,
+    "format": "story",
+    "text": "In 1889, Jane Addams and Ellen Gates Starr opened Hull House in an old mansion on Halsted Street in Chicago. Its first program was a kindergarten; soon came a day nursery, evening classes, a gym and clubs for the neighbors around them.",
+    "person": "Jane Addams and Ellen Gates Starr",
+    "source": "",
+    "credit": "Jane Addams and Ellen Gates Starr",
+    "priorities": [
+      "part of a community",
+      "of service",
+      "good with people",
+      "kind"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Britannica, Hull- House",
+    "source_urls": [
+      "https://www.britannica.com/topic/Hull-House"
+    ]
+  },
+  {
+    "id": 131,
+    "format": "quote",
+    "text": "\"A soft answer turneth away wrath: but grievous words stir up anger.\"",
+    "person": "Proverbs 15:1 (King James Version)",
+    "source": "",
+    "credit": "Proverbs 15:1 (King James Version)",
+    "priorities": [
+      "good with people",
+      "calm",
+      "patient",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Bible Study Tools KJV",
+    "source_urls": [
+      "https://biblestudytools.com/kjv/proverbs/15-1.html"
+    ]
+  },
+  {
+    "id": 132,
+    "format": "quote",
+    "text": "\"Pleasant words are as an honeycomb, sweet to the soul, and health to the bones.\"",
+    "person": "Proverbs 16:24 (King James Version)",
+    "source": "",
+    "credit": "Proverbs 16:24 (King James Version)",
+    "priorities": [
+      "kind",
+      "good with people",
+      "healthy",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Bible Study Tools KJV",
+    "source_urls": [
+      "https://www.biblestudytools.com/kjv/proverbs/16-24.html"
+    ]
+  },
+  {
+    "id": 133,
+    "format": "story",
+    "text": "When a new member of the Pennsylvania Assembly spoke against him in 1737, Benjamin Franklin didn't flatter him. He asked to borrow a rare book from the man's library and returned it a week later with a warm thank-you note. The man spoke to him kindly for the first time and stayed his friend for life.",
+    "person": "Benjamin Franklin",
+    "source": "Autobiography",
+    "credit": "Benjamin Franklin, Autobiography",
+    "priorities": [
+      "good with people",
+      "humble",
+      "wise"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Franklin's Autobiography, ushistory.org",
+    "source_urls": [
+      "https://ushistory.org/franklin/autobiography/page48.htm"
+    ]
+  },
+  {
+    "id": 134,
+    "format": "quote",
+    "text": "\"A thing of beauty is a joy for ever: Its loveliness increases;\"",
+    "person": "John Keats",
+    "source": "Endymion, Book I (1818)",
+    "credit": "John Keats, Endymion, Book I (1818)",
+    "priorities": [
+      "seeing beauty",
+      "grateful"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Wikipedia, Endymion",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/Endymion_(poem)"
+    ]
+  },
+  {
+    "id": 135,
+    "format": "quote",
+    "text": "\"I believe a leaf of grass is no less than the journey- work of the stars,\"",
+    "person": "Walt Whitman",
+    "source": "\"Song of Myself,\" section 31, Leaves of Grass",
+    "credit": "Walt Whitman, \"Song of Myself,\" section 31, Leaves of Grass",
+    "priorities": [
+      "seeing beauty",
+      "close to nature",
+      "curious",
+      "humble"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Poets.org",
+    "source_urls": [
+      "https://poets.org/poem/song-myself-31"
+    ]
+  },
+  {
+    "id": 136,
+    "format": "quote",
+    "text": "\"Everybody needs beauty as well as bread, places to play in and pray in, where nature may heal and give strength to body and soul alike.\"",
+    "person": "John Muir",
+    "source": "The Yosemite (1912), p. 256",
+    "credit": "John Muir, The Yosemite (1912), p. 256",
+    "priorities": [
+      "seeing beauty",
+      "close to nature",
+      "healthy",
+      "free"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Sierra Club John Muir Exhibit",
+    "source_urls": [
+      "https://www.sierraclub.org/john-muir-exhibit/quotations-john-muir"
+    ]
+  },
+  {
+    "id": 137,
+    "format": "story",
+    "text": "Claude Monet bought a boggy piece of land at Giverny in 1892 and turned it into a pond full of water lilies. He painted it about 250 times, until his death in 1926, and gave eight of the largest works to France.",
+    "person": "Claude Monet",
+    "source": "",
+    "credit": "Claude Monet",
+    "priorities": [
+      "seeing beauty",
+      "creative",
+      "persistent",
+      "patient"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Britannica, Water Lilies",
+    "source_urls": [
+      "https://www.britannica.com/topic/Water-Lilies"
+    ]
+  },
+  {
+    "id": 138,
+    "format": "story",
+    "text": "Antoni Gaudí spent more than 43 years working on the Sagrada Família in Barcelona. When he died in 1926 it was still unfinished, and the building went on without him.",
+    "person": "Antoni Gaudí",
+    "source": "",
+    "credit": "Antoni Gaudí",
+    "priorities": [
+      "patient",
+      "creative",
+      "seeing beauty"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "History Hit, La Sagrada Familia",
+    "source_urls": [
+      "https://www.historyhit.com/locations/la-sagrada-familia/"
+    ]
+  },
+  {
+    "id": 139,
+    "format": "quote",
+    "text": "\"He hath made every thing beautiful in his time:\"",
+    "person": "Ecclesiastes 3:11 (King James Version)",
+    "source": "",
+    "credit": "Ecclesiastes 3:11 (King James Version)",
+    "priorities": [
+      "seeing beauty",
+      "patient",
+      "hopeful",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Christianity.com KJV",
+    "source_urls": [
+      "https://www.christianity.com/bible/kjv/ecclesiastes/3-11"
+    ]
+  },
+  {
+    "id": 140,
+    "format": "quote",
+    "text": "\"But he that is greatest among you shall be your servant.\"",
+    "person": "Matthew 23:11 (King James Version)",
+    "source": "",
+    "credit": "Matthew 23:11 (King James Version)",
+    "priorities": [
+      "a leader",
+      "humble",
+      "of service",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "KJV Study",
+    "source_urls": [
+      "https://kjvstudy.org/book/Matthew/chapter/23/verse/11"
+    ]
+  },
+  {
+    "id": 141,
+    "format": "story",
+    "text": "On December 23, 1783, with the war won, George Washington walked into the State House in Annapolis and handed his commission back to Congress. The next day he left for home at Mount Vernon.",
+    "person": "George Washington",
+    "source": "",
+    "credit": "George Washington",
+    "priorities": [
+      "a leader",
+      "humble",
+      "free"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Wikipedia, Washington's resignation",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/George_Washington%27s_resignation_as_commander-in-chief"
+    ]
+  },
+  {
+    "id": 142,
+    "format": "story",
+    "text": "Harriet Tubman escaped slavery in Maryland in 1849. Instead of staying safe in the North, she went back about 13 times by the end of 1860, risking capture each time, and led about 70 people out, most of them her own family and friends. She gave directions to about 70 more who made it on their own. Years later she said of those journeys: \"I never ran my train off the track and I never lost a passenger.\"",
+    "person": "Harriet Tubman",
+    "source": "",
+    "credit": "Harriet Tubman",
+    "priorities": [
+      "a leader",
+      "brave",
+      "persistent",
+      "loyal"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "needs_check",
+    "verification_note": "Verified with caveat: facts checked by Claude against the National Park Service fact sheet, Nov 3, 2026 (it corrects the popular \"300 people in 19 trips\" myth); the quote's wording matches the Massachusetts Commonwealth Museum exhibit, but where and when she first said it is not confirmed",
+    "checked_against": "NPS fact sheet; Massachusetts Commonwealth Museum",
+    "source_urls": [
+      "https://www.nps.gov/hatu/planyourvisit/upload/MD_TubmanFactSheet_MythsFacts_2.pdf",
+      "https://www.sec.state.ma.us/divisions/commonwealth-museum/exhibits/online/suffragist/suffrage-17.htm"
+    ]
+  },
+  {
+    "id": 143,
+    "format": "story",
+    "text": "At Appomattox in 1865, Ulysses S. Grant agreed that any Confederate soldier who claimed a horse or mule could take it home. Most of them were small farmers, he reasoned, and without the animals they might not be able to plant a crop to feed their families.",
+    "person": "Ulysses S. Grant",
+    "source": "Personal Memoirs",
+    "credit": "Ulysses S. Grant, Personal Memoirs",
+    "priorities": [
+      "forgiving",
+      "kind",
+      "a leader",
+      "wise"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Grant's Memoirs, ch. 67",
+    "source_urls": [
+      "https://www.historyofwar.org/sources/acw/grant/chapter67c.html"
+    ]
+  },
+  {
+    "id": 144,
+    "format": "quote",
+    "text": "\"With malice toward none, with charity for all,\"",
+    "person": "Abraham Lincoln",
+    "source": "Second Inaugural Address (March 4, 1865)",
+    "credit": "Abraham Lincoln, Second Inaugural Address (March 4, 1865)",
+    "priorities": [
+      "forgiving",
+      "kind",
+      "a leader",
+      "hopeful"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "ushistory.org text",
+    "source_urls": [
+      "https://ushistory.org/documents/lincoln2.htm"
+    ]
+  },
+  {
+    "id": 145,
+    "format": "quote",
+    "text": "\"they shall run, and not be weary; they shall walk, and not faint.\"",
+    "person": "Isaiah 40:31 (King James Version)",
+    "source": "",
+    "credit": "Isaiah 40:31 (King James Version)",
+    "priorities": [
+      "energetic",
+      "hopeful",
+      "persistent",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "King James Bible Online",
+    "source_urls": [
+      "https://www.kingjamesbibleonline.org/Isaiah-40-31/"
+    ]
+  },
+  {
+    "id": 146,
+    "format": "story",
+    "text": "On October 14, 1912, Theodore Roosevelt was shot in the chest on his way to give a speech in Milwaukee. His folded 50-page speech and a steel eyeglass case slowed the bullet. He spoke for about 90 minutes anyway, telling the crowd, \"It takes more than that to kill a bull moose.\"",
+    "person": "Theodore Roosevelt",
+    "source": "",
+    "credit": "Theodore Roosevelt",
+    "priorities": [
+      "energetic",
+      "brave",
+      "persistent"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "History.com",
+    "source_urls": [
+      "https://history.com/news/shot-in-the-chest-100-years-ago-teddy-roosevelt-kept-on-talking"
+    ]
+  },
+  {
+    "id": 147,
+    "format": "quote",
+    "text": "\"Morning is when I am awake and there is a dawn in me.\"",
+    "person": "Henry David Thoreau",
+    "source": "Walden (1854), \"Where I Lived, and What I Lived For\"",
+    "credit": "Henry David Thoreau, Walden (1854), \"Where I Lived, and What I Lived For\"",
+    "priorities": [
+      "energetic",
+      "free",
+      "calm"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "McGraw-Hill Walden text",
+    "source_urls": [
+      "https://highered.mheducation.com/sites/0072491663/student_view0/henry_david_thoreau-999/texts_online.html"
+    ]
+  },
+  {
+    "id": 148,
+    "format": "quote",
+    "text": "\"Not slothful in business; fervent in spirit; serving the Lord;\"",
+    "person": "Romans 12:11 (King James Version)",
+    "source": "",
+    "credit": "Romans 12:11 (King James Version)",
+    "priorities": [
+      "energetic",
+      "disciplined",
+      "of service",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Worthy Bible KJV",
+    "source_urls": [
+      "https://worthy.bible/bible/kjv/romans/12/11"
+    ]
+  },
+  {
+    "id": 149,
+    "format": "story",
+    "text": "At 60, fitness pioneer Jack LaLanne swam from Alcatraz to Fisherman's Wharf in San Francisco, handcuffed, shackled and towing a boat.",
+    "person": "Jack LaLanne",
+    "source": "",
+    "credit": "Jack LaLanne",
+    "priorities": [
+      "energetic",
+      "healthy",
+      "persistent",
+      "adventurous"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "KQED",
+    "source_urls": [
+      "https://www.kqed.org/news/13799/jack-lalanne-dies"
+    ]
+  },
+  {
+    "id": 150,
+    "format": "story",
+    "text": "On November 14, 1889, reporter Nellie Bly set off from New Jersey to travel around the world, carrying little more than the dress she wore, a coat and one small bag. She was back in 72 days, 6 hours and 11 minutes.",
+    "person": "Nellie Bly",
+    "source": "",
+    "credit": "Nellie Bly",
+    "priorities": [
+      "adventurous",
+      "brave",
+      "ambitious",
+      "independent"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Wikipedia, Around the World in Seventy- Two Days",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/Around_the_World_in_Seventy-Two_Days"
+    ]
+  },
+  {
+    "id": 151,
+    "format": "story",
+    "text": "In 1325, at 21, Ibn Battuta left his home in Tangier on a pilgrimage to Mecca. He kept traveling for about 24 years and some 75,000 miles before coming home, then dictated his journeys to a scribe.",
+    "person": "Ibn Battuta",
+    "source": "",
+    "credit": "Ibn Battuta",
+    "priorities": [
+      "adventurous",
+      "curious",
+      "always learning"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "AramcoWorld, 1961",
+    "source_urls": [
+      "https://archive.aramcoworld.com/issue/196107/ibn.battuta.traveler.from.tangier.htm"
+    ]
+  },
+  {
+    "id": 152,
+    "format": "quote",
+    "text": "\"Travel is fatal to prejudice, bigotry and narrow- mindedness\"",
+    "person": "Mark Twain",
+    "source": "The Innocents Abroad (1869), Conclusion",
+    "credit": "Mark Twain, The Innocents Abroad (1869), Conclusion",
+    "priorities": [
+      "adventurous",
+      "respectful",
+      "curious",
+      "good with people"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Lumen Learning text",
+    "source_urls": [
+      "https://courses.lumenlearning.com/suny-americanlit2/chapter/the-innocents-abroad-conclusion/"
+    ]
+  },
+  {
+    "id": 153,
+    "format": "quote",
+    "text": "\"For my part, I travel not to go anywhere, but to go. I travel for travel’s sake. The great affair is to move; to feel the needs and hitches of our life more nearly; to come down off this feather-bed of civilisation, and find the globe granite underfoot and strewn with cutting flints.\"",
+    "person": "Robert Louis Stevenson",
+    "source": "Travels with a Donkey in the Cévennes (1879), \"Cheylard and Luc\"",
+    "credit": "Robert Louis Stevenson, Travels with a Donkey in the Cévennes (1879), \"Cheylard and Luc\"",
+    "priorities": [
+      "adventurous",
+      "free",
+      "energetic"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 3, 2026 (full passage, at Kelly's request)",
+    "checked_against": "Project Gutenberg, 1879 text",
+    "source_urls": [
+      "https://gutenberg.org/cache/epub/535/pg535-images.html"
+    ]
+  },
+  {
+    "id": 154,
+    "format": "quote",
+    "text": "\"The name of the LORD is a strong tower: the righteous runneth into it, and is safe.\"",
+    "person": "Proverbs 18:10 (King James Version)",
+    "source": "",
+    "credit": "Proverbs 18:10 (King James Version)",
+    "priorities": [
+      "secure",
+      "calm",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Bible Hub KJV",
+    "source_urls": [
+      "https://mail.biblehub.com/proverbs/18-10.htm"
+    ]
+  },
+  {
+    "id": 155,
+    "format": "quote",
+    "text": "\"Beware of little Expences; a small Leak will sink a great Ship.\"",
+    "person": "Benjamin Franklin",
+    "source": "The Way to Wealth (1758)",
+    "credit": "Benjamin Franklin, The Way to Wealth (1758)",
+    "priorities": [
+      "secure",
+      "disciplined",
+      "wise"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Teaching American History",
+    "source_urls": [
+      "https://teachingamericanhistory.org/library/document/the-way-to-wealth"
+    ]
+  },
+  {
+    "id": 156,
+    "format": "quote",
+    "text": "\"It is not the man who has too little, but the man who craves more, that is poor.\"",
+    "person": "Seneca",
+    "source": "Moral Letters to Lucilius, Letter 2 (tr. Richard M. Gummere)",
+    "credit": "Seneca, Moral Letters to Lucilius, Letter 2 (tr. Richard M. Gummere)",
+    "priorities": [
+      "secure",
+      "grateful",
+      "free",
+      "wise"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Pomona College text",
+    "source_urls": [
+      "https://pages.pomona.edu/~cmc24747/sources/seneca/sen_ep_1.htm"
+    ]
+  },
+  {
+    "id": 157,
+    "format": "story",
+    "text": "Sylvia Bloom worked as a legal secretary at the same Wall Street firm for about 69 years. Quietly buying the same stocks as her bosses, in smaller amounts, she built a fortune no one knew about. When she died in 2016 at 96, she left about $8.2 million, mostly for scholarships for students in need.",
+    "person": "Sylvia Bloom",
+    "source": "",
+    "credit": "Sylvia Bloom",
+    "priorities": [
+      "secure",
+      "disciplined",
+      "humble",
+      "of service"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Wikipedia, Sylvia Bloom",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/Sylvia_Bloom"
+    ]
+  },
+  {
+    "id": 158,
+    "format": "quote",
+    "text": "\"Honour all men. Love the brotherhood. Fear God. Honour the king.\"",
+    "person": "1 Peter 2:17 (King James Version)",
+    "source": "",
+    "credit": "1 Peter 2:17 (King James Version)",
+    "priorities": [
+      "respectful",
+      "part of a community",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Christianity.com KJV",
+    "source_urls": [
+      "https://www.christianity.com/bible/kjv/1-peter/2-17"
+    ]
+  },
+  {
+    "id": 159,
+    "format": "quote",
+    "text": "\"A youth is to be regarded with respect. How do we know that his future will not be equal to our present?\"",
+    "person": "Confucius",
+    "source": "Analects 9.22 (tr. James Legge)",
+    "credit": "Confucius, Analects 9.22 (tr. James Legge)",
+    "priorities": [
+      "respectful",
+      "humble",
+      "hopeful"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Project Gutenberg, Legge",
+    "source_urls": [
+      "https://gutenberg.org/cache/epub/4094/pg4094-images.html"
+    ]
+  },
+  {
+    "id": 160,
+    "format": "quote",
+    "text": "\"To Err is Human; to Forgive, Divine.\"",
+    "person": "Alexander Pope",
+    "source": "An Essay on Criticism (1711), line 525",
+    "credit": "Alexander Pope, An Essay on Criticism (1711), line 525",
+    "priorities": [
+      "forgiving",
+      "humble"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Wikipedia, An Essay on Criticism",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/An_Essay_on_Criticism"
+    ]
+  },
+  {
+    "id": 161,
+    "format": "story",
+    "text": "In Genesis, Joseph's brothers sold him into slavery. Years later, as a powerful man in Egypt, he told them: \"I am Joseph your brother, whom ye sold into Egypt. Now therefore be not grieved, nor angry with yourselves, that ye sold me hither: for God did send me before you to preserve life.\" Instead of taking revenge, he wept with them and brought the whole family to live near him.",
+    "person": "Genesis 45:4–5 (King James Version)",
+    "source": "",
+    "credit": "Genesis 45:4–5 (King James Version)",
+    "priorities": [
+      "forgiving",
+      "there for family",
+      "loving",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: verses 4–5 checked word for word by Claude, Nov 3, 2026; Kelly checked the story against Genesis 45 and asked to add verse 5",
+    "checked_against": "bible.cc KJV 45:5; Bible Hub 45:4",
+    "source_urls": [
+      "https://bible.cc/kjv/genesis/45-5.htm",
+      "https://mail.biblehub.com/parallel/genesis/45-4.htm"
+    ]
+  },
+  {
+    "id": 162,
+    "format": "quote",
+    "text": "\"Charity suffereth long, and is kind;\"",
+    "person": "1 Corinthians 13:4 (King James Version)",
+    "source": "",
+    "credit": "1 Corinthians 13:4 (King James Version)",
+    "priorities": [
+      "patient",
+      "kind",
+      "loving",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Bible Study Tools KJV",
+    "source_urls": [
+      "https://www.biblestudytools.com/kjv/1-corinthians/13-4.html"
+    ]
+  },
+  {
+    "id": 163,
+    "format": "story",
+    "text": "Charles Darwin scattered broken stones across a field behind his house and left them for 20 to 30 years. Then he dug a trench to see how deep the earthworms had buried them. His 1881 book on worms sold better in his lifetime than On the Origin of Species.",
+    "person": "Charles Darwin",
+    "source": "",
+    "credit": "Charles Darwin",
+    "priorities": [
+      "patient",
+      "curious",
+      "persistent",
+      "close to nature"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "NPR, 2009",
+    "source_urls": [
+      "https://npr.org/2009/02/12/100627614/darwins-earthworm-experiments-broke-new-ground"
+    ]
+  },
+  {
+    "id": 164,
+    "format": "quote",
+    "text": "\"The first was never to accept anything for true which I did not clearly know to be such; that is to say, carefully to avoid precipitancy and prejudice, and to comprise nothing more in my judgement than what was presented to my mind so clearly and distinctly as to exclude all ground of doubt.\"",
+    "person": "René Descartes",
+    "source": "the first of his four rules for thinking, Discourse on Method (1637), Part II (tr. John Veitch)",
+    "credit": "René Descartes, the first of his four rules for thinking, Discourse on Method (1637), Part II (tr. John Veitch)",
+    "priorities": [
+      "a clear thinker",
+      "honest",
+      "wise"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 3, 2026 (full rule, at Kelly's request; Veitch's translation is public domain)",
+    "checked_against": "Project Gutenberg, Veitch translation",
+    "source_urls": [
+      "https://www.gutenberg.org/ebooks/59"
+    ]
+  },
+  {
+    "id": 165,
+    "format": "story",
+    "text": "In 1772, Benjamin Franklin told his friend Joseph Priestley how he made hard decisions: write pros and cons in two columns over three or four days, cross out reasons of equal weight on each side, and see where the balance falls. He called it \"Moral or Prudential Algebra.\"",
+    "person": "Benjamin Franklin",
+    "source": "letter to Joseph Priestley",
+    "credit": "Benjamin Franklin, letter to Joseph Priestley",
+    "priorities": [
+      "a clear thinker",
+      "wise",
+      "patient"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "The Marginalian",
+    "source_urls": [
+      "https://www.themarginalian.org/2018/11/14/benjamin-franklin-joseph-priestley-pros-cons/"
+    ]
+  },
+  {
+    "id": 166,
+    "format": "story",
+    "text": "During the 1986 inquiry into the Challenger disaster, physicist Richard Feynman dunked a piece of the rocket's O-ring material into a cup of ice water. It lost its springiness in the cold, a simple test that showed what had gone wrong.",
+    "person": "Richard Feynman",
+    "source": "",
+    "credit": "Richard Feynman",
+    "priorities": [
+      "a clear thinker",
+      "curious",
+      "honest"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "APS News",
+    "source_urls": [
+      "https://www.aps.org/apsnews/2001/01/1986-the-challenger-explosion"
+    ]
+  },
+  {
+    "id": 167,
+    "format": "quote",
+    "text": "\"Ah, but a man's reach should exceed his grasp, Or what's a heaven for?\"",
+    "person": "Robert Browning",
+    "source": "\"Andrea del Sarto\" (1855)",
+    "credit": "Robert Browning, \"Andrea del Sarto\" (1855)",
+    "priorities": [
+      "ambitious",
+      "hopeful",
+      "persistent"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Poetry Foundation",
+    "source_urls": [
+      "https://www.poetryfoundation.org/poems/43745/andrea-del-sarto"
+    ]
+  },
+  {
+    "id": 168,
+    "format": "quote",
+    "text": "\"whither thou goest, I will go; and where thou lodgest, I will lodge: thy people shall be my people, and thy God my God:\"",
+    "person": "Ruth 1:16 (King James Version)",
+    "source": "",
+    "credit": "Ruth 1:16 (King James Version)",
+    "priorities": [
+      "loyal",
+      "loving",
+      "there for family",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Christian"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Bible Hub KJV",
+    "source_urls": [
+      "https://biblehub.com/kjv/ruth/1-16.htm"
+    ]
+  },
+  {
+    "id": 169,
+    "format": "quote",
+    "text": "\"Allah tasketh not a soul beyond its scope.\"",
+    "person": "Qur'an 2:286 (tr. Marmaduke Pickthall, 1930)",
+    "source": "",
+    "credit": "Qur'an 2:286 (tr. Marmaduke Pickthall, 1930)",
+    "priorities": [
+      "persistent",
+      "hopeful",
+      "calm",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Muslim"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "alquran.cloud, Pickthall",
+    "source_urls": [
+      "https://alquran.cloud/ayah/2:286"
+    ]
+  },
+  {
+    "id": 170,
+    "format": "quote",
+    "text": "\"Verily in the remembrance of Allah do hearts find rest!\"",
+    "person": "Qur'an 13:28 (tr. Marmaduke Pickthall, 1930)",
+    "source": "",
+    "credit": "Qur'an 13:28 (tr. Marmaduke Pickthall, 1930)",
+    "priorities": [
+      "calm",
+      "secure",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Muslim"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "alquran.cloud, Pickthall",
+    "source_urls": [
+      "https://alquran.cloud/ayah/13:28"
+    ]
+  },
+  {
+    "id": 171,
+    "format": "quote",
+    "text": "\"O mankind! Lo! We have created you male and female, and have made you nations and tribes that ye may know one another.\"",
+    "person": "Qur'an 49:13 (tr. Marmaduke Pickthall, 1930)",
+    "source": "",
+    "credit": "Qur'an 49:13 (tr. Marmaduke Pickthall, 1930)",
+    "priorities": [
+      "respectful",
+      "good with people",
+      "part of a community",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Muslim"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "alquran.cloud, Pickthall",
+    "source_urls": [
+      "https://alquran.cloud/ayah/49:13"
+    ]
+  },
+  {
+    "id": 172,
+    "format": "quote",
+    "text": "\"The good deed and the evil deed are not alike. Repel the evil deed with one which is better, then lo! he, between whom and thee there was enmity (will become) as though he was a bosom friend.\"",
+    "person": "Qur'an 41:34 (tr. Marmaduke Pickthall, 1930)",
+    "source": "",
+    "credit": "Qur'an 41:34 (tr. Marmaduke Pickthall, 1930)",
+    "priorities": [
+      "forgiving",
+      "good with people",
+      "kind",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Muslim"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "IslamAwakened, Pickthall",
+    "source_urls": [
+      "https://islamawakened.com/ClassicSite/41/34/default.htm"
+    ]
+  },
+  {
+    "id": 173,
+    "format": "quote",
+    "text": "\"And lower unto them the wing of submission through mercy, and say: My Lord! Have mercy on them both as they did care for me when I was little.\"",
+    "person": "Qur'an 17:24 (tr. Marmaduke Pickthall, 1930)",
+    "source": "",
+    "credit": "Qur'an 17:24 (tr. Marmaduke Pickthall, 1930)",
+    "priorities": [
+      "there for family",
+      "loving",
+      "humble",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Muslim"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "alquran.cloud, Pickthall",
+    "source_urls": [
+      "https://alquran.cloud/ayah/17:24"
+    ]
+  },
+  {
+    "id": 174,
+    "format": "quote",
+    "text": "\"whoso saveth the life of one, it shall be as if he had saved the life of all mankind.\"",
+    "person": "Qur'an 5:32 (tr. Marmaduke Pickthall, 1930)",
+    "source": "",
+    "credit": "Qur'an 5:32 (tr. Marmaduke Pickthall, 1930)",
+    "priorities": [
+      "of service",
+      "kind",
+      "brave",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Muslim"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "alquran.cloud, Pickthall",
+    "source_urls": [
+      "https://alquran.cloud/ayah/5:32"
+    ]
+  },
+  {
+    "id": 175,
+    "format": "quote",
+    "text": "\"O ye who believe! Seek help in steadfastness and prayer. Lo! Allah is with the steadfast.\"",
+    "person": "Qur'an 2:153 (tr. Marmaduke Pickthall, 1930)",
+    "source": "",
+    "credit": "Qur'an 2:153 (tr. Marmaduke Pickthall, 1930)",
+    "priorities": [
+      "patient",
+      "persistent",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Muslim"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "IslamAwakened, Pickthall",
+    "source_urls": [
+      "https://islamawakened.com/quran/2/153/"
+    ]
+  },
+  {
+    "id": 176,
+    "format": "quote",
+    "text": "\"Who hateth nought / Of all which lives, living himself benign, / Compassionate, from arrogance exempt,\"",
+    "person": "Bhagavad Gita",
+    "source": "ch. 12 (tr. Edwin Arnold, The Song Celestial, 1885)",
+    "credit": "Bhagavad Gita, ch. 12 (tr. Edwin Arnold, The Song Celestial, 1885)",
+    "priorities": [
+      "kind",
+      "humble",
+      "forgiving",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Hindu"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Project Gutenberg, The Song Celestial",
+    "source_urls": [
+      "https://gutenberg.org/cache/epub/2388/pg2388-images.html"
+    ]
+  },
+  {
+    "id": 177,
+    "format": "quote",
+    "text": "\"Let each man raise / The Self by Soul, not trample down his Self,\"",
+    "person": "Bhagavad Gita",
+    "source": "ch. 6 (tr. Edwin Arnold, The Song Celestial, 1885)",
+    "credit": "Bhagavad Gita, ch. 6 (tr. Edwin Arnold, The Song Celestial, 1885)",
+    "priorities": [
+      "disciplined",
+      "hopeful",
+      "independent",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Hindu"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Project Gutenberg, The Song Celestial",
+    "source_urls": [
+      "https://gutenberg.org/cache/epub/2388/pg2388-images.html"
+    ]
+  },
+  {
+    "id": 178,
+    "format": "quote",
+    "text": "\"Let thy mother be to thee like unto a god! Let thy father be to thee like unto a god! Let thy teacher be to thee like unto a god! Let thy guest be to thee like unto a god!\"",
+    "person": "Taittiriya Upanishad I.11.2 (tr. F. Max Müller, 1884)",
+    "source": "",
+    "credit": "Taittiriya Upanishad I.11.2 (tr. F. Max Müller, 1884)",
+    "priorities": [
+      "respectful",
+      "there for family",
+      "grateful",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Hindu"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Hindu Website, Müller translation",
+    "source_urls": [
+      "https://www.hinduwebsite.com/sacredscripts/hinduism/upanishads/taittiriya.asp"
+    ]
+  },
+  {
+    "id": 179,
+    "format": "quote",
+    "text": "\"And he who beholds all beings in the Self, and the Self in all beings, he never turns away from it.\"",
+    "person": "Isha Upanishad",
+    "source": "verse 6 (tr. F. Max Müller, 1879)",
+    "credit": "Isha Upanishad, verse 6 (tr. F. Max Müller, 1879)",
+    "priorities": [
+      "respectful",
+      "kind",
+      "wise",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Hindu"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Hindu Website, Müller translation",
+    "source_urls": [
+      "https://hinduwebsite.com/sacredscripts/hinduism/upanishads/vagasaneyi.asp"
+    ]
+  },
+  {
+    "id": 180,
+    "format": "quote",
+    "text": "\"As a solid rock is not shaken by the wind, wise people falter not amidst blame and praise.\"",
+    "person": "Dhammapada",
+    "source": "verse 81 (tr. F. Max Müller, 1881)",
+    "credit": "Dhammapada, verse 81 (tr. F. Max Müller, 1881)",
+    "priorities": [
+      "calm",
+      "secure",
+      "independent",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Buddhist"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Project Gutenberg, Müller's Dhammapada",
+    "source_urls": [
+      "https://gutenberg.org/cache/epub/2017/pg2017-images.html"
+    ]
+  },
+  {
+    "id": 181,
+    "format": "quote",
+    "text": "\"If one man conquer in battle a thousand times thousand men, and if another conquer himself, he is the greatest of conquerors.\"",
+    "person": "Dhammapada",
+    "source": "verse 103 (tr. F. Max Müller, 1881)",
+    "credit": "Dhammapada, verse 103 (tr. F. Max Müller, 1881)",
+    "priorities": [
+      "disciplined",
+      "brave",
+      "humble",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Buddhist"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Project Gutenberg, Müller's Dhammapada",
+    "source_urls": [
+      "https://gutenberg.org/cache/epub/2017/pg2017-images.html"
+    ]
+  },
+  {
+    "id": 182,
+    "format": "quote",
+    "text": "\"Let no man think lightly of good, saying in his heart, It will not come nigh unto me. Even by the falling of water-drops a water-pot is filled; the wise man becomes full of good, even if he gather it little by little.\"",
+    "person": "Dhammapada",
+    "source": "verse 122 (tr. F. Max Müller, 1881)",
+    "credit": "Dhammapada, verse 122 (tr. F. Max Müller, 1881)",
+    "priorities": [
+      "persistent",
+      "patient",
+      "disciplined",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Buddhist"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Project Gutenberg, Müller's Dhammapada",
+    "source_urls": [
+      "https://gutenberg.org/cache/epub/2017/pg2017-images.html"
+    ]
+  },
+  {
+    "id": 183,
+    "format": "quote",
+    "text": "\"Not to commit any sin, to do good, and to purify one's mind, that is the teaching of (all) the Awakened.\"",
+    "person": "Dhammapada",
+    "source": "verse 183 (tr. F. Max Müller, 1881)",
+    "credit": "Dhammapada, verse 183 (tr. F. Max Müller, 1881)",
+    "priorities": [
+      "honest",
+      "disciplined",
+      "wise",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Buddhist"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Project Gutenberg, Müller's Dhammapada",
+    "source_urls": [
+      "https://gutenberg.org/cache/epub/2017/pg2017-images.html"
+    ]
+  },
+  {
+    "id": 184,
+    "format": "quote",
+    "text": "\"Let us live happily then, not hating those who hate us! among men who hate us let us dwell free from hatred!\"",
+    "person": "Dhammapada",
+    "source": "verse 197 (tr. F. Max Müller, 1881)",
+    "credit": "Dhammapada, verse 197 (tr. F. Max Müller, 1881)",
+    "priorities": [
+      "kind",
+      "forgiving",
+      "hopeful",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Buddhist"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Project Gutenberg, Müller's Dhammapada",
+    "source_urls": [
+      "https://gutenberg.org/cache/epub/2017/pg2017-images.html"
+    ]
+  },
+  {
+    "id": 185,
+    "format": "quote",
+    "text": "\"Health is the greatest of gifts, contentedness the best riches; trust is the best of relationships, Nirvana the highest happiness.\"",
+    "person": "Dhammapada",
+    "source": "verse 204 (tr. F. Max Müller, 1881)",
+    "credit": "Dhammapada, verse 204 (tr. F. Max Müller, 1881)",
+    "priorities": [
+      "healthy",
+      "grateful",
+      "secure",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Buddhist"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Project Gutenberg, Müller's Dhammapada",
+    "source_urls": [
+      "https://gutenberg.org/cache/epub/2017/pg2017-images.html"
+    ]
+  },
+  {
+    "id": 186,
+    "format": "quote",
+    "text": "\"Let a man overcome anger by love, let him overcome evil by good; let him overcome the greedy by liberality, the liar by truth!\"",
+    "person": "Dhammapada",
+    "source": "verse 223 (tr. F. Max Müller, 1881)",
+    "credit": "Dhammapada, verse 223 (tr. F. Max Müller, 1881)",
+    "priorities": [
+      "forgiving",
+      "kind",
+      "honest",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Buddhist"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Project Gutenberg, Müller's Dhammapada",
+    "source_urls": [
+      "https://gutenberg.org/cache/epub/2017/pg2017-images.html"
+    ]
+  },
+  {
+    "id": 187,
+    "format": "story",
+    "text": "At the Battle of Anandpur in 1703, a Sikh named Bhai Kanhaiya carried water to every wounded soldier, including the enemy's. When angry Sikhs brought him before Guru Gobind Singh, he said he could not tell friend from foe, because he saw God in everyone. The Guru gave him a chest of medicine and told him to keep going.",
+    "person": "Bhai Kanhaiya and Guru Gobind Singh (traditional account)",
+    "source": "",
+    "credit": "Bhai Kanhaiya and Guru Gobind Singh (traditional account)",
+    "priorities": [
+      "kind",
+      "of service",
+      "forgiving",
+      "respectful",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Sikh"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Wikipedia, Sewapanthi",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/Sewapanthi"
+    ]
+  },
+  {
+    "id": 188,
+    "format": "story",
+    "text": "Guru Nanak used part of what he earned farming at Kartarpur to feed anyone who came by. That kitchen, the langar, still seats everyone in one row to eat the same food: rich and poor, Sikh and not. Even the emperor Akbar is said to have sat in the row and eaten before meeting the Guru.",
+    "person": "Guru Nanak and the langar",
+    "source": "",
+    "credit": "Guru Nanak and the langar",
+    "priorities": [
+      "humble",
+      "fair",
+      "part of a community",
+      "respectful",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Sikh"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Sikh Missionary Society, Langar",
+    "source_urls": [
+      "https://www.sikhmissionarysociety.org/sms/smssikhism/institutions/langar/"
+    ]
+  },
+  {
+    "id": 189,
+    "format": "story",
+    "text": "The free kitchen at the Golden Temple in Amritsar serves about 100,000 people a day, and roughly twice that on busy days, with a staff of about 450 and hundreds of volunteers. Anyone of any faith can eat there, and anyone can help cook.",
+    "person": "Golden Temple langar",
+    "source": "Amritsar (Al Jazeera, 2013)",
+    "credit": "Golden Temple langar, Amritsar (Al Jazeera, 2013)",
+    "priorities": [
+      "of service",
+      "part of a community",
+      "a team player",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Sikh"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Al Jazeera, 2013",
+    "source_urls": [
+      "https://www.aljazeera.com/indepth/inpictures/2013/11/pictures-kitchen-feeds-100000-daily-20131117124238293396.html"
+    ]
+  },
+  {
+    "id": 190,
+    "format": "story",
+    "text": "Mata Khivi, wife of Guru Angad, ran the early Sikh community kitchen and started the custom of seating people in orderly rows, holding that everyone is entitled to food. A verse in the Guru Granth Sahib praises her as a noble woman who gives shade to all.",
+    "person": "Mata Khivi",
+    "source": "",
+    "credit": "Mata Khivi",
+    "priorities": [
+      "of service",
+      "a leader",
+      "kind",
+      "fair",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Sikh"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Wikipedia, Khivi",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/Khivi"
+    ]
+  },
+  {
+    "id": 191,
+    "format": "story",
+    "text": "Sikhs end their daily prayer, the Ardas, by asking for \"sarbat da bhala\": the well- being of everyone, Sikhs and non-Sikhs alike.",
+    "person": "Sikh Ardas prayer",
+    "source": "",
+    "credit": "Sikh Ardas prayer",
+    "priorities": [
+      "kind",
+      "hopeful",
+      "part of a community",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Sikh"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "Wikipedia, Sarbat da bhala",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/Sarbat_da_bhala"
+    ]
+  },
+  {
+    "id": 192,
+    "format": "story",
+    "text": "Guru Nanak built Sikh life on three simple practices: keep God in mind (Naam Japna), earn an honest living (Kirat Karni), and share what you have with those in need (Vand Chakna).",
+    "person": "Guru Nanak's three pillars",
+    "source": "",
+    "credit": "Guru Nanak's three pillars",
+    "priorities": [
+      "honest",
+      "of service",
+      "disciplined",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Sikh"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "We Are Sikhs, Guru Nanak",
+    "source_urls": [
+      "https://www.wearesikhs.org/guru_nanak"
+    ]
+  },
+  {
+    "id": 193,
+    "format": "quote",
+    "text": "\"Whatsoever thy hand attaineth to do by thy strength, that do;\"",
+    "person": "Ecclesiastes 9:10 (Jewish Publication Society, 1917)",
+    "source": "",
+    "credit": "Ecclesiastes 9:10 (Jewish Publication Society, 1917)",
+    "priorities": [
+      "disciplined",
+      "energetic",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "WideTorah, JPS 1917",
+    "source_urls": [
+      "https://widetorah.com/ecclesiastes/9/10"
+    ]
+  },
+  {
+    "id": 194,
+    "format": "quote",
+    "text": "\"weeping may tarry for the night, but joy cometh in the morning.\"",
+    "person": "Psalms 30:6 (Jewish Publication Society, 1917)",
+    "source": "",
+    "credit": "Psalms 30:6 (Jewish Publication Society, 1917)",
+    "priorities": [
+      "hopeful",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "WideTorah, JPS 1917",
+    "source_urls": [
+      "https://widetorah.com/psalms/30/6/"
+    ]
+  },
+  {
+    "id": 195,
+    "format": "quote",
+    "text": "\"It hath been told thee, O man, what is good, and what the LORD doth require of thee: only to do justly, and to love mercy, and to walk humbly with thy God.\"",
+    "person": "Micah 6:8 (Jewish Publication Society, 1917)",
+    "source": "",
+    "credit": "Micah 6:8 (Jewish Publication Society, 1917)",
+    "priorities": [
+      "fair",
+      "kind",
+      "humble",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "JPS 1917 OT text",
+    "source_urls": [
+      "https://li451-108.members.linode.com/htmlbible/jewish-publication-society-1917-ot/33_006.htm"
+    ]
+  },
+  {
+    "id": 196,
+    "format": "quote",
+    "text": "\"A merry heart is a good medicine; But a broken spirit drieth the bones.\"",
+    "person": "Proverbs 17:22 (Jewish Publication Society, 1917)",
+    "source": "",
+    "credit": "Proverbs 17:22 (Jewish Publication Society, 1917)",
+    "priorities": [
+      "funny",
+      "healthy",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "WideTorah, JPS 1917",
+    "source_urls": [
+      "https://widetorah.com/proverbs/17/22/"
+    ]
+  },
+  {
+    "id": 197,
+    "format": "quote",
+    "text": "\"A time to weep, and a time to laugh; A time to mourn, and a time to dance;\"",
+    "person": "Ecclesiastes 3:4 (Jewish Publication Society, 1917)",
+    "source": "",
+    "credit": "Ecclesiastes 3:4 (Jewish Publication Society, 1917)",
+    "priorities": [
+      "funny",
+      "calm",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "WideTorah, JPS 1917",
+    "source_urls": [
+      "https://widetorah.com/ecclesiastes/3/4"
+    ]
+  },
+  {
+    "id": 198,
+    "format": "quote",
+    "text": "\"In peace will I both lay me down and sleep; for Thou, LORD, makest me dwell alone in safety.\"",
+    "person": "Psalms 4:9 (Jewish Publication Society, 1917)",
+    "source": "",
+    "credit": "Psalms 4:9 (Jewish Publication Society, 1917)",
+    "priorities": [
+      "calm",
+      "secure",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "WideTorah, JPS 1917",
+    "source_urls": [
+      "https://widetorah.com/psalms/4/9/"
+    ]
+  },
+  {
+    "id": 199,
+    "format": "quote",
+    "text": "\"A merry heart maketh a cheerful countenance;\"",
+    "person": "Proverbs 15:13 (Jewish Publication Society, 1917)",
+    "source": "",
+    "credit": "Proverbs 15:13 (Jewish Publication Society, 1917)",
+    "priorities": [
+      "funny",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "JPS 1917 OT text",
+    "source_urls": [
+      "https://li451-108.members.linode.com/htmlbible/jewish-publication-society-1917-ot/20_015.htm"
+    ]
+  },
+  {
+    "id": 200,
+    "format": "quote",
+    "text": "\"Two are better than one; because they have a good reward for their labour.\"",
+    "person": "Ecclesiastes 4:9 (Jewish Publication Society, 1917)",
+    "source": "",
+    "credit": "Ecclesiastes 4:9 (Jewish Publication Society, 1917)",
+    "priorities": [
+      "a team player",
+      "a good friend",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "WideTorah, JPS 1917",
+    "source_urls": [
+      "https://widetorah.com/ecclesiastes/4/9"
+    ]
+  },
+  {
+    "id": 201,
+    "format": "quote",
+    "text": "\"Iron sharpeneth iron; So a man sharpeneth the countenance of his friend.\"",
+    "person": "Proverbs 27:17 (Jewish Publication Society, 1917)",
+    "source": "",
+    "credit": "Proverbs 27:17 (Jewish Publication Society, 1917)",
+    "priorities": [
+      "a good friend",
+      "a team player",
+      "always learning",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "WideTorah, JPS 1917",
+    "source_urls": [
+      "https://widetorah.com/proverbs/27/17/"
+    ]
+  },
+  {
+    "id": 202,
+    "format": "quote",
+    "text": "\"A soft answer turneth away wrath; but a grievous word stirreth up anger.\"",
+    "person": "Proverbs 15:1 (Jewish Publication Society, 1917)",
+    "source": "",
+    "credit": "Proverbs 15:1 (Jewish Publication Society, 1917)",
+    "priorities": [
+      "good with people",
+      "calm",
+      "patient",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "JPS 1917 OT text",
+    "source_urls": [
+      "https://li451-108.members.linode.com/htmlbible/jewish-publication-society-1917-ot/20_015.htm"
+    ]
+  },
+  {
+    "id": 203,
+    "format": "quote",
+    "text": "\"Pleasant words are as a honeycomb, Sweet to the soul, and health to the bones.\"",
+    "person": "Proverbs 16:24 (Jewish Publication Society, 1917)",
+    "source": "",
+    "credit": "Proverbs 16:24 (Jewish Publication Society, 1917)",
+    "priorities": [
+      "kind",
+      "good with people",
+      "healthy",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "WideTorah, JPS 1917",
+    "source_urls": [
+      "https://widetorah.com/proverbs/16/24/"
+    ]
+  },
+  {
+    "id": 204,
+    "format": "quote",
+    "text": "\"He hath made every thing beautiful in its time\"",
+    "person": "Ecclesiastes 3:11 (Jewish Publication Society, 1917)",
+    "source": "",
+    "credit": "Ecclesiastes 3:11 (Jewish Publication Society, 1917)",
+    "priorities": [
+      "seeing beauty",
+      "patient",
+      "hopeful",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "WideTorah, JPS 1917",
+    "source_urls": [
+      "https://widetorah.com/ecclesiastes/3/11"
+    ]
+  },
+  {
+    "id": 205,
+    "format": "quote",
+    "text": "\"They shall run, and not be weary; They shall walk, and not faint.\"",
+    "person": "Isaiah 40:31 (Jewish Publication Society, 1917)",
+    "source": "",
+    "credit": "Isaiah 40:31 (Jewish Publication Society, 1917)",
+    "priorities": [
+      "energetic",
+      "hopeful",
+      "persistent",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "WideTorah, JPS 1917",
+    "source_urls": [
+      "https://widetorah.com/isaiah/40/31/"
+    ]
+  },
+  {
+    "id": 206,
+    "format": "quote",
+    "text": "\"The name of the LORD is a strong tower: The righteous runneth into it, and is set up on high.\"",
+    "person": "Proverbs 18:10 (Jewish Publication Society, 1917)",
+    "source": "",
+    "credit": "Proverbs 18:10 (Jewish Publication Society, 1917)",
+    "priorities": [
+      "secure",
+      "calm",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "WideTorah, JPS 1917",
+    "source_urls": [
+      "https://widetorah.com/proverbs/18/10/"
+    ]
+  },
+  {
+    "id": 207,
+    "format": "quote",
+    "text": "\"for whither thou goest, I will go; and where thou lodgest, I will lodge; thy people shall be my people, and thy God my God;\"",
+    "person": "Ruth 1:16 (Jewish Publication Society, 1917)",
+    "source": "",
+    "credit": "Ruth 1:16 (Jewish Publication Society, 1917)",
+    "priorities": [
+      "loyal",
+      "loving",
+      "there for family",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "JPS 1917 OT text",
+    "source_urls": [
+      "https://li451-108.members.linode.com/htmlbible/jewish-publication-society-1917-ot/08_001.htm"
+    ]
+  },
+  {
+    "id": 208,
+    "format": "quote",
+    "text": "\"Where the mind is without fear and the head is held high; / Where knowledge is free;\"",
+    "person": "Rabindranath Tagore",
+    "source": "Gitanjali, poem 35 (English edition, 1912)",
+    "credit": "Rabindranath Tagore, Gitanjali, poem 35 (English edition, 1912)",
+    "priorities": [
+      "brave",
+      "free",
+      "always learning",
+      "a clear thinker"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: wording checked by Claude against the linked source, Nov 2, 2026",
+    "checked_against": "University of Toronto, Representative Poetry Online",
+    "source_urls": [
+      "https://rpo.library.utoronto.ca/poems/gitanjali-35"
+    ]
+  },
+  {
+    "id": 209,
+    "format": "story",
+    "text": "In Genesis, Joseph's brothers sold him into slavery. Years later, as a powerful man in Egypt, he told them: \"I am Joseph your brother, whom ye sold into Egypt. And now be not grieved, nor angry with yourselves, that ye sold me hither; for God did send me before you to preserve life.\" Instead of taking revenge, he wept with them and brought the whole family to live near him.",
+    "person": "Genesis 45:4–5 (Jewish Publication Society, 1917)",
+    "source": "",
+    "credit": "Genesis 45:4–5 (Jewish Publication Society, 1917)",
+    "priorities": [
+      "forgiving",
+      "there for family",
+      "loving",
+      "guided by faith"
+    ],
+    "traditions": [
+      "Jewish"
+    ],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: verses 4–5 checked word for word by Claude, Nov 3, 2026; story checked by Kelly against Genesis 45",
+    "checked_against": "WideTorah, JPS 1917 45:5; Bible Hub 45:4",
+    "source_urls": [
+      "https://widetorah.com/genesis/45/5/",
+      "https://mail.biblehub.com/parallel/genesis/45-4.htm"
+    ]
+  }
+]

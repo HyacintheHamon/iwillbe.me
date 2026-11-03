@@ -9,6 +9,7 @@ const cardPriority = [
 type CardKey = (typeof cardPriority)[number];
 export type ChloeAnswer = {
   message: string;
+  support_level?: number;
   question?: unknown;
 } & Partial<Record<CardKey, unknown>>;
 
@@ -35,10 +36,11 @@ export function constrainChloeReply(
   resolveQuestion: (proposed: unknown, message: string) => string | null,
   proposalCards = false,
 ) {
-  const result: { message: string; question: string | null } & Record<
-    CardKey,
-    unknown
-  > = {
+  const result: {
+    message: string;
+    question: string | null;
+    support_level?: number;
+  } & Record<CardKey, unknown> = {
     ...answer,
     question: typeof answer.question === "string" ? answer.question : null,
     reflection_proposal: answer.reflection_proposal ?? null,

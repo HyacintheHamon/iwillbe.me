@@ -1,6 +1,6 @@
 import { withAccount } from "../src/access-gate";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Image, Platform, View } from "react-native";
+import { ActivityIndicator, Platform, View } from "react-native";
 import { router } from "expo-router";
 import * as Crypto from "expo-crypto";
 import { usePractice } from "../src/practice";
@@ -12,7 +12,13 @@ import {
   interestState,
   type EntryInput,
 } from "../src/journey";
-import { POSSIBILITIES, SPARK_ART } from "../src/catalog";
+import {
+  useOnboardingCatalogue,
+  recordQuickPicks,
+  eligibleQuickPick,
+  type PickResponse,
+} from "../src/onboarding-catalogue";
+import { PriorityOnboarding, IWillBe } from "../src/priority-onboarding";
 import {
   Body,
   Button,
@@ -67,6 +73,20 @@ import {
 
 function Onboarding() {
   const { data, session, putEntry, removeEntry, saveProfile } = usePractice();
+  const { cards: allCards } = useOnboardingCatalogue();
+  const [pickResponses, setPickResponses] = useState<PickResponse[]>([]);
+  useEffect(() => {
+    let active = true;
+    supabase
+      .from("quick_pick_responses")
+      .select("*")
+      .then(({ data, error }) => {
+        if (active && !error) setPickResponses(data || []);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
   const [sessionSeed] = useState(() => Crypto.randomUUID());
   const anchors = entriesOf(data, "preferences").find(
     (e) => e.title === "Check-in anchors",
@@ -103,6 +123,12 @@ function Onboarding() {
     insightSources: "",
     dismissedProposals: [] as string[],
   });
+  const POSSIBILITIES = allCards.filter((card) =>
+    eligibleQuickPick(
+      pickResponses.find((r) => r.quick_pick_id === card.id),
+      draft.flowSession || sessionSeed,
+    ),
+  );
   const draftRef = useRef(draft);
   useEffect(() => {
     draftRef.current = draft;
@@ -151,6 +177,7 @@ function Onboarding() {
         }),
       });
   }, [
+    POSSIBILITIES,
     ready,
     draft.flowVersion,
     draft.flowSession,
@@ -366,7 +393,12 @@ function Onboarding() {
           },
         });
       }
-      go(3);
+      await recordQuickPicks(
+        draftRef.current.sort,
+        draftRef.current.flowSession,
+        allCards,
+      );
+      go(2);
     });
   const saveStory = (skip = false, dropDetail = false) =>
     run(async () => {
@@ -504,10 +536,10 @@ function Onboarding() {
         valid.kind === "person"
           ? "Kept with the people you admire."
           : valid.kind === "strength"
-            ? "Kept with your strengths."
+            ? "Kept with your priorities."
             : valid.kind === "value"
               ? "A value to try on."
-              : "Kept in your Possibilities.",
+              : "Kept in your map.",
       );
     });
   const askForInsights = async () => {
@@ -651,12 +683,14 @@ function Onboarding() {
     return (
       <ActivityIndicator accessibilityLabel="Restoring your first session" />
     );
+  if (draft.step === 2)
+    return <PriorityOnboarding onDone={() => go(3)} onBack={() => go(1)} />;
   return (
     <Page
       key={draft.step}
       header={
         <TopBar
-          title="Find your possibilities"
+          title="Start your map"
           onBack={() => {
             if (busy) return;
             if (draft.followUp) update({ followUp: false });
@@ -674,19 +708,13 @@ function Onboarding() {
     >
       {draft.step === 0 && (
         <>
-          <Body>
-            Your reflections stay private, are never sold, and can be deleted
-            anytime.
-          </Body>
-          <Eyebrow>About five minutes · three small steps</Eyebrow>
-          <Title>Find your possibilities.</Title>
-
+          <Title>Start your map.</Title>
           <Body>
             Your why will evolve as you live. You don’t need every answer today,
             and you can skip any question.
           </Body>
           <Body>
-            Quick picks. A few stories. A first look at who you want to become.
+            15 quick picks. Your priorities. A few stories to turn into action.
           </Body>
           <Button label="Let's begin" onPress={() => go(1)} />
           <TextButton
@@ -703,47 +731,33 @@ function Onboarding() {
           </Body>
           {card ? (
             <>
-              <Image
-                source={SPARK_ART[card.image as keyof typeof SPARK_ART]}
-                style={{ width: "100%", height: 210, borderRadius: 24 }}
-              />
-              <Title>{card.title}</Title>
+              <IWillBe>{card.title}</IWillBe>
               <Body>{card.description}</Body>
-              <Button
-                label="Curious"
-                disabled={busy}
-                onPress={() =>
-                  update({
-                    sort: { ...draft.sort, [card.id]: "curious" },
-                    cursor: draft.cursor + 1,
-                  })
-                }
-              />
-              <Button
-                secondary
-                label="Already love"
-                disabled={busy}
-                onPress={() =>
-                  update({
-                    sort: { ...draft.sort, [card.id]: "love" },
-                    cursor: draft.cursor + 1,
-                  })
-                }
-              />
-              <TextButton
-                label="Not for me"
-                onPress={() =>
-                  !busy &&
-                  update({
-                    sort: { ...draft.sort, [card.id]: "pass" },
-                    cursor: draft.cursor + 1,
-                  })
-                }
-              />
+              {(
+                [
+                  ["love", "Love it"],
+                  ["like", "Like it"],
+                  ["open", "Open to it"],
+                  ["pass", "Not now"],
+                ] as const
+              ).map(([choice, label]) => (
+                <Button
+                  key={choice}
+                  label={label}
+                  secondary={choice !== "love"}
+                  disabled={busy}
+                  onPress={() =>
+                    update({
+                      sort: { ...draft.sort, [card.id]: choice },
+                      cursor: draft.cursor + 1,
+                    })
+                  }
+                />
+              ))}
             </>
           ) : (
             <>
-              <Title>A few possibilities to begin with.</Title>
+              <Title>A few interests to begin with.</Title>
               <Body>You can keep discovering as you go.</Body>
             </>
           )}
@@ -773,7 +787,7 @@ function Onboarding() {
             onPress={savePicks}
           />
           <Body style={{ fontSize: 13 }}>
-            Your place is saved. The full collection is always in Explore.
+            Your choices stay here while you finish.
           </Body>
         </>
       )}
@@ -887,7 +901,7 @@ function Onboarding() {
       )}
       {draft.step === 8 && (
         <>
-          <Eyebrow>Your first Possibilities</Eyebrow>
+          <Eyebrow>Your first map</Eyebrow>
           <Title>A beginning, not a definition.</Title>
           <View style={s.card}>
             <Eyebrow>My why</Eyebrow>
@@ -908,7 +922,7 @@ function Onboarding() {
                 </Body>
               ))}
               <TextButton
-                label="See all my Possibilities"
+                label="See all my map"
                 onPress={() => router.push("/galaxy")}
               />
             </View>
@@ -1190,7 +1204,7 @@ function Onboarding() {
               />
             )}
           <TextButton
-            label="See my Possibilities"
+            label="See my map"
             onPress={() => router.replace("/galaxy")}
           />
           {!session && (

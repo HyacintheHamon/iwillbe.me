@@ -1,12 +1,12 @@
 {
-  "name": "iwillbe.me \u2014 A little more you",
+  "name": "iwillbe.me",
   "short_name": "iwillbe.me",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#F7F6F2",
   "theme_color": "#F7F6F2",
-  "description": "Find your possibilities. Live your why, one small commitment at a time.",
+  "description": "Find your why. Choose one concrete action. Live it today.",
   "icons": [
     {
       "src": "/icon-192.png",

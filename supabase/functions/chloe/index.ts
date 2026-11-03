@@ -1,3 +1,6 @@
+import { missionTag } from "../_shared/missions.ts";
+import { personalMissions, nightThought } from "./library.ts";
+import { supportLevel, SUPPORT_REPLY } from "../_shared/safety.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.118.0";
 import {
   buildChloeContext,
@@ -44,6 +47,7 @@ const schema = {
   type: "object",
   additionalProperties: false,
   required: [
+    "support_level",
     "message",
     "suggested_intention",
     "memory_suggestion",
@@ -54,6 +58,7 @@ const schema = {
     "weekly_focus",
   ],
   properties: {
+    support_level: { type: "integer", enum: [0, 1, 2, 3] },
     reflection_proposal: reflectionProposalSchema,
     weekly_focus: weeklyFocusSchema,
     discovery: {
@@ -184,7 +189,41 @@ Deno.serve(async (req: Request) => {
         { error: "Please keep each saved story brief and try again." },
         400,
       );
+    if (body.action === "start_checkin") {
+      if (
+        typeof body.session_id !== "string" ||
+        !/^[a-zA-Z0-9_-]{1,80}$/.test(body.session_id)
+      )
+        return json({ error: "Invalid session" }, 400);
+      const previous = await scoped
+        .from("support_state")
+        .select("session_id,level")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (previous.error) throw previous.error;
+      if (previous.data?.session_id !== body.session_id) {
+        const reset = await admin
+          .from("support_state")
+          .upsert({ user_id: user.id, session_id: body.session_id, level: 0 });
+        if (reset.error) throw reset.error;
+      }
+      return json({ started: true });
+    }
+    const safety = await scoped
+      .from("support_state")
+      .select("session_id,level")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (safety.error) throw safety.error;
+    if (body.action === "night_thought") {
+      if ((safety.data?.level || 0) >= 2)
+        return json({ thought: null, suppressed: true });
+    }
+    if (body.action === "missions" && (safety.data?.level || 0) >= 2)
+      return json({ missions: [], suppressed: true });
     if (
+      body.action !== "night_thought" &&
+      body.action !== "missions" &&
       body.action !== "onboarding_insights" &&
       (body.action !== "chat" ||
         typeof body.message !== "string" ||
@@ -195,6 +234,16 @@ Deno.serve(async (req: Request) => {
         { error: "Please send a message of up to 2,000 characters." },
         400,
       );
+    const fallbackLevel =
+      body.action === "chat" ? supportLevel(body.message) : 0;
+    if (fallbackLevel >= 2) {
+      const held = await admin.from("support_state").upsert({
+        user_id: user.id,
+        session_id: body.session_id || safety.data?.session_id || "chat",
+        level: Math.max(fallbackLevel, safety.data?.level || 0),
+      });
+      if (held.error) throw held.error;
+    }
     const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
     if (!apiKey)
       return json(
@@ -216,6 +265,27 @@ Deno.serve(async (req: Request) => {
             "Let’s leave some space to live. You can return to Chloe in a little while.",
         },
         429,
+      );
+    if (body.action === "night_thought")
+      return json(
+        await nightThought(
+          scoped,
+          admin,
+          user.id,
+          apiKey,
+          Deno.env.get("ANTHROPIC_MODEL") || "claude-sonnet-5-5",
+        ),
+      );
+    if (body.action === "missions")
+      return json(
+        await personalMissions(
+          scoped,
+          admin,
+          user.id,
+          body,
+          apiKey,
+          Deno.env.get("ANTHROPIC_MODEL") || "claude-sonnet-5-5",
+        ),
       );
     if (onboardingInput) {
       // This action proposes only: no story, interest, strength or why is written.
@@ -356,9 +426,44 @@ Deno.serve(async (req: Request) => {
     if ((preferences || []).length >= 300)
       context.question_policy +=
         " Some older question preferences could not fit in context. Do not proactively reopen any saved question; let the user choose one.";
+    const ritual =
+      body.ritual && typeof body.ritual === "object" ? body.ritual : {};
+    const interest =
+      typeof ritual.interest === "string"
+        ? missionTag(ritual.interest.slice(0, 80))
+        : "";
+    const missionStep =
+      Number.isInteger(ritual.ladder_step) &&
+      ritual.ladder_step >= 1 &&
+      ritual.ladder_step <= 5
+        ? ritual.ladder_step
+        : 1;
+    const missionRows = interest
+      ? await scoped.rpc("mission_options", {
+          p_tag: interest,
+          p_step: missionStep,
+        })
+      : { data: [], error: null };
+    if (missionRows.error) throw missionRows.error;
+    const missionContext =
+      (safety.data?.level || 0) >= 2
+        ? []
+        : (missionRows.data || []).slice(0, 15);
+    const enrichedContext = {
+      ...context,
+      missions: missionContext,
+      ritual: {
+        action:
+          typeof ritual.action === "string" ? ritual.action.slice(0, 500) : "",
+        when_context:
+          typeof ritual.when_context === "string"
+            ? ritual.when_context.slice(0, 200)
+            : "",
+      },
+    };
     const proposalCards = body.proposal_cards === true;
     const system =
-      systemPrompt(mode, context) +
+      systemPrompt(mode, enrichedContext) +
       (proposalCards ? "" : legacyProposalInstruction);
     const started = Date.now();
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -525,6 +630,34 @@ Deno.serve(async (req: Request) => {
       answer.reflection_proposal = null;
       answer.weekly_focus = null;
     }
+    const replyLevel = Math.max(
+      fallbackLevel,
+      typeof answer.support_level === "number" &&
+        Number.isInteger(answer.support_level) &&
+        answer.support_level >= 0 &&
+        answer.support_level <= 3
+        ? answer.support_level
+        : 0,
+      safety.data?.level || 0,
+    );
+    if (replyLevel >= 2) {
+      const held = await admin.from("support_state").upsert({
+        user_id: user.id,
+        session_id: sessionId || safety.data?.session_id || "chat",
+        level: replyLevel,
+      });
+      if (held.error) throw held.error;
+      for (const key of [
+        "suggested_intention",
+        "discovery",
+        "memory_suggestion",
+        "why_proposal",
+        "reflection_proposal",
+        "weekly_focus",
+      ] as const)
+        answer[key] = null;
+      if (!answer.message) answer.message = SUPPORT_REPLY;
+    }
     const analytics = (preferences || []).some(
       (e: JourneyRow) =>
         e.kind === "preferences" && e.entry.meta?.analytics === true,
@@ -570,6 +703,7 @@ Deno.serve(async (req: Request) => {
       reflection_proposal: answer.reflection_proposal,
       weekly_focus: answer.weekly_focus,
       prompt_version: PROMPT_VERSION,
+      support_level: replyLevel,
     });
   } catch {
     return json(

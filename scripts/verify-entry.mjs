@@ -29,7 +29,7 @@ try {
       page.getByRole("heading", { name: "Show up for what matters." }),
     ).toBeVisible();
     for (const [label, title] of [
-      ["Page 2: a few minutes, then go live", "One intention. A real day."],
+      ["Page 2: choose, then go live", "One intention. A real day."],
       ["Page 3: make room for possibility", "Find what feels like you."],
       ["Page 4: your first small step", "I will be more me."],
     ]) {

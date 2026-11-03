@@ -46,8 +46,8 @@ test("earlier discovery drafts retain their place while retiring score questions
   assert.equal(firstSessionStep(2, 12), 13);
   assert.equal(firstSessionStep(3, 10), 10);
 });
-test("the shorter flow returns to the previous real question", () => {
-  assert.equal(previousFirstSessionStep(3), 1);
+test("back navigation includes the new priorities step", () => {
+  assert.equal(previousFirstSessionStep(3), 2);
   assert.equal(previousFirstSessionStep(11), 9);
   assert.equal(previousFirstSessionStep(13), 11);
   assert.equal(previousFirstSessionStep(10), 13);
@@ -55,6 +55,8 @@ test("the shorter flow returns to the previous real question", () => {
 });
 test("quick picks preserve explicit love without fabricating experience for curiosity", () => {
   assert.equal(quickPickState("love"), "love");
+  assert.equal(quickPickState("like"), "want_to_try");
+  assert.equal(quickPickState("open"), "spark");
   assert.equal(quickPickState("curious"), "spark");
   assert.equal(quickPickState("pass"), null);
   assert.equal(quickPickState(""), null);

@@ -3,6 +3,7 @@ export type Outcome = "yes" | "partly" | "not_yet";
 export type Profile = {
   revision?: number;
   display_name: string;
+  faith_tradition?: string | null;
   north_star: string;
   values: string[];
   interests: string[];
@@ -26,6 +27,10 @@ export type Intention = {
   place?: string;
   with_person?: string;
   person: string;
+  for_whom?: string;
+  for_me?: boolean;
+  mission_id?: string | null;
+  mission_step?: number | null;
   created_at: string;
 };
 export type CheckIn = {

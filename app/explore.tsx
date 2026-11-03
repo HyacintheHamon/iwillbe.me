@@ -48,7 +48,7 @@ function Explore() {
       setSelected(null);
     });
   return (
-    <Page header={<TopBar title="Possibilities" />}>
+    <Page header={<TopBar title="My map" />}>
       <Eyebrow>A little beyond the familiar</Eyebrow>
       <Title>What could you try?</Title>
       <Body>

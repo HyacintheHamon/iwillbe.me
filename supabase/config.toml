@@ -5,3 +5,11 @@ verify_jwt = true
 
 [functions.connections]
 verify_jwt = false
+
+[auth.email.template.confirmation]
+subject = "Confirm your email for iwillbe.me"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.magic_link]
+subject = "Your sign-in link for iwillbe.me"
+content_path = "./supabase/templates/magic_link.html"

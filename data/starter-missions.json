@@ -1,0 +1,3818 @@
+[
+  {
+    "id": "starter-cooking-for-friends-1",
+    "mission_text": "Ask a friend what simple dish they would enjoy sharing.",
+    "first_step": "Ask a friend what simple dish they would enjoy sharing.",
+    "area": "People",
+    "tags": [
+      "cooking for friends"
+    ],
+    "quick_picks": [
+      "cooking for friends"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-cooking-for-friends-2",
+    "mission_text": "Cook a simple meal and invite a friend to share it.",
+    "first_step": "Cook a simple meal and invite a friend to share it.",
+    "area": "People",
+    "tags": [
+      "cooking for friends"
+    ],
+    "quick_picks": [
+      "cooking for friends"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-cooking-for-friends-3",
+    "mission_text": "Plan and cook a two-course meal with a friend.",
+    "first_step": "Plan and cook a two-course meal with a friend.",
+    "area": "People",
+    "tags": [
+      "cooking for friends"
+    ],
+    "quick_picks": [
+      "cooking for friends"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-reading-1",
+    "mission_text": "Read two pages of a book you already have.",
+    "first_step": "Read two pages of a book you already have.",
+    "area": "Passions",
+    "tags": [
+      "reading"
+    ],
+    "quick_picks": [
+      "reading"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-reading-2",
+    "mission_text": "Read one chapter without your phone nearby.",
+    "first_step": "Read one chapter without your phone nearby.",
+    "area": "Passions",
+    "tags": [
+      "reading"
+    ],
+    "quick_picks": [
+      "reading"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-reading-3",
+    "mission_text": "Read a short story and talk about it with someone.",
+    "first_step": "Read a short story and talk about it with someone.",
+    "area": "Passions",
+    "tags": [
+      "reading"
+    ],
+    "quick_picks": [
+      "reading"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-exploring-new-places-1",
+    "mission_text": "Choose one nearby street you have never walked down.",
+    "first_step": "Choose one nearby street you have never walked down.",
+    "area": "Passions",
+    "tags": [
+      "exploring new places"
+    ],
+    "quick_picks": [
+      "exploring new places"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-exploring-new-places-2",
+    "mission_text": "Take a walk along a new route near home.",
+    "first_step": "Take a walk along a new route near home.",
+    "area": "Passions",
+    "tags": [
+      "exploring new places"
+    ],
+    "quick_picks": [
+      "exploring new places"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-exploring-new-places-3",
+    "mission_text": "Visit a neighbourhood you have never explored and sketch what you notice.",
+    "first_step": "Visit a neighbourhood you have never explored and sketch what you notice.",
+    "area": "Passions",
+    "tags": [
+      "exploring new places"
+    ],
+    "quick_picks": [
+      "exploring new places"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-gardening-1",
+    "mission_text": "Check the soil and remove dead leaves from one plant.",
+    "first_step": "Check the soil and remove dead leaves from one plant.",
+    "area": "Passions",
+    "tags": [
+      "gardening"
+    ],
+    "quick_picks": [
+      "gardening"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-gardening-2",
+    "mission_text": "Plant a seed or repot a plant using supplies you have.",
+    "first_step": "Plant a seed or repot a plant using supplies you have.",
+    "area": "Passions",
+    "tags": [
+      "gardening"
+    ],
+    "quick_picks": [
+      "gardening"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-gardening-3",
+    "mission_text": "Plan and plant a small container garden suited to your space.",
+    "first_step": "Plan and plant a small container garden suited to your space.",
+    "area": "Passions",
+    "tags": [
+      "gardening"
+    ],
+    "quick_picks": [
+      "gardening"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-working-out-1",
+    "mission_text": "Try five minutes of comfortable movement at your own pace.",
+    "first_step": "Try five minutes of comfortable movement at your own pace.",
+    "area": "Passions",
+    "tags": [
+      "working out"
+    ],
+    "quick_picks": [
+      "working out"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "Choose a safe setting and familiar equipment. Adapt to your abilities and stop if uncomfortable.",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-working-out-2",
+    "mission_text": "Do a familiar workout at a comfortable intensity.",
+    "first_step": "Do a familiar workout at a comfortable intensity.",
+    "area": "Passions",
+    "tags": [
+      "working out"
+    ],
+    "quick_picks": [
+      "working out"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "Choose a safe setting and familiar equipment. Adapt to your abilities and stop if uncomfortable.",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-working-out-3",
+    "mission_text": "Try a beginner class suited to your experience and access needs.",
+    "first_step": "Try a beginner class suited to your experience and access needs.",
+    "area": "Passions",
+    "tags": [
+      "working out"
+    ],
+    "quick_picks": [
+      "working out"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "Choose a safe setting and familiar equipment. Adapt to your abilities and stop if uncomfortable.",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-hiking-1",
+    "mission_text": "Find a short marked trail and check its access and weather.",
+    "first_step": "Find a short marked trail and check its access and weather.",
+    "area": "Passions",
+    "tags": [
+      "hiking"
+    ],
+    "quick_picks": [
+      "hiking"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "Choose a safe setting and familiar equipment. Adapt to your abilities and stop if uncomfortable.",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-hiking-2",
+    "mission_text": "Walk an easy familiar trail in daylight, with water.",
+    "first_step": "Walk an easy familiar trail in daylight, with water.",
+    "area": "Passions",
+    "tags": [
+      "hiking"
+    ],
+    "quick_picks": [
+      "hiking"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "Choose a safe setting and familiar equipment. Adapt to your abilities and stop if uncomfortable.",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-hiking-3",
+    "mission_text": "Plan a longer marked walk with a friend, checking conditions first.",
+    "first_step": "Plan a longer marked walk with a friend, checking conditions first.",
+    "area": "Passions",
+    "tags": [
+      "hiking"
+    ],
+    "quick_picks": [
+      "hiking"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "Choose a safe setting and familiar equipment. Adapt to your abilities and stop if uncomfortable.",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-playing-sports-1",
+    "mission_text": "Practise one familiar skill with equipment you have.",
+    "first_step": "Practise one familiar skill with equipment you have.",
+    "area": "Passions",
+    "tags": [
+      "playing sports"
+    ],
+    "quick_picks": [
+      "playing sports"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "Choose a safe setting and familiar equipment. Adapt to your abilities and stop if uncomfortable.",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-playing-sports-2",
+    "mission_text": "Invite someone to play a casual game.",
+    "first_step": "Invite someone to play a casual game.",
+    "area": "Passions",
+    "tags": [
+      "playing sports"
+    ],
+    "quick_picks": [
+      "playing sports"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "Choose a safe setting and familiar equipment. Adapt to your abilities and stop if uncomfortable.",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-playing-sports-3",
+    "mission_text": "Join a beginner-friendly game after checking its level and access.",
+    "first_step": "Join a beginner-friendly game after checking its level and access.",
+    "area": "Passions",
+    "tags": [
+      "playing sports"
+    ],
+    "quick_picks": [
+      "playing sports"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "Choose a safe setting and familiar equipment. Adapt to your abilities and stop if uncomfortable.",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-making-music-1",
+    "mission_text": "Tap out a rhythm or hum a short melody.",
+    "first_step": "Tap out a rhythm or hum a short melody.",
+    "area": "Passions",
+    "tags": [
+      "making music"
+    ],
+    "quick_picks": [
+      "making music"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-making-music-2",
+    "mission_text": "Practise a short piece or make a simple recording.",
+    "first_step": "Practise a short piece or make a simple recording.",
+    "area": "Passions",
+    "tags": [
+      "making music"
+    ],
+    "quick_picks": [
+      "making music"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-making-music-3",
+    "mission_text": "Learn a song and play or sing it with someone.",
+    "first_step": "Learn a song and play or sing it with someone.",
+    "area": "Passions",
+    "tags": [
+      "making music"
+    ],
+    "quick_picks": [
+      "making music"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-taking-photos-1",
+    "mission_text": "Photograph one detail in the light around you.",
+    "first_step": "Photograph one detail in the light around you.",
+    "area": "Passions",
+    "tags": [
+      "taking photos"
+    ],
+    "quick_picks": [
+      "taking photos"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-taking-photos-2",
+    "mission_text": "Take five photos on a walk and choose your favourite.",
+    "first_step": "Take five photos on a walk and choose your favourite.",
+    "area": "Passions",
+    "tags": [
+      "taking photos"
+    ],
+    "quick_picks": [
+      "taking photos"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-taking-photos-3",
+    "mission_text": "Make a small photo series around one theme and share it with a friend.",
+    "first_step": "Make a small photo series around one theme and share it with a friend.",
+    "area": "Passions",
+    "tags": [
+      "taking photos"
+    ],
+    "quick_picks": [
+      "taking photos"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-building-things-1",
+    "mission_text": "Sketch a small object you would like to build.",
+    "first_step": "Sketch a small object you would like to build.",
+    "area": "Passions",
+    "tags": [
+      "building things"
+    ],
+    "quick_picks": [
+      "building things"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "Choose a safe setting and familiar equipment. Adapt to your abilities and stop if uncomfortable.",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-building-things-2",
+    "mission_text": "Make a paper or cardboard prototype with supplies you have.",
+    "first_step": "Make a paper or cardboard prototype with supplies you have.",
+    "area": "Passions",
+    "tags": [
+      "building things"
+    ],
+    "quick_picks": [
+      "building things"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "Choose a safe setting and familiar equipment. Adapt to your abilities and stop if uncomfortable.",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-building-things-3",
+    "mission_text": "Build a simple useful object using tools you know how to use safely.",
+    "first_step": "Build a simple useful object using tools you know how to use safely.",
+    "area": "Passions",
+    "tags": [
+      "building things"
+    ],
+    "quick_picks": [
+      "building things"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "Choose a safe setting and familiar equipment. Adapt to your abilities and stop if uncomfortable.",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-hosting-game-night-1",
+    "mission_text": "Ask two friends which game they would like to play.",
+    "first_step": "Ask two friends which game they would like to play.",
+    "area": "People",
+    "tags": [
+      "hosting game night"
+    ],
+    "quick_picks": [
+      "hosting game night"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-hosting-game-night-2",
+    "mission_text": "Invite a friend to play a game you already own.",
+    "first_step": "Invite a friend to play a game you already own.",
+    "area": "People",
+    "tags": [
+      "hosting game night"
+    ],
+    "quick_picks": [
+      "hosting game night"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-hosting-game-night-3",
+    "mission_text": "Host a small game night and teach everyone one game.",
+    "first_step": "Host a small game night and teach everyone one game.",
+    "area": "People",
+    "tags": [
+      "hosting game night"
+    ],
+    "quick_picks": [
+      "hosting game night"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-volunteering-1",
+    "mission_text": "Read one local organisation’s volunteer information.",
+    "first_step": "Read one local organisation’s volunteer information.",
+    "area": "Causes",
+    "tags": [
+      "volunteering"
+    ],
+    "quick_picks": [
+      "volunteering"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-volunteering-2",
+    "mission_text": "Contact an organisation and ask about a suitable first volunteer task.",
+    "first_step": "Contact an organisation and ask about a suitable first volunteer task.",
+    "area": "Causes",
+    "tags": [
+      "volunteering"
+    ],
+    "quick_picks": [
+      "volunteering"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-volunteering-3",
+    "mission_text": "Arrange an introductory volunteer session after checking its requirements.",
+    "first_step": "Arrange an introductory volunteer session after checking its requirements.",
+    "area": "Causes",
+    "tags": [
+      "volunteering"
+    ],
+    "quick_picks": [
+      "volunteering"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-mentoring-someone-1",
+    "mission_text": "Ask someone learning your skill what they are stuck on.",
+    "first_step": "Ask someone learning your skill what they are stuck on.",
+    "area": "People",
+    "tags": [
+      "mentoring someone"
+    ],
+    "quick_picks": [
+      "mentoring someone"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-mentoring-someone-2",
+    "mission_text": "Offer to walk someone through one thing you know how to do.",
+    "first_step": "Offer to walk someone through one thing you know how to do.",
+    "area": "People",
+    "tags": [
+      "mentoring someone"
+    ],
+    "quick_picks": [
+      "mentoring someone"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-mentoring-someone-3",
+    "mission_text": "Arrange a mentoring conversation and prepare one exercise together.",
+    "first_step": "Arrange a mentoring conversation and prepare one exercise together.",
+    "area": "People",
+    "tags": [
+      "mentoring someone"
+    ],
+    "quick_picks": [
+      "mentoring someone"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-learning-a-language-1",
+    "mission_text": "Say three useful phrases aloud in a language you want to learn.",
+    "first_step": "Say three useful phrases aloud in a language you want to learn.",
+    "area": "Grow",
+    "tags": [
+      "learning a language"
+    ],
+    "quick_picks": [
+      "learning a language"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-learning-a-language-2",
+    "mission_text": "Practise a short everyday conversation in your chosen language.",
+    "first_step": "Practise a short everyday conversation in your chosen language.",
+    "area": "Grow",
+    "tags": [
+      "learning a language"
+    ],
+    "quick_picks": [
+      "learning a language"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-learning-a-language-3",
+    "mission_text": "Arrange a short language exchange with a willing partner.",
+    "first_step": "Arrange a short language exchange with a willing partner.",
+    "area": "Grow",
+    "tags": [
+      "learning a language"
+    ],
+    "quick_picks": [
+      "learning a language"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-meditating-1",
+    "mission_text": "Sit comfortably and notice your surroundings for a few minutes.",
+    "first_step": "Sit comfortably and notice your surroundings for a few minutes.",
+    "area": "Grow",
+    "tags": [
+      "meditating"
+    ],
+    "quick_picks": [
+      "meditating"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-meditating-2",
+    "mission_text": "Try a short guided meditation, stopping if it feels uncomfortable.",
+    "first_step": "Try a short guided meditation, stopping if it feels uncomfortable.",
+    "area": "Grow",
+    "tags": [
+      "meditating"
+    ],
+    "quick_picks": [
+      "meditating"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-meditating-3",
+    "mission_text": "Set aside a quiet session to explore a meditation practice that suits you.",
+    "first_step": "Set aside a quiet session to explore a meditation practice that suits you.",
+    "area": "Grow",
+    "tags": [
+      "meditating"
+    ],
+    "quick_picks": [
+      "meditating"
+    ],
+    "priorities": [],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-kind-1",
+    "mission_text": "Take five minutes to do one small helpful thing for someone.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "kind"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "kind"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-kind-2",
+    "mission_text": "Do one small helpful thing for someone.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "kind"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "kind"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-kind-3",
+    "mission_text": "Make space today to do one small helpful thing for someone, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "kind"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "kind"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-loving-1",
+    "mission_text": "Take five minutes to tell someone you love one specific thing you appreciate about them.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "loving"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "loving"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-loving-2",
+    "mission_text": "Tell someone you love one specific thing you appreciate about them.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "loving"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "loving"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-loving-3",
+    "mission_text": "Make space today to tell someone you love one specific thing you appreciate about them, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "loving"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "loving"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-a-good-friend-1",
+    "mission_text": "Take five minutes to reach out to a friend and listen to how they are doing.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "a good friend"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "a good friend"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-a-good-friend-2",
+    "mission_text": "Reach out to a friend and listen to how they are doing.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "a good friend"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "a good friend"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-a-good-friend-3",
+    "mission_text": "Make space today to reach out to a friend and listen to how they are doing, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "a good friend"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "a good friend"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-there-for-family-1",
+    "mission_text": "Take five minutes to ask a family member how you can help today.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "there for family"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "there for family"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-there-for-family-2",
+    "mission_text": "Ask a family member how you can help today.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "there for family"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "there for family"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-there-for-family-3",
+    "mission_text": "Make space today to ask a family member how you can help today, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "there for family"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "there for family"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-loyal-1",
+    "mission_text": "Take five minutes to follow through on a promise you have made.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "loyal"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "loyal"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-loyal-2",
+    "mission_text": "Follow through on a promise you have made.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "loyal"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "loyal"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-loyal-3",
+    "mission_text": "Make space today to follow through on a promise you have made, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "loyal"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "loyal"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-respectful-1",
+    "mission_text": "Take five minutes to listen to someone’s view without interrupting.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "respectful"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "respectful"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-respectful-2",
+    "mission_text": "Listen to someone’s view without interrupting.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "respectful"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "respectful"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-respectful-3",
+    "mission_text": "Make space today to listen to someone’s view without interrupting, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "respectful"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "respectful"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-fair-1",
+    "mission_text": "Take five minutes to invite an overlooked person to give their view.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "fair"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "fair"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-fair-2",
+    "mission_text": "Invite an overlooked person to give their view.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "fair"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "fair"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-fair-3",
+    "mission_text": "Make space today to invite an overlooked person to give their view, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "fair"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "fair"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-good-with-people-1",
+    "mission_text": "Take five minutes to start a conversation with someone and ask a thoughtful question.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "good with people"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "good with people"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-good-with-people-2",
+    "mission_text": "Start a conversation with someone and ask a thoughtful question.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "good with people"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "good with people"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-good-with-people-3",
+    "mission_text": "Make space today to start a conversation with someone and ask a thoughtful question, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "good with people"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "good with people"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-a-team-player-1",
+    "mission_text": "Take five minutes to offer a teammate help with one concrete task.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "a team player"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "a team player"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-a-team-player-2",
+    "mission_text": "Offer a teammate help with one concrete task.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "a team player"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "a team player"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-a-team-player-3",
+    "mission_text": "Make space today to offer a teammate help with one concrete task, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "a team player"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "a team player"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-a-leader-1",
+    "mission_text": "Take five minutes to clarify the next step for a shared task and invite input.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "a leader"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "a leader"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-a-leader-2",
+    "mission_text": "Clarify the next step for a shared task and invite input.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "a leader"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "a leader"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-a-leader-3",
+    "mission_text": "Make space today to clarify the next step for a shared task and invite input, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "a leader"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "a leader"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-forgiving-1",
+    "mission_text": "Take five minutes to write privately about a small resentment you would like to loosen, without contacting anyone.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "forgiving"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "forgiving"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-forgiving-2",
+    "mission_text": "Write privately about a small resentment you would like to loosen, without contacting anyone.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "forgiving"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "forgiving"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-forgiving-3",
+    "mission_text": "Make space today to write privately about a small resentment you would like to loosen, without contacting anyone, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "forgiving"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "forgiving"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-of-service-1",
+    "mission_text": "Take five minutes to offer practical help with something someone has asked for.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "of service"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "of service"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-of-service-2",
+    "mission_text": "Offer practical help with something someone has asked for.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "of service"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "of service"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-of-service-3",
+    "mission_text": "Make space today to offer practical help with something someone has asked for, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "of service"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "of service"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-part-of-a-community-1",
+    "mission_text": "Take five minutes to join a conversation or activity in a community you belong to.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "part of a community"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "part of a community"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-part-of-a-community-2",
+    "mission_text": "Join a conversation or activity in a community you belong to.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "part of a community"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "part of a community"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-part-of-a-community-3",
+    "mission_text": "Make space today to join a conversation or activity in a community you belong to, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "part of a community"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "part of a community"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-patient-1",
+    "mission_text": "Take five minutes to leave a pause before replying in a conversation.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "patient"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "patient"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-patient-2",
+    "mission_text": "Leave a pause before replying in a conversation.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "patient"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "patient"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-patient-3",
+    "mission_text": "Make space today to leave a pause before replying in a conversation, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "patient"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "patient"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-honest-1",
+    "mission_text": "Take five minutes to say one true thing kindly that you have been avoiding.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "honest"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "honest"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-honest-2",
+    "mission_text": "Say one true thing kindly that you have been avoiding.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "honest"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "honest"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-honest-3",
+    "mission_text": "Make space today to say one true thing kindly that you have been avoiding, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "honest"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "honest"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-brave-1",
+    "mission_text": "Take five minutes to take one safe first step on a task you have put off.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "brave"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "brave"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-brave-2",
+    "mission_text": "Take one safe first step on a task you have put off.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "brave"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "brave"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-brave-3",
+    "mission_text": "Make space today to take one safe first step on a task you have put off, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "brave"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "brave"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-persistent-1",
+    "mission_text": "Take five minutes to return to one unfinished task and take the next small step.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "persistent"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "persistent"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-persistent-2",
+    "mission_text": "Return to one unfinished task and take the next small step.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "persistent"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "persistent"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-persistent-3",
+    "mission_text": "Make space today to return to one unfinished task and take the next small step, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "persistent"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "persistent"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-disciplined-1",
+    "mission_text": "Take five minutes to put your phone aside and begin a task you chose.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "disciplined"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "disciplined"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-disciplined-2",
+    "mission_text": "Put your phone aside and begin a task you chose.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "disciplined"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "disciplined"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-disciplined-3",
+    "mission_text": "Make space today to put your phone aside and begin a task you chose, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "disciplined"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "disciplined"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-humble-1",
+    "mission_text": "Take five minutes to ask someone to teach you something they know.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "humble"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "humble"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-humble-2",
+    "mission_text": "Ask someone to teach you something they know.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "humble"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "humble"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-humble-3",
+    "mission_text": "Make space today to ask someone to teach you something they know, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "humble"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "humble"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-grateful-1",
+    "mission_text": "Take five minutes to thank someone for a specific thing they did.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "grateful"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "grateful"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-grateful-2",
+    "mission_text": "Thank someone for a specific thing they did.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "grateful"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "grateful"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-grateful-3",
+    "mission_text": "Make space today to thank someone for a specific thing they did, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "grateful"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "grateful"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-hopeful-1",
+    "mission_text": "Take five minutes to write down one possibility you can take a small step toward.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "hopeful"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "hopeful"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-hopeful-2",
+    "mission_text": "Write down one possibility you can take a small step toward.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "hopeful"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "hopeful"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-hopeful-3",
+    "mission_text": "Make space today to write down one possibility you can take a small step toward, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "hopeful"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "hopeful"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-calm-1",
+    "mission_text": "Take five minutes to take a quiet pause before moving to your next task.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "calm"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "calm"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-calm-2",
+    "mission_text": "Take a quiet pause before moving to your next task.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "calm"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "calm"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-calm-3",
+    "mission_text": "Make space today to take a quiet pause before moving to your next task, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "calm"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "calm"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-curious-1",
+    "mission_text": "Take five minutes to ask a question about something you do not understand.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "curious"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "curious"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-curious-2",
+    "mission_text": "Ask a question about something you do not understand.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "curious"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "curious"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-curious-3",
+    "mission_text": "Make space today to ask a question about something you do not understand, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "curious"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "curious"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-creative-1",
+    "mission_text": "Take five minutes to make a small sketch or write a few lines without judging them.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "creative"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "creative"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-creative-2",
+    "mission_text": "Make a small sketch or write a few lines without judging them.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "creative"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "creative"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-creative-3",
+    "mission_text": "Make space today to make a small sketch or write a few lines without judging them, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "creative"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "creative"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-a-clear-thinker-1",
+    "mission_text": "Take five minutes to write the facts and assumptions behind one decision separately.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "a clear thinker"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "a clear thinker"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-a-clear-thinker-2",
+    "mission_text": "Write the facts and assumptions behind one decision separately.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "a clear thinker"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "a clear thinker"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-a-clear-thinker-3",
+    "mission_text": "Make space today to write the facts and assumptions behind one decision separately, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "a clear thinker"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "a clear thinker"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-wise-1",
+    "mission_text": "Take five minutes to ask an experienced person what they learned from a similar choice.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "wise"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "wise"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-wise-2",
+    "mission_text": "Ask an experienced person what they learned from a similar choice.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "wise"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "wise"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-wise-3",
+    "mission_text": "Make space today to ask an experienced person what they learned from a similar choice, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "wise"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "wise"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-always-learning-1",
+    "mission_text": "Take five minutes to learn one small thing and try using it.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "always learning"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "always learning"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-always-learning-2",
+    "mission_text": "Learn one small thing and try using it.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "always learning"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "always learning"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-always-learning-3",
+    "mission_text": "Make space today to learn one small thing and try using it, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "always learning"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "always learning"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-ambitious-1",
+    "mission_text": "Take five minutes to choose the next concrete step toward a goal you care about.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "ambitious"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "ambitious"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-ambitious-2",
+    "mission_text": "Choose the next concrete step toward a goal you care about.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "ambitious"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "ambitious"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-ambitious-3",
+    "mission_text": "Make space today to choose the next concrete step toward a goal you care about, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "ambitious"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "ambitious"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-independent-1",
+    "mission_text": "Take five minutes to make one small everyday choice using your own judgment.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "independent"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "independent"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-independent-2",
+    "mission_text": "Make one small everyday choice using your own judgment.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "independent"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "independent"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-independent-3",
+    "mission_text": "Make space today to make one small everyday choice using your own judgment, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "independent"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "independent"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-healthy-1",
+    "mission_text": "Take five minutes to prepare something nourishing that fits your needs.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "healthy"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "healthy"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-healthy-2",
+    "mission_text": "Prepare something nourishing that fits your needs.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "healthy"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "healthy"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-healthy-3",
+    "mission_text": "Make space today to prepare something nourishing that fits your needs, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "healthy"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "healthy"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-energetic-1",
+    "mission_text": "Take five minutes to take a comfortable movement break.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "energetic"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "energetic"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-energetic-2",
+    "mission_text": "Take a comfortable movement break.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "energetic"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "energetic"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-energetic-3",
+    "mission_text": "Make space today to take a comfortable movement break, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "energetic"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "energetic"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-adventurous-1",
+    "mission_text": "Take five minutes to try a safe activity or route that is new to you.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "adventurous"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "adventurous"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-adventurous-2",
+    "mission_text": "Try a safe activity or route that is new to you.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "adventurous"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "adventurous"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-adventurous-3",
+    "mission_text": "Make space today to try a safe activity or route that is new to you, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "adventurous"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "adventurous"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-funny-1",
+    "mission_text": "Take five minutes to share something lighthearted with someone who would enjoy it.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "funny"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "funny"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-funny-2",
+    "mission_text": "Share something lighthearted with someone who would enjoy it.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "funny"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "funny"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-funny-3",
+    "mission_text": "Make space today to share something lighthearted with someone who would enjoy it, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "funny"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "funny"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-free-1",
+    "mission_text": "Take five minutes to make space for an activity you choose for yourself.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "free"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "free"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-free-2",
+    "mission_text": "Make space for an activity you choose for yourself.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "free"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "free"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-free-3",
+    "mission_text": "Make space today to make space for an activity you choose for yourself, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "free"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "free"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-secure-1",
+    "mission_text": "Take five minutes to organise one small part of your space so it works better for you.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "secure"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "secure"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-secure-2",
+    "mission_text": "Organise one small part of your space so it works better for you.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "secure"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "secure"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-secure-3",
+    "mission_text": "Make space today to organise one small part of your space so it works better for you, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "secure"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "secure"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-close-to-nature-1",
+    "mission_text": "Take five minutes to spend time outside noticing what is growing nearby.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "close to nature"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "close to nature"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-close-to-nature-2",
+    "mission_text": "Spend time outside noticing what is growing nearby.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "close to nature"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "close to nature"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-close-to-nature-3",
+    "mission_text": "Make space today to spend time outside noticing what is growing nearby, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "close to nature"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "close to nature"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-guided-by-faith-1",
+    "mission_text": "Take five minutes to make room for a practice from your own tradition.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "guided by faith"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "guided by faith"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-guided-by-faith-2",
+    "mission_text": "Make room for a practice from your own tradition.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "guided by faith"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "guided by faith"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-guided-by-faith-3",
+    "mission_text": "Make space today to make room for a practice from your own tradition, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "guided by faith"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "guided by faith"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-seeing-beauty-1",
+    "mission_text": "Take five minutes to notice and describe one beautiful detail around you.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "seeing beauty"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "seeing beauty"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "5-minute",
+    "minutes": 5,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-seeing-beauty-2",
+    "mission_text": "Notice and describe one beautiful detail around you.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "seeing beauty"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "seeing beauty"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Normal",
+    "minutes": 20,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  },
+  {
+    "id": "starter-seeing-beauty-3",
+    "mission_text": "Make space today to notice and describe one beautiful detail around you, then note what you learned.",
+    "first_step": "Choose a specific moment today to begin.",
+    "area": "Be",
+    "tags": [
+      "seeing beauty"
+    ],
+    "quick_picks": [],
+    "priorities": [
+      "seeing beauty"
+    ],
+    "who_for": [
+      "self"
+    ],
+    "ladder_step": 1,
+    "stage": "Maybe",
+    "size": "Stretch",
+    "minutes": 45,
+    "cost": "Free",
+    "setting": "Choose what is accessible to you",
+    "safety_note": "",
+    "provenance": "Original beta starter content, November 2026"
+  }
+]

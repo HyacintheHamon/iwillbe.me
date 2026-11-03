@@ -51,7 +51,7 @@ test("an old Maybe does not become eligible for All in when it has only just bec
   );
 });
 
-test("derived Into it begins at the second positive reflection, not the original curiosity or first try", () => {
+test("completed missions never change an interest stage without agreement", () => {
   const p = emptyPractice();
   p.profile.timezone = "UTC";
   const interest = e("interest", "Teaching");
@@ -71,9 +71,9 @@ test("derived Into it begins at the second positive reflection, not the original
     reflection: "",
     created_at: n ? "2026-10-25T20:00:00Z" : "2026-09-01T20:00:00Z",
   }));
-  assert.equal(interestState(p, interest), "Into it");
+  assert.equal(interestState(p, interest), "Maybe");
   assert.equal(allInEligible(p, interest, "2026-10-26"), false);
-  assert.equal(allInEligible(p, interest, "2026-11-08"), true);
+  assert.equal(allInEligible(p, interest, "2026-11-08"), false);
 });
 
 test("night prompt selection honors stopped, deferred, same-session, and immediately previous questions", () => {
@@ -213,14 +213,14 @@ test("completion never invents energy or value conviction, and absence never dim
       created_at: `2026-01-0${n + 1}`,
     });
   }
-  assert.equal(interestState(p, interest), "Tried it");
-  assert.equal(valueState(p, value), "Trying it on");
+  assert.equal(interestState(p, interest), "Maybe");
+  assert.equal(valueState(p, value), "Working on");
   p.checkIns.forEach((c) => {
     c.energy = "lit";
     c.value_choice = "yes";
   });
-  assert.equal(interestState(p, interest), "Into it");
-  assert.equal(valueState(p, value), "Mine");
+  assert.equal(interestState(p, interest), "Maybe");
+  assert.equal(valueState(p, value), "Important to me");
   p.checkIns[2].value_choice = "not_mine";
   assert.equal(valueState(p, value), "Let go");
   assert.equal(interestState(p, { ...interest, state: "ember" }), "On pause");
@@ -433,7 +433,7 @@ test("an explicit value retry supersedes an older release", () => {
       created_at: "2026-10-25T22:00:00Z",
     },
   ];
-  assert.equal(valueState(p, value), "Trying it on");
+  assert.equal(valueState(p, value), "Working on");
 });
 
 test("explicit weekly consent can introduce a new area while fixed focus and rotation remain respected", () => {

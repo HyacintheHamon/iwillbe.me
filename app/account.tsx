@@ -11,7 +11,6 @@ import {
   safeDestination,
 } from "../src/auth-intent";
 import { usePractice } from "../src/practice";
-import { dayLabel, importConflicts } from "../src/domain";
 import {
   Body,
   Button,
@@ -26,14 +25,7 @@ import {
 } from "../src/ui";
 export default function Account() {
   const linkError = useAuthRedirect();
-  const {
-    session,
-    data,
-    guest,
-    importGuest,
-    refresh,
-    error: loadError,
-  } = usePractice();
+  const { session, data, error: loadError } = usePractice();
   const params = useLocalSearchParams<{
     returnTo?: string;
     reason?: string;
@@ -52,10 +44,6 @@ export default function Account() {
     [error, setError] = useState("");
   const [retryAt, setRetryAt] = useState(0),
     [now, setNow] = useState(() => Date.now());
-  const [importResult, setImportResult] = useState<{
-    imported: number;
-    skipped_days: string[];
-  } | null>(null);
   useEffect(() => {
     void (
       params.returnTo
@@ -139,19 +127,6 @@ export default function Account() {
       setBusy(false);
     }
   };
-  const importLocal = async () => {
-    setBusy(true);
-    setError("");
-    try {
-      const result = await importGuest();
-      setImportResult(result);
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  };
-  const conflicts = guest ? importConflicts(guest, data) : [];
   return (
     <Page header={<TopBar title="Your private space" />}>
       <Eyebrow>
@@ -175,79 +150,19 @@ export default function Account() {
       {session ? (
         <>
           <Body>Connected as {session.user.email}.</Body>
-          {importResult ? (
-            <>
-              <Notice
-                text={`${importResult.imported} new intentions imported. ${importResult.skipped_days.length ? `${importResult.skipped_days.length} days already had an intention in your account; those local moments remain in your device copy.` : "Your account is ready."} Your local backup is still here.`}
-              />
-              <Button
-                label={continueLabel}
-                loading={busy}
-                onPress={async () => {
-                  setBusy(true);
-                  try {
-                    await refresh();
-                    await finishAuthIntent(session.user.id, intent.returnTo);
-                    returnToPractice();
-                  } catch (e) {
-                    setError((e as Error).message);
-                    setBusy(false);
-                  }
-                }}
-              />
-            </>
-          ) : guest ? (
-            <>
-              <View style={s.card}>
-                <Title style={{ fontSize: 24, lineHeight: 30 }}>
-                  Bring your local practice?
-                </Title>
-                <Body>
-                  {guest.entries?.length || 0} discoveries and personal notes ·{" "}
-                  {guest.intentions.length} intentions · {guest.checkIns.length}{" "}
-                  reflections · {guest.memories.length} notes
-                </Body>
-                <Body>
-                  Your account’s existing profile and moments stay as they are.
-                  Matching days keep the account version. Your local copy
-                  remains on this device.
-                </Body>
-                {conflicts.length > 0 && (
-                  <Notice
-                    text={`Already in your account: ${conflicts.map((i) => dayLabel(i.day)).join(", ")}. These local days will stay in the device copy.`}
-                  />
-                )}
-                <Button
-                  label="Import my local practice"
-                  loading={busy}
-                  disabled={!!loadError}
-                  onPress={importLocal}
-                />
-                <TextButton
-                  label="Keep them separate and continue"
-                  onPress={continuePractice}
-                />
-              </View>
-            </>
-          ) : (
-            <Button
-              label={continueLabel}
-              loading={busy}
-              onPress={continuePractice}
-            />
-          )}
-          <Body style={{ fontSize: 13 }}>
-            You can return here from Settings to retry an import. Sign out to
-            revisit or export the local copy.
-          </Body>
+          <Button
+            label={continueLabel}
+            loading={busy}
+            onPress={continuePractice}
+          />
         </>
       ) : (
         <>
           <Body>
             {intent.reason === "chloe"
-              ? "Chloe needs an account to use your saved values and reflections. Messages are processed by our AI provider. We’ll bring you back to your conversation."
+              ? "Chloe needs an account to use your saved priorities and reflections. Messages are processed by our AI provider. We’ll bring you back to your conversation."
               : joining
-                ? "First, your own space. Then Chloe will guide you through a few picture picks and short stories. Your answers will save to your account."
+                ? "First, your own space. Then Chloe will guide you through interest picks and short stories. Your answers will save to your account."
                 : "Enter your email to return to your practice. New here? The same link can create your account."}
           </Body>
           <View style={s.card}>

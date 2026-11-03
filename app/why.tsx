@@ -254,9 +254,7 @@ function Why() {
         />
       }
     >
-      <Eyebrow>
-        {revisiting ? "Why revisit · about fifteen minutes" : "A living draft"}
-      </Eyebrow>
+      <Eyebrow>{revisiting ? "Why revisit" : "A living draft"}</Eyebrow>
       {!ready ? (
         <Body>Bringing your draft back…</Body>
       ) : (

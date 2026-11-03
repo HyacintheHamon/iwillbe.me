@@ -52,7 +52,7 @@ export function firstSessionStep(version: number, step: number) {
 }
 export function previousFirstSessionStep(step: number) {
   return (
-    ({ 3: 1, 10: 13, 11: 9, 12: 10, 13: 11 } as Record<number, number>)[step] ??
+    ({ 3: 2, 10: 13, 11: 9, 12: 10, 13: 11 } as Record<number, number>)[step] ??
     Math.max(0, step - 1)
   );
 }
@@ -97,7 +97,13 @@ export function storyBody(
   }`;
 }
 export function quickPickState(choice: string) {
-  return choice === "love" ? "love" : choice === "curious" ? "spark" : null;
+  return choice === "love"
+    ? "love"
+    : choice === "like"
+      ? "want_to_try"
+      : ["curious", "open"].includes(choice)
+        ? "spark"
+        : null;
 }
 export function validCheckInTime(time: string) {
   return /^([01]\d|2[0-3]):[0-5]\d$/.test(time);

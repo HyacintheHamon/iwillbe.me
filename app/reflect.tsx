@@ -1,7 +1,9 @@
+import { NightThought } from "../src/night-thought";
 import { withAccount } from "../src/access-gate";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import { supabase } from "../src/supabase";
 import { usePractice } from "../src/practice";
 import {
   VALUES,
@@ -54,6 +56,11 @@ function Reflect() {
   const { data } = usePractice();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const today = useToday();
+  useEffect(() => {
+    void supabase.functions.invoke("chloe", {
+      body: { action: "start_checkin", session_id: `night-${today}` },
+    });
+  }, [today]);
   const intention = data.intentions.find((i) =>
     id ? i.id === id : i.day === today,
   );
@@ -239,7 +246,6 @@ function QuietNight({ today }: { today: string }) {
         ) : undefined
       }
     >
-      <Eyebrow>About two minutes</Eyebrow>
       <Title>
         {done || !question
           ? "That's enough for tonight."
@@ -251,6 +257,7 @@ function QuietNight({ today }: { today: string }) {
       {done || !question ? (
         <>
           <Body>Leave it here. Enjoy the rest of your evening.</Body>
+          {done && <NightThought reflection={draft.note} />}
           <Button
             label="Done for tonight"
             onPress={() =>
@@ -273,7 +280,7 @@ function QuietNight({ today }: { today: string }) {
                 Give it a name. You can try it in real life when you’re ready.
               </Body>
               <Field
-                label="A POSSIBILITY"
+                label="AN INTEREST"
                 value={draft.possibility}
                 onChangeText={(possibility) => update({ possibility })}
                 maxLength={80}
@@ -744,7 +751,7 @@ function ReflectionForm({
         ) : undefined
       }
     >
-      <Eyebrow>{dayLabel(intention.day)} · About two minutes</Eyebrow>
+      <Eyebrow>{dayLabel(intention.day)}</Eyebrow>
       <Title>
         {done
           ? "That's enough for tonight."
@@ -753,6 +760,16 @@ function ReflectionForm({
       {done ? (
         <>
           {insight ? <Body>{insight}</Body> : null}
+          <NightThought reflection={draft.note} />
+          <TextButton
+            label="Choose an action for tomorrow"
+            onPress={() =>
+              router.push({
+                pathname: "/ritual",
+                params: { day: shiftDay(today, 1) },
+              })
+            }
+          />
           <Body>
             {skipped
               ? "Let it sit with you. We can come back to it."
@@ -852,7 +869,7 @@ function ReflectionForm({
               ))}
               <Button
                 secondary
-                label="Another value matters more"
+                label="Another priority matters more"
                 onPress={() =>
                   update({
                     value_choice: "not_mine",
@@ -865,7 +882,7 @@ function ReflectionForm({
           ) : draft.step === "replacement" ? (
             <>
               <Field
-                label="A VALUE TO TRY ON"
+                label="A PRIORITY TO WORK ON"
                 placeholder="In your own words"
                 value={draft.replacement}
                 onChangeText={(replacement) => update({ replacement })}
@@ -888,7 +905,7 @@ function ReflectionForm({
                 Name something from this thought that you’d like to explore.
               </Body>
               <Field
-                label="A POSSIBILITY"
+                label="AN INTEREST"
                 value={draft.possibility}
                 onChangeText={(possibility) => update({ possibility })}
                 maxLength={80}

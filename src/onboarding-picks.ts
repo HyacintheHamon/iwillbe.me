@@ -1,3 +1,4 @@
+import { missionTag } from "../supabase/functions/_shared/missions";
 import type { Entry } from "./journey";
 import { quickPickState } from "./onboarding";
 
@@ -11,11 +12,15 @@ export type PickSnapshot = { id: string; updated_at: string };
 export type PickChange = {
   card: PickCard;
   operation: "create" | "update" | "remove";
-  state: "spark" | "love" | null;
+  state: "spark" | "love" | "want_to_try" | null;
   entry?: Entry;
 };
-export const pickSource = (state: "spark" | "love") =>
-  state === "love" ? "Already love · chosen by you" : "Quick picks · curious";
+export const pickSource = (state: "spark" | "love" | "want_to_try") =>
+  state === "love"
+    ? "Love it · chosen by you"
+    : state === "want_to_try"
+      ? "Like it · chosen by you"
+      : "Quick picks · open to it";
 export const pickKey = (id: string) => `pick:${id}`;
 
 export function quickPickChanges(input: {
@@ -48,10 +53,16 @@ export function quickPickChanges(input: {
           : intention.interest?.toLowerCase() === owned.title.toLowerCase(),
       );
       const stillAPick =
-        ["spark", "love"].includes(owned.state) &&
+        ["spark", "love", "want_to_try"].includes(owned.state) &&
         owned.title === card.title &&
         owned.body === card.description &&
-        [pickSource("spark"), pickSource("love")].includes(owned.source);
+        [
+          "Quick picks · curious",
+          "Already love · chosen by you",
+          pickSource("spark"),
+          pickSource("love"),
+          pickSource("want_to_try"),
+        ].includes(owned.source);
       if (used || changedElsewhere || !stillAPick) continue;
       if (!state)
         changes.push({ card, operation: "remove", state, entry: owned });
@@ -62,7 +73,7 @@ export function quickPickChanges(input: {
     const alreadyKnown = input.entries.some(
       (entry) =>
         entry.kind === "interest" &&
-        entry.title.trim().toLowerCase() === card.title.trim().toLowerCase(),
+        missionTag(entry.title) === missionTag(card.title),
     );
     if (state && !alreadyKnown)
       changes.push({ card, operation: "create", state });

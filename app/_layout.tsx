@@ -11,25 +11,23 @@ import { Stack, router, usePathname } from "expo-router";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
-import { Fraunces_500Medium } from "@expo-google-fonts/fraunces/500Medium";
-import { Fraunces_600SemiBold } from "@expo-google-fonts/fraunces/600SemiBold";
-import { DMSans_400Regular } from "@expo-google-fonts/dm-sans/400Regular";
-import { DMSans_500Medium } from "@expo-google-fonts/dm-sans/500Medium";
-import { DMSans_600SemiBold } from "@expo-google-fonts/dm-sans/600SemiBold";
+import { Inter_400Regular } from "@expo-google-fonts/inter/400Regular";
+import { Inter_500Medium } from "@expo-google-fonts/inter/500Medium";
+import { Inter_600SemiBold } from "@expo-google-fonts/inter/600SemiBold";
+import { Inter_800ExtraBold } from "@expo-google-fonts/inter/800ExtraBold";
 import { SunIcon as Sun } from "phosphor-react-native/src/icons/Sun";
 import { GraphIcon as Graph } from "phosphor-react-native/src/icons/Graph";
-import { ChatCircleIcon as ChatCircle } from "phosphor-react-native/src/icons/ChatCircle";
+import { UserCircleIcon as UserCircle } from "phosphor-react-native/src/icons/UserCircle";
 import { usePractice, PracticeProvider } from "../src/practice";
 import { NotificationRouting } from "../src/notification-routing";
 import { PrivacyLock } from "../src/privacy-lock";
 import { C, F } from "../src/ui";
 export default function Layout() {
   const [loaded, error] = useFonts({
-    Fraunces_500Medium,
-    Fraunces_600SemiBold,
-    DMSans_400Regular,
-    DMSans_500Medium,
-    DMSans_600SemiBold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_800ExtraBold,
   });
   if (!loaded && !error)
     return (
@@ -58,7 +56,7 @@ export default function Layout() {
 function AppShell() {
   const path = usePathname();
   const { session } = usePractice();
-  const tabs = !!session && ["/", "/galaxy", "/chloe"].includes(path);
+  const tabs = !!session && ["/", "/galaxy", "/settings"].includes(path);
   const landing = !session && ["/", "/about"].includes(path);
   return (
     <View style={styles.outer}>
@@ -82,8 +80,8 @@ function AppShell() {
             {(
               [
                 { path: "/", label: "Today", Icon: Sun },
-                { path: "/galaxy", label: "Possibilities", Icon: Graph },
-                { path: "/chloe", label: "Chloe", Icon: ChatCircle },
+                { path: "/galaxy", label: "My map", Icon: Graph },
+                { path: "/settings", label: "Me", Icon: UserCircle },
               ] as const
             ).map(({ path: to, label, Icon }) => (
               <Pressable
@@ -128,7 +126,7 @@ function AppShell() {
   );
 }
 const styles = StyleSheet.create({
-  outer: { flex: 1, backgroundColor: "#EEEFE9", alignItems: "center" },
+  outer: { flex: 1, backgroundColor: "#ECE9E2", alignItems: "center" },
   app: {
     flex: 1,
     width: "100%",

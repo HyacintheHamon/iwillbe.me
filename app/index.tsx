@@ -1,7 +1,7 @@
 import React from "react";
-import { Platform, Pressable, View, useWindowDimensions } from "react-native";
+import { Platform, Pressable, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { GearSixIcon as GearSix } from "phosphor-react-native/src/icons/GearSix";
+
 import { Landing } from "../src/landing";
 import { usePractice } from "../src/practice";
 import { dayLabel, outcomeLabel, shiftDay } from "../src/domain";
@@ -14,6 +14,7 @@ import {
 import { useToday } from "../src/use-today";
 import {
   Body,
+  CommitReveal,
   Button,
   C,
   Eyebrow,
@@ -30,7 +31,6 @@ export default function Home() {
 
 function Today() {
   const { data, session, error, reminderError } = usePractice();
-  const { height } = useWindowDimensions();
   const { saved } = useLocalSearchParams<{ saved?: string }>();
   const today = useToday(),
     tomorrow = shiftDay(today, 1);
@@ -51,33 +51,26 @@ function Today() {
             s.row,
             {
               justifyContent: "space-between",
-              paddingHorizontal: 20,
+              paddingHorizontal: 24,
               height: 60,
             },
           ]}
         >
           <Title style={{ fontSize: 27, lineHeight: 36 }}>iwillbe.me</Title>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Settings"
-            onPress={() => router.push("/settings")}
-            style={s.iconButton}
-          >
-            <GearSix size={23} color={C.ink} />
-          </Pressable>
+          <TextButton label="Ask Chloe" onPress={() => router.push("/chloe")} />
         </View>
       }
       footer={
         <Button
           label={
             newVisitor
-              ? "Find your possibilities"
+              ? "Start your map"
               : !intention
                 ? data.intentions.length
-                  ? "Choose today’s intention"
-                  : "Choose my first intention"
+                  ? "Choose today’s action"
+                  : "Choose my first action"
                 : checked
-                  ? "My Possibilities"
+                  ? "My map"
                   : "Reflect on today"
           }
           onPress={
@@ -96,8 +89,8 @@ function Today() {
       </Eyebrow>
       <Title
         style={{
-          fontSize: height < 700 ? 34 : 42,
-          lineHeight: height < 700 ? 40 : 48,
+          fontSize: 32,
+          lineHeight: 35.2,
         }}
       >
         {!intention
@@ -108,7 +101,7 @@ function Today() {
               : "Who will you be today?"
           : checked
             ? "A little more you."
-            : "Let your intention lead the way."}
+            : "Your action for today."}
       </Title>
       <Body>
         {!intention
@@ -116,26 +109,24 @@ function Today() {
             ? "Discover what draws you. Try one small thing. Notice what you want to keep."
             : returning
               ? "Start with what’s here today."
-              : "About two minutes. One small commitment to take into your day."
+              : "Choose one action connected to what matters to you."
           : checked
             ? "Every small step becomes part of your story."
             : `One small promise${data.profile.display_name ? `, ${data.profile.display_name}` : ""}. Room to be human.`}
       </Body>
-      {newVisitor ? (
-        <TextButton label="Choose an intention instead" onPress={begin} />
-      ) : (
-        <View style={s.card}>
-          <Eyebrow>MY WHY</Eyebrow>
-          <Body>
-            {why?.body ||
-              "Still forming. There is no hurry to define yourself."}
-          </Body>
-          <TextButton
-            label="Make room for my why"
-            onPress={() => router.push("/why")}
-          />
-        </View>
-      )}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Shape my why"
+        onPress={() => router.push("/why")}
+        style={s.card}
+      >
+        <Eyebrow>MY WHY</Eyebrow>
+        <Body numberOfLines={2}>
+          {why?.body ||
+            "Still forming. Your actions and stories will help it take shape."}
+        </Body>
+        <Body style={{ color: C.gold }}>Shape my why →</Body>
+      </Pressable>
       {!newVisitor && !intention ? (
         <TextButton
           label="Night check-in"
@@ -158,57 +149,59 @@ function Today() {
         />
       )}
       {intention && (
-        <View style={s.card}>
-          <Eyebrow>TODAY’S ONE THING</Eyebrow>
-          <Title style={{ fontSize: 25, lineHeight: 33 }}>
-            {formatCommitment(intention.action, intention.kind)}
-          </Title>
-          <Body>
-            {intention.value}
-            {intention.interest ? ` · ${intention.interest}` : ""} · For{" "}
-            {intention.person || "myself"}
-          </Body>
-          {intention.when_context || intention.place ? (
-            <Body style={{ fontSize: 13 }}>
-              {[intention.when_context, intention.place]
+        <CommitReveal active={saved === today}>
+          <View style={s.card}>
+            <Eyebrow>TODAY’S ONE THING</Eyebrow>
+            <Title style={{ fontSize: 25, lineHeight: 33 }}>
+              {formatCommitment(intention.action, intention.kind)}
+            </Title>
+            <Body>
+              {[
+                intention.value,
+                intention.interest,
+                intention.for_me
+                  ? "For me"
+                  : intention.for_whom || intention.person
+                    ? `For ${intention.for_whom || intention.person}`
+                    : "",
+              ]
                 .filter(Boolean)
                 .join(" · ")}
             </Body>
-          ) : null}
-          {checked ? (
-            <>
-              <Body>{outcomeLabel(checked.outcome)}</Body>
-              {!!checked.reflection && <Body>{checked.reflection}</Body>}
-              <TextButton
-                label="Edit my reflection"
-                onPress={() =>
-                  router.push({
-                    pathname: "/reflect",
-                    params: { id: intention.id },
-                  })
-                }
-              />
-            </>
-          ) : (
-            <TextButton label="Adjust my intention" onPress={begin} />
-          )}
-        </View>
+            {intention.when_context || intention.place ? (
+              <Body style={{ fontSize: 13 }}>
+                {[intention.when_context, intention.place]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </Body>
+            ) : null}
+            {checked ? (
+              <>
+                <Body>{outcomeLabel(checked.outcome)}</Body>
+                {!!checked.reflection && <Body>{checked.reflection}</Body>}
+                <TextButton
+                  label="Edit my reflection"
+                  onPress={() =>
+                    router.push({
+                      pathname: "/reflect",
+                      params: { id: intention.id },
+                    })
+                  }
+                />
+              </>
+            ) : (
+              <TextButton label="Adjust my intention" onPress={begin} />
+            )}
+          </View>
+        </CommitReveal>
       )}
-      {(checked || next) && (
+      {next && (
         <View style={s.card}>
           <Eyebrow>TOMORROW · {dayLabel(tomorrow)}</Eyebrow>
           <Body>
             {next?.action ||
               "Leave a little room for the person you want to be."}
           </Body>
-          <TextButton
-            label={
-              next ? "Adjust tomorrow’s intention" : "Plan tomorrow’s intention"
-            }
-            onPress={() =>
-              router.push({ pathname: "/ritual", params: { day: tomorrow } })
-            }
-          />
         </View>
       )}
       {data.intentions.length > 0 && (

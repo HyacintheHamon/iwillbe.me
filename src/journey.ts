@@ -37,6 +37,10 @@ export type Entry = {
   updated_at: string;
   meta: {
     planet?: Planet;
+    priority_group?: string;
+    ladder_step?: number;
+    not_now_count?: number;
+    last_activity_at?: string;
     planet_notes?: Partial<Record<Planet, string>>;
     answers?: (number | null)[];
     period?: string;
@@ -107,22 +111,13 @@ export function currentWhy(p: Practice) {
 export function interestState(
   p: Practice,
   e: Entry,
-): "Maybe" | "Tried it" | "Into it" | "On pause" | "All in" {
+): "Maybe" | "Want to try" | "Into it" | "On pause" | "All in" {
   if (["craft", "all_in"].includes(e.state)) return "All in";
   if (["ember", "paused", "on_pause"].includes(e.state)) return "On pause";
-  const ids = new Set(
-    p.intentions
-      .filter((i) =>
-        i.interest_id ? i.interest_id === e.id : i.interest === e.title,
-      )
-      .map((i) => i.id),
-  );
-  const experiences = p.checkIns.filter(
-    (c) => ids.has(c.intention_id) && c.outcome !== "not_yet",
-  );
-  const lit = experiences.filter((c) => c.energy === "lit").length;
-  if (["love", "into_it"].includes(e.state) || lit >= 2) return "Into it";
-  return experiences.length || e.state === "tried" ? "Tried it" : "Maybe";
+  // Stage is always an explicit user choice. Completion advances the ladder only.
+  if (["love", "into_it"].includes(e.state)) return "Into it";
+  if (["tried", "want_to_try"].includes(e.state)) return "Want to try";
+  return "Maybe";
 }
 export function allInEligible(p: Practice, e: Entry, day: string) {
   if (interestState(p, e) !== "Into it") return false;
@@ -156,7 +151,7 @@ export function allInEligible(p: Practice, e: Entry, day: string) {
 export function valueState(
   p: Practice,
   e: Entry,
-): "Trying it on" | "Mine" | "Let go" {
+): "Working on" | "Important to me" | "Let go" {
   const ids = new Set(
     p.intentions
       .filter((i) => (i.value_id ? i.value_id === e.id : i.value === e.title))
@@ -171,20 +166,20 @@ export function valueState(
   )
     return "Let go";
   if (
-    e.state === "trying" &&
+    ["trying", "working_on"].includes(e.state) &&
     (!choices[0] || e.updated_at >= choices[0].created_at)
   )
-    return "Trying it on";
+    return "Working on";
   if (
-    e.state === "mine" &&
+    ["mine", "important"].includes(e.state) &&
     (!choices[0] || e.updated_at >= choices[0].created_at)
   )
-    return "Mine";
+    return "Important to me";
   if (choices[0]?.value_choice === "not_mine") return "Let go";
-  return e.state === "mine" ||
+  return ["mine", "important"].includes(e.state) ||
     choices.filter((c) => c.value_choice === "yes").length >= 2
-    ? "Mine"
-    : "Trying it on";
+    ? "Important to me"
+    : "Working on";
 }
 export const REVIEW_QUESTIONS = [
   "How much did this month feel like your life, not one you were just going along with?",
@@ -256,7 +251,7 @@ export function rhythmDue(p: Practice, now = new Date()) {
     return {
       kind: "weekly",
       period: week,
-      title: "Sunday Explore · about ten minutes",
+      title: "Sunday Explore",
       day,
     };
   return null;
@@ -518,7 +513,9 @@ export function possibilityPattern(p: Practice) {
     });
   if (repeated)
     return `${repeated.title} keeps lighting you up. Worth a closer look?`;
-  const value = entriesOf(p, "value").find((e) => valueState(p, e) === "Mine");
+  const value = entriesOf(p, "value").find(
+    (e) => valueState(p, e) === "Important to me",
+  );
   return value
     ? `${value.title} keeps showing up in your choices. Does it feel like yours?`
     : null;

@@ -136,16 +136,7 @@ export default function Invite() {
               />
             </>
           ) : inv.kind === "coach" ? (
-            <>
-              <Body>
-                This invitation gives the sender no access to your practice.
-                Sharing is always your choice.
-              </Body>
-              <Button
-                label="Start my own practice"
-                onPress={() => router.replace("/onboarding")}
-              />
-            </>
+            <Body>This invitation type is not available in the beta.</Body>
           ) : (
             <>
               <Button

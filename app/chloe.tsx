@@ -250,7 +250,7 @@ function ChloeSession() {
     return (
       <Page header={<TopBar back={false} title="A moment with Chloe" />}>
         <ChloeMark />
-        <Eyebrow>About two minutes · one small step</Eyebrow>
+        <Eyebrow>One small step</Eyebrow>
         <Title>Let’s find one small step.</Title>
         <Body>
           Choose an intention on your own now, or connect an account for a
@@ -275,8 +275,8 @@ function ChloeSession() {
             Talk it through with Chloe
           </Title>
           <Body>
-            Chloe uses your saved values and reflections. Messages are processed
-            by our AI provider. A conversation needs an account.
+            Chloe uses your saved priorities and reflections. Messages are
+            processed by our AI provider. A conversation needs an account.
           </Body>
           <Field
             label="DRAFT FOR CHLOE · OPTIONAL"

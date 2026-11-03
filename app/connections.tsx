@@ -43,7 +43,7 @@ function Connections() {
     ]);
     if (a.error || b.error)
       throw new Error("Could not refresh your invitations.");
-    setInvites(a.data || []);
+    setInvites((a.data || []).filter((inv) => inv.kind !== "coach"));
     setSuggestions(b.data || []);
   }, [session]);
   useEffect(() => {
@@ -107,7 +107,6 @@ function Connections() {
           {[
             ["comet", "Send an idea"],
             ["friend", "Ask a friend"],
-            ["coach", "Invite a client"],
           ].map(([v, label]) => (
             <Chip
               key={v}
@@ -124,9 +123,7 @@ function Connections() {
           label={
             kind === "friend"
               ? "What would you like to ask?"
-              : kind === "coach"
-                ? "Your invitation to begin a private practice"
-                : "One possibility to share"
+              : "One interest to share"
           }
           placeholder={
             kind === "friend"
@@ -138,12 +135,6 @@ function Connections() {
           onChangeText={setMessage}
           maxLength={1000}
         />
-        {kind === "coach" ? (
-          <Body>
-            The client owns their practice. This link gives you no access to
-            their journal. They can choose to share a weekly summary themselves.
-          </Body>
-        ) : null}
         {session ? (
           <Button
             label="Create invitation link"

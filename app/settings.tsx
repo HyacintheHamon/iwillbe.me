@@ -1,3 +1,4 @@
+import { FAITH_TRADITIONS } from "../src/priorities";
 import { withAccount } from "../src/access-gate";
 import React, { useState } from "react";
 import { ActivityIndicator, Platform, Share, View } from "react-native";
@@ -13,7 +14,6 @@ import {
   phoneTimeZone,
 } from "../src/reminders";
 import { validReminderTime, validTimeZone } from "../src/reminder-calendar";
-import { INTERESTS, VALUES } from "../src/domain";
 import { draftKey, useDraft } from "../src/drafts";
 import { exportPractice } from "../src/export-practice";
 import {
@@ -63,7 +63,7 @@ function Settings() {
   const [reminderRevision, setReminderRevision] = useState(
     data.profile.revision ?? 0,
   );
-  const dirty = ["display_name", "north_star", "values", "interests"].some(
+  const dirty = ["display_name", "north_star", "faith_tradition"].some(
     (key) =>
       JSON.stringify(profile[key as keyof typeof profile]) !==
       JSON.stringify(data.profile[key as keyof typeof profile]),
@@ -101,23 +101,6 @@ function Settings() {
   const changeProfile = (patch: Partial<typeof profile>) => {
     updateProfile(patch);
     setFeedback((current) => ({ ...current, profile: undefined }));
-  };
-  const toggle = (kind: "values" | "interests", item: string) => {
-    const selected = profile[kind];
-    if (!selected.includes(item) && selected.length >= 5) {
-      setFeedback((current) => ({
-        ...current,
-        profile: {
-          text: "Choose up to five. Remove one to make room for another.",
-        },
-      }));
-      return;
-    }
-    changeProfile({
-      [kind]: selected.includes(item)
-        ? selected.filter((v) => v !== item)
-        : [...selected, item],
-    });
   };
   const exportData = async () => {
     const text = JSON.stringify(
@@ -260,7 +243,7 @@ function Settings() {
       </Body>
       <Button
         secondary
-        label={session ? "Manage my account and import" : "Save across devices"}
+        label={session ? "Manage my account" : "Save across devices"}
         onPress={() =>
           router.push({
             pathname: "/account",
@@ -287,30 +270,39 @@ function Settings() {
           placeholder="Who matters to you?"
           maxLength={100}
         />
-        <Body style={s.label}>VALUES · {profile.values.length}/5 SELECTED</Body>
-        <View style={s.wrap}>
-          {VALUES.map((v) => (
-            <Chip
-              key={v}
-              label={v}
-              selected={profile.values.includes(v)}
-              onPress={() => toggle("values", v)}
+        <TextButton
+          label="Edit my interests and priorities"
+          onPress={() => router.push("/galaxy")}
+        />
+        {data.entries.some(
+          (e) =>
+            ["value", "strength"].includes(e.kind) &&
+            e.title.toLowerCase() === "guided by faith" &&
+            e.state !== "let_go",
+        ) && (
+          <>
+            <Body>Which tradition guides you? Optional and private.</Body>
+            <View style={s.wrap}>
+              {FAITH_TRADITIONS.map((name) => (
+                <Chip
+                  key={name}
+                  label={name}
+                  selected={profile.faith_tradition === name}
+                  onPress={() =>
+                    changeProfile({
+                      faith_tradition:
+                        profile.faith_tradition === name ? null : name,
+                    })
+                  }
+                />
+              ))}
+            </View>
+            <TextButton
+              label="Clear my tradition"
+              onPress={() => changeProfile({ faith_tradition: null })}
             />
-          ))}
-        </View>
-        <Body style={s.label}>
-          INTERESTS · {profile.interests.length}/5 SELECTED
-        </Body>
-        <View style={s.wrap}>
-          {INTERESTS.map((v) => (
-            <Chip
-              key={v}
-              label={v}
-              selected={profile.interests.includes(v)}
-              onPress={() => toggle("interests", v)}
-            />
-          ))}
-        </View>
+          </>
+        )}
         {dirty && (
           <Body style={{ fontSize: 13 }}>
             Unsaved preferences. Your draft stays here if you leave.
@@ -330,8 +322,7 @@ function Settings() {
                   revision: profile.revision ?? 0,
                   display_name: profile.display_name.trim(),
                   north_star: profile.north_star.trim(),
-                  values: profile.values,
-                  interests: profile.interests,
+                  faith_tradition: profile.faith_tradition || null,
                   onboarded: true,
                 });
                 updateProfile({ revision: saved.revision });
@@ -476,7 +467,7 @@ function Settings() {
         </Title>
         <Body>
           Only notes you choose to keep. You can remove them anytime. Chloe also
-          uses your saved values and recent reflections.
+          uses your saved priorities and recent reflections.
         </Body>
         {data.memories.map((m) => (
           <View key={m.id} style={s.card}>

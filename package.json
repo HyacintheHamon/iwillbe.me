@@ -3,8 +3,7 @@
   "version": "0.2.0",
   "main": "expo-router/entry",
   "dependencies": {
-    "@expo-google-fonts/dm-sans": "0.4.2",
-    "@expo-google-fonts/fraunces": "0.4.1",
+    "@expo-google-fonts/inter": "0.4.2",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@supabase/supabase-js": "2.118.0",
     "expo": "58.0.16",
@@ -30,6 +29,7 @@
     "react-native-web": "0.21.4"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.15",
     "@types/react": "19.3.0",
     "eslint": "9.39.5",
     "eslint-config-expo": "58.0.4",
@@ -50,9 +50,12 @@
     "test": "node --import tsx --test tests/*.test.ts",
     "format": "prettier --write app src tests scripts supabase/functions",
     "check": "npm run typecheck && npm run lint && npm test",
-    "test:browser": "node scripts/verify-entry.mjs && node scripts/verify-ui.mjs && node scripts/verify-guidance.mjs && node scripts/verify-onboarding.mjs && node scripts/verify-chloe.mjs && node scripts/verify-sync.mjs && node scripts/verify-auth.mjs",
+    "test:browser": "node scripts/verify-entry.mjs && node --import tsx scripts/verify-beta.mjs",
     "preview": "node scripts/preview.mjs",
-    "test:entry": "node scripts/verify-entry.mjs"
+    "test:entry": "node scripts/verify-entry.mjs",
+    "missions:import": "node --import tsx scripts/import-missions.ts",
+    "test:database": "node scripts/verify-database.mjs",
+    "test:browser:legacy": "node scripts/verify-entry.mjs && node scripts/verify-ui.mjs && node scripts/verify-guidance.mjs && node scripts/verify-onboarding.mjs && node scripts/verify-chloe.mjs && node scripts/verify-sync.mjs && node scripts/verify-auth.mjs"
   },
   "private": true
 }

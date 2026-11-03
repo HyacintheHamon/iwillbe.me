@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   ActivityIndicator,
+  AccessibilityInfo,
+  Animated,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -24,25 +26,25 @@ import { ChatCircleIcon } from "phosphor-react-native/src/icons/ChatCircle";
 import { XIcon as X } from "phosphor-react-native/src/icons/X";
 import { router } from "expo-router";
 export const C = {
-  soft: "#E9EDE5",
+  soft: "#F8EAE2",
   paper: "#F7F6F2",
-  navy: "#252C27",
-  ink: "#535B55",
-  gold: "#48634F",
-  goldDecorative: "#48634F",
-  goldLight: "#48634F",
-  line: "#DADDD5",
-  muted: "#69716A",
+  navy: "#121212",
+  ink: "#121212",
+  gold: "#C2410C",
+  goldDecorative: "#C2410C",
+  goldLight: "#C2410C",
+  line: "#E2DED5",
+  muted: "#8A857B",
   white: "#FFFFFF",
   blue: "#436578",
   clay: "#946451",
 };
 export const F = {
-  serif: "Fraunces_500Medium",
-  bold: "Fraunces_600SemiBold",
-  sans: "DMSans_400Regular",
-  medium: "DMSans_500Medium",
-  strong: "DMSans_600SemiBold",
+  serif: "Inter_800ExtraBold",
+  bold: "Inter_800ExtraBold",
+  sans: "Inter_400Regular",
+  medium: "Inter_500Medium",
+  strong: "Inter_600SemiBold",
 };
 export function Body({
   children,
@@ -88,6 +90,7 @@ export function Button({
   loading = false,
   disabled = false,
   icon = true,
+  commitPulse = false,
 }: {
   label: string;
   onPress: () => void;
@@ -95,37 +98,65 @@ export function Button({
   loading?: boolean;
   disabled?: boolean;
   icon?: boolean;
+  commitPulse?: boolean;
 }) {
+  const [scale] = React.useState(() => new Animated.Value(1));
+  useEffect(() => {
+    let active = true;
+    if (loading && commitPulse)
+      void AccessibilityInfo.isReduceMotionEnabled().then((reduced) => {
+        if (active && !reduced)
+          Animated.sequence([
+            Animated.timing(scale, {
+              toValue: 1.025,
+              duration: 120,
+              useNativeDriver: Platform.OS !== "web",
+            }),
+            Animated.timing(scale, {
+              toValue: 1,
+              duration: 120,
+              useNativeDriver: Platform.OS !== "web",
+            }),
+          ]).start();
+      });
+    return () => {
+      active = false;
+      scale.stopAnimation();
+      scale.setValue(1);
+    };
+  }, [loading, commitPulse, scale]);
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ disabled: disabled || loading }}
-      disabled={disabled || loading}
-      onPress={onPress}
-      style={({ pressed }) => [
-        s.button,
-        secondary && s.secondary,
-        { opacity: disabled || loading ? 0.6 : pressed ? 0.82 : 1 },
-      ]}
-    >
-      {loading ? (
-        <ActivityIndicator color={secondary ? C.navy : C.paper} />
-      ) : (
-        <>
-          <Text style={[s.buttonText, secondary && { color: C.navy }]}>
-            {label}
-          </Text>
-          {icon && (
-            <ArrowRight
-              size={22}
-              color={secondary ? C.navy : C.paper}
-              weight="light"
-            />
-          )}
-        </>
-      )}
-    </Pressable>
+    <Animated.View style={{ transform: [{ scale }] }}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ disabled: disabled || loading }}
+        disabled={disabled || loading}
+        onPress={onPress}
+        style={({ pressed }) => [
+          s.button,
+          secondary && s.secondary,
+          { opacity: disabled || loading ? 0.6 : pressed ? 0.82 : 1 },
+        ]}
+      >
+        {loading ? (
+          <ActivityIndicator color={secondary ? C.navy : C.paper} />
+        ) : (
+          <>
+            <Text style={[s.buttonText, secondary && { color: C.navy }]}>
+              {label}
+            </Text>
+            {icon && (
+              <ArrowRight
+                size={22}
+                color={secondary ? C.navy : C.paper}
+                weight="light"
+              />
+            )}
+          </>
+        )}
+      </Pressable>
+    </Animated.View>
   );
 }
 export function TextButton({
@@ -174,7 +205,7 @@ export function Chip({
       style={[
         s.chip,
         disabled && { opacity: 0.55 },
-        selected && { borderColor: C.gold, backgroundColor: "#E9EDE5" },
+        selected && { borderColor: C.gold, backgroundColor: "#F8EAE2" },
       ]}
     >
       {selected && <Check size={15} color={C.gold} />}
@@ -311,7 +342,7 @@ export function ChloeMark({ small = false }: { small?: boolean }) {
   return (
     <View
       style={{
-        backgroundColor: "#E9EDE5",
+        backgroundColor: "#F8EAE2",
         padding: small ? 6 : 12,
         borderRadius: 40,
         alignSelf: "flex-start",
@@ -395,13 +426,13 @@ export function Sheet({
   );
 }
 export const s = StyleSheet.create({
-  body: { fontFamily: F.sans, fontSize: 15, lineHeight: 23, color: C.ink },
+  body: { fontFamily: F.sans, fontSize: 17, lineHeight: 25.5, color: C.ink },
   title: {
     fontFamily: F.serif,
-    fontSize: 30,
-    lineHeight: 37,
+    fontSize: 32,
+    lineHeight: 35.2,
     color: C.navy,
-    letterSpacing: -1,
+    letterSpacing: -0.64,
   },
   eyebrow: {
     fontFamily: F.medium,
@@ -412,16 +443,16 @@ export const s = StyleSheet.create({
     lineHeight: 18,
   },
   footer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingVertical: 12,
     gap: 8,
     borderTopWidth: 1,
     borderColor: C.line,
     backgroundColor: C.paper,
   },
-  page: { padding: 24, paddingBottom: 36, gap: 20 },
+  page: { padding: 24, paddingBottom: 36, gap: 32 },
   button: {
-    minHeight: 58,
+    minHeight: 56,
     borderRadius: 30,
     backgroundColor: C.gold,
     paddingHorizontal: 20,
@@ -494,7 +525,7 @@ export const s = StyleSheet.create({
   },
   row: { flexDirection: "row", alignItems: "center", gap: 12 },
   wrap: { flexDirection: "row", flexWrap: "wrap", gap: 9 },
-  section: { borderTopWidth: 1, borderColor: C.line, paddingTop: 24, gap: 16 },
+  section: { borderTopWidth: 1, borderColor: C.line, paddingTop: 32, gap: 32 },
   card: {
     backgroundColor: C.white,
     padding: 22,
@@ -504,3 +535,36 @@ export const s = StyleSheet.create({
     borderColor: C.line,
   },
 });
+
+export function CommitReveal({
+  active,
+  children,
+}: {
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  const [offset] = React.useState(() => new Animated.Value(0));
+  useEffect(() => {
+    let live = true;
+    if (active)
+      void AccessibilityInfo.isReduceMotionEnabled().then((reduced) => {
+        if (live && !reduced) {
+          offset.setValue(14);
+          Animated.timing(offset, {
+            toValue: 0,
+            duration: 240,
+            useNativeDriver: Platform.OS !== "web",
+          }).start();
+        }
+      });
+    return () => {
+      live = false;
+      offset.stopAnimation();
+    };
+  }, [active, offset]);
+  return (
+    <Animated.View style={{ transform: [{ translateY: offset }] }}>
+      {children}
+    </Animated.View>
+  );
+}

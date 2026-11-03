@@ -205,9 +205,7 @@ function RhythmForm({
         />
       </View>
       <Eyebrow>
-        {monthly
-          ? "A little room to look ahead"
-          : "About ten minutes · whenever you have room"}
+        {monthly ? "A little room to look ahead" : "Whenever you have room"}
       </Eyebrow>
       {ready && draft.step === 0 ? (
         <>
@@ -365,7 +363,7 @@ function RhythmForm({
                           meta: { planet: suggestion.planet },
                         }),
                       );
-                    setMessage("Kept in your Possibilities.");
+                    setMessage("Kept in your map.");
                   })
                 }
               />
@@ -427,7 +425,7 @@ function RhythmForm({
               </Body>
               {revisit ? (
                 <View style={s.card}>
-                  <Eyebrow>Why revisit · about fifteen minutes</Eyebrow>
+                  <Eyebrow>Why revisit</Eyebrow>
                   <Body>
                     Bring your recent moments, your current why and both
                     pictures of your future together.

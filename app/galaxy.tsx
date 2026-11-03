@@ -1,19 +1,15 @@
 import { withAccount } from "../src/access-gate";
-import React, { useState } from "react";
-import { Pressable, View, ScrollView } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import { usePractice } from "../src/practice";
 import {
   currentWhy,
-  entriesOf,
   entryInput,
   interestState,
   valueState,
-  possibilityPattern,
-  allInEligible,
   type Entry,
 } from "../src/journey";
-import { nextIntentionDay, dayLabel } from "../src/domain";
 import { useToday } from "../src/use-today";
 import {
   Body,
@@ -21,6 +17,7 @@ import {
   C,
   Chip,
   Eyebrow,
+  F,
   Field,
   Notice,
   Page,
@@ -30,297 +27,335 @@ import {
   TopBar,
   s,
 } from "../src/ui";
-const colors: Record<string, string> = {
-  Maybe: C.gold,
-  "Tried it": C.ink,
-  "Into it": C.gold,
-  "On pause": C.muted,
-  "All in": C.gold,
-  "Trying it on": C.gold,
-  Mine: C.gold,
-  "Let go": C.muted,
+import { IWillBe } from "../src/priority-onboarding";
+import {
+  loadMissions,
+  ladderStep,
+  missionTrio,
+  missionTag,
+  type Mission,
+} from "../src/missions";
+import { MissionCards } from "../src/mission-cards";
+import { priorityName } from "../src/priorities";
+const stages = ["All in", "Into it", "Want to try", "Maybe", "On pause"];
+const stageValues: Record<string, string> = {
+  "All in": "all_in",
+  "Into it": "into_it",
+  "Want to try": "want_to_try",
+  Maybe: "spark",
+  "On pause": "paused",
+  "Working on": "working_on",
+  "Important to me": "important",
+  "Let go": "let_go",
 };
-type Layer = "interest" | "value" | "strength" | "person" | "practice";
-const layers: [Layer, string][] = [
-  ["interest", "Possibilities"],
-  ["value", "Values"],
-  ["strength", "Strengths"],
-  ["person", "People I admire"],
-  ["practice", "Practices and habits"],
-];
-function Possibilities() {
+function MyMap() {
   const { data, putEntry, removeEntry } = usePractice();
   const today = useToday();
-  const [layer, setLayer] = useState<Layer>("interest"),
+  const [layer, setLayer] = useState<"interest" | "value">("interest"),
     [selected, setSelected] = useState<Entry | null>(null),
     [adding, setAdding] = useState(false),
     [name, setName] = useState(""),
-    [detail, setDetail] = useState(""),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    [busy, setBusy] = useState(false),
+    [paused, setPaused] = useState(false),
+    [move, setMove] = useState(false),
+    [remove, setRemove] = useState(false);
+  const [missions, setMissions] = useState<Mission[]>([]),
+    [missionId, setMissionId] = useState(""),
+    [offset, setOffset] = useState(0),
+    [requestedStep, setRequestedStep] = useState(0),
+    [ideasLoading, setIdeasLoading] = useState(false),
+    [ideasError, setIdeasError] = useState(""),
+    [retry, setRetry] = useState(0),
+    [replace, setReplace] = useState(false);
   const why = currentWhy(data);
-  const items = entriesOf(
-    data,
-    layer === "practice" ? "interest" : layer,
-  ).filter((e) =>
-    layer === "practice"
-      ? e.meta.category === "practice"
-      : e.meta.category !== "practice",
-  );
-  const strengths = [
-    ...entriesOf(data, "strength"),
-    ...entriesOf(data, "value").filter((e) => valueState(data, e) === "Mine"),
-  ];
-  const threads = entriesOf(data, "interest")
-    .filter(
-      (e) =>
-        e.meta.category !== "practice" &&
-        !["ember", "paused"].includes(e.state),
+  const step = selected ? ladderStep(data, selected) : 1;
+  const lastActivity = (entry: Entry) =>
+    [
+      entry.meta.last_activity_at || entry.updated_at,
+      ...data.intentions
+        .filter(
+          (i) =>
+            i.interest_id === entry.id &&
+            data.checkIns.some(
+              (c) => c.intention_id === i.id && c.outcome === "yes",
+            ),
+        )
+        .map((i) => i.day),
+    ]
+      .sort()
+      .at(-1) || entry.updated_at;
+  const items = data.entries
+    .filter((e) =>
+      layer === "value"
+        ? ["value", "strength"].includes(e.kind)
+        : e.kind === "interest",
     )
-    .slice(0, 2);
-  const pattern = possibilityPattern(data);
+    .filter(
+      (e, i, all) =>
+        layer !== "value" ||
+        all.findIndex(
+          (x) => priorityName(x.title) === priorityName(e.title),
+        ) === i,
+    )
+    .sort((a, b) => lastActivity(b).localeCompare(lastActivity(a)));
+  const openEntry = (entry: Entry) => {
+    setMissions([]);
+    setMissionId("");
+    setIdeasError("");
+    setReplace(false);
+    setMove(false);
+    setRemove(false);
+    setOffset(0);
+    setRequestedStep(0);
+    setIdeasLoading(true);
+    setSelected(entry);
+  };
   const state = (e: Entry) =>
-    e.meta.category === "practice"
-      ? "Practice"
-      : e.kind === "interest"
-        ? interestState(data, e)
-        : e.kind === "value"
-          ? valueState(data, e)
-          : e.kind === "person"
-            ? "Admired"
-            : "Strength";
-  const save = async (input: Parameters<typeof putEntry>[0]) => {
+    e.kind === "interest"
+      ? interestState(data, e)
+      : e.kind === "strength"
+        ? "Important to me"
+        : valueState(data, e);
+  const run = async (work: () => Promise<void>) => {
+    if (busy) return;
+    setBusy(true);
+    setError("");
     try {
-      await putEntry(input);
-      setSelected(null);
-      setAdding(false);
-      setName("");
-      setDetail("");
+      await work();
     } catch (e) {
       setError((e as Error).message);
+    } finally {
+      setBusy(false);
     }
   };
-  const moments = selected
-    ? data.intentions.filter((i) =>
-        layer === "interest" || layer === "practice"
-          ? i.interest_id
-            ? i.interest_id === selected.id
-            : i.interest === selected.title
-          : layer === "value"
-            ? i.value_id
-              ? i.value_id === selected.id
-              : i.value === selected.title
-            : false,
-      )
-    : [];
-  return (
-    <Page
-      footer={
-        <Button label="Try one today" onPress={() => router.push("/ritual")} />
-      }
-      header={
-        <TopBar
-          title="iwillbe.me"
-          back={false}
-          right={
-            <TextButton
-              label="Explore"
-              onPress={() => router.push("/explore")}
-            />
+  useEffect(() => {
+    let active = true;
+    if (!selected) return;
+    loadMissions(missionTag(selected.title), requestedStep || step)
+      .then(
+        (result) => {
+          if (active) {
+            setMissions(result.missions);
+            setMissionId(
+              missionTrio(result.missions).find((m) => m.size === "Normal")
+                ?.id || "",
+            );
           }
-        />
-      }
-    >
-      <Eyebrow>
-        {new Date().toLocaleDateString("en-US", {
-          weekday: "long",
-          month: "long",
-          day: "numeric",
-        })}
-      </Eyebrow>
-      <Title>My Possibilities</Title>
-      <Eyebrow>Your why, and strengths</Eyebrow>
+        },
+        (e) => {
+          if (active) setIdeasError(e.message);
+        },
+      )
+      .finally(() => {
+        if (active) setIdeasLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [selected, step, retry, requestedStep]);
+  const options = missionTrio(missions, offset);
+  const mission =
+    options.find((m) => m.id === missionId) ||
+    options.find((m) => m.size === "Normal");
+  const openAction = () => {
+    if (!selected || !mission) return;
+    const entry = selected;
+    setSelected(null);
+    router.push({
+      pathname: "/ritual",
+      params: {
+        day: today,
+        action: mission.mission_text,
+        interest: entry.kind === "interest" ? entry.title : "",
+        value: entry.kind !== "interest" ? entry.title : "",
+        planet: mission.area,
+        mission_id: mission.id,
+        mission_step: String(mission.ladder_step),
+        from_map: "1",
+      },
+    });
+  };
+  const current = data.intentions.find((i) => i.day === today);
+  const completed =
+    !!current && data.checkIns.some((c) => c.intention_id === current.id);
+  return (
+    <Page header={<TopBar back={false} title="iwillbe.me" />}>
+      <Eyebrow>What matters. What’s next.</Eyebrow>
+      <Title>My map</Title>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Open my why"
-        style={[s.card, { backgroundColor: C.soft }]}
+        accessibilityLabel="Shape my why"
         onPress={() => router.push("/why")}
+        style={s.card}
       >
-        <Body style={{ color: C.gold, fontStyle: "italic" }}>
-          {why?.body || "Your why is still forming. Start with what draws you."}
+        <Eyebrow>MY WHY</Eyebrow>
+        <Body numberOfLines={2}>
+          {why?.body || "Still forming. Your choices will help it take shape."}
         </Body>
+        <Body style={{ color: C.gold }}>Shape my why →</Body>
       </Pressable>
-      {!why && threads.length ? (
-        <Body style={{ fontSize: 13 }}>
-          Emerging threads: {threads.map((e) => e.title).join(" · ")}
-        </Body>
-      ) : null}
-      {strengths.length ? (
-        <View style={s.wrap}>
-          {strengths.map((e) => (
-            <Chip
-              key={e.id}
-              label={e.title}
-              onPress={() => {
-                setLayer(e.kind === "value" ? "value" : "strength");
-                setSelected(e);
-              }}
-            />
-          ))}
-        </View>
-      ) : null}
-      {pattern ? <Body>{pattern}</Body> : null}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: 8 }}
-        style={{ flexGrow: 0, flexShrink: 0 }}
-      >
-        {layers.map(([kind, label]) => (
-          <Chip
-            key={kind}
-            label={label}
-            selected={layer === kind}
-            onPress={() => setLayer(kind)}
-          />
-        ))}
-      </ScrollView>
-      {!items.length ? (
-        <View style={s.card}>
-          <Title style={{ fontSize: 23, lineHeight: 30 }}>
-            Room for something new.
-          </Title>
-          <Body>
-            {layer === "interest"
-              ? "A curiosity is enough to begin. You do not need to have tried it."
-              : "Add something you recognise in yourself. Chloe never decides this for you."}
-          </Body>
-        </View>
-      ) : null}
       <View style={s.wrap}>
-        <Chip label="+ Add something" onPress={() => setAdding(true)} />
-        <Chip label="+ Possibility" onPress={() => router.push("/explore")} />
+        <Chip
+          label="Interests"
+          selected={layer === "interest"}
+          onPress={() => setLayer("interest")}
+        />
+        <Chip
+          label="Priorities"
+          selected={layer === "value"}
+          onPress={() => setLayer("value")}
+        />
       </View>
-      <Eyebrow>{layers.find((l) => l[0] === layer)?.[1]}</Eyebrow>
-      {items.map((e) => (
-        <Pressable
-          key={e.id}
-          accessibilityRole="button"
-          accessibilityLabel={`${e.title} · ${state(e)}`}
-          onPress={() => setSelected(e)}
-          style={[
-            s.card,
-            state(e) === "Maybe" && {
-              borderStyle: "dashed",
-              borderColor: C.muted,
-              backgroundColor: "transparent",
-            },
-            ["Into it", "All in"].includes(state(e)) && {
-              backgroundColor: C.navy,
-              borderColor: C.navy,
-            },
-            ["On pause", "Let go"].includes(state(e)) && {
-              backgroundColor: C.paper,
-            },
-          ]}
-        >
-          <View style={[s.row, { justifyContent: "space-between" }]}>
-            <Body
-              style={{
-                color: ["Into it", "All in"].includes(state(e))
-                  ? C.paper
-                  : C.navy,
-                flex: 1,
-              }}
-            >
-              {e.title}
-            </Body>
-            <Body
-              style={{
-                color: ["Into it", "All in"].includes(state(e))
-                  ? C.paper
-                  : colors[state(e)] || C.gold,
-                fontSize: 13,
-              }}
-            >
-              {state(e)}
-            </Body>
+      <Body>Tap a word for something you can do today.</Body>
+      {!items.length && (
+        <Body>
+          {layer === "interest"
+            ? "Add something you’re curious about. We’ll help you find a first step."
+            : "Add a priority you want to live, or start with your map’s quick picks."}
+        </Body>
+      )}
+      {(layer === "interest"
+        ? stages
+        : ["Working on", "Important to me", "Let go"]
+      ).map((group) => {
+        const grouped = items.filter((e) => state(e) === group);
+        if (!grouped.length) return null;
+        const collapsed = group === "On pause" || group === "Let go";
+        return (
+          <View key={group} style={{ gap: 12, marginTop: 12 }}>
+            {collapsed ? (
+              <TextButton
+                label={`${group} (${grouped.length})`}
+                onPress={() => setPaused(!paused)}
+              />
+            ) : (
+              <Eyebrow style={{ color: "#5C5850", fontFamily: F.strong }}>
+                {group}
+              </Eyebrow>
+            )}
+            {(!collapsed || paused) && (
+              <View
+                style={{
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  columnGap: 4,
+                }}
+              >
+                {grouped.map((entry, i) => (
+                  <React.Fragment key={entry.id}>
+                    {i > 0 && (
+                      <Text style={{ fontSize: 20, color: "#C9C5BC" }}>
+                        {" "}
+                        ·{" "}
+                      </Text>
+                    )}
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`${entry.title} · ${group}`}
+                      onPress={() => {
+                        setError("");
+                        openEntry(entry);
+                      }}
+                      style={{ minHeight: 44, justifyContent: "center" }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 20,
+                          lineHeight: 30,
+                          fontFamily:
+                            group === "Maybe"
+                              ? F.sans
+                              : ["Into it", "All in", "Working on"].includes(
+                                    group,
+                                  )
+                                ? F.bold
+                                : F.medium,
+                          color:
+                            group === "Maybe"
+                              ? "#8A857B"
+                              : group === "All in"
+                                ? C.gold
+                                : C.navy,
+                          borderBottomWidth: group === "Into it" ? 3 : 0,
+                          borderBottomColor: C.gold,
+                        }}
+                      >
+                        {entry.title}
+                      </Text>
+                    </Pressable>
+                  </React.Fragment>
+                ))}
+              </View>
+            )}
           </View>
-          <Body
-            style={{
-              fontSize: 12,
-              color: ["Into it", "All in"].includes(state(e)) ? C.paper : C.ink,
-            }}
-          >
-            {e.body || e.source}
-          </Body>
-        </Pressable>
-      ))}
+        );
+      })}
       <TextButton
-        label="My practices and history"
-        onPress={() => router.push("/history")}
+        label="+ Add to my map"
+        color={C.gold}
+        onPress={() => {
+          setName("");
+          setError("");
+          setAdding(true);
+        }}
       />
-      <Button label="Try one today" onPress={() => router.push("/ritual")} />
-      <TextButton
-        label="The people I show up for"
-        onPress={() => router.push("/connections")}
-      />
-      <TextButton
-        label="One year out and Later in life"
-        onPress={() => router.push("/telescope")}
-      />
-      <TextButton
-        label="My rhythms and open questions"
-        onPress={() => router.push("/rhythms")}
-      />
+      <View style={s.section}>
+        <TextButton
+          label="People I admire, habits and history"
+          onPress={() => router.push("/history")}
+        />
+        <TextButton
+          label="One year out and Later in life"
+          onPress={() => router.push("/telescope")}
+        />
+        <TextButton
+          label="Meaning To and Open Questions"
+          onPress={() => router.push("/rhythms")}
+        />
+      </View>
       <Sheet
         open={adding}
         onClose={() => setAdding(false)}
-        title={`Add ${layer === "interest" ? "a possibility" : layer === "person" ? "someone I admire" : layer === "value" ? "a value" : layer === "practice" ? "a practice" : "a strength"}`}
+        title={
+          layer === "interest"
+            ? "What would you like to explore?"
+            : "Who do you want to be?"
+        }
       >
         <Field
-          label="Name"
+          label={layer === "interest" ? "An interest" : "A priority"}
           value={name}
           onChangeText={setName}
           maxLength={80}
+          placeholder={
+            layer === "interest" ? "e.g. learning guitar" : "e.g. patient"
+          }
         />
-        <Body>
-          {layer === "person"
-            ? "Keep what you admire about them next to your why."
-            : "Your choice is a starting point. Your lived experience adds detail over time."}
-        </Body>
-        {layer === "person" || layer === "practice" ? (
-          <Field
-            label={
-              layer === "person"
-                ? "What exactly do you admire about them?"
-                : "How does this support your why?"
-            }
-            multiline
-            value={detail}
-            onChangeText={setDetail}
-            maxLength={1000}
-          />
-        ) : null}
         <Button
-          label="Keep this"
-          disabled={!name.trim() || (layer === "person" && !detail.trim())}
+          label="Add to my map"
+          disabled={!name.trim()}
+          loading={busy}
           onPress={() =>
-            save(
-              entryInput(
-                layer === "practice" ? "interest" : layer,
-                name.trim(),
-                {
-                  body: detail.trim(),
-                  state:
-                    layer === "interest"
-                      ? "spark"
-                      : layer === "value"
-                        ? "trying"
-                        : "active",
-                  meta: layer === "practice" ? { category: "practice" } : {},
-                },
-              ),
-            )
+            run(async () => {
+              const title =
+                layer === "interest" ? missionTag(name) : priorityName(name);
+              const known = data.entries.find(
+                (e) =>
+                  e.kind === layer && missionTag(e.title) === missionTag(title),
+              );
+              const entry =
+                known ||
+                (await putEntry(
+                  entryInput(layer, title, {
+                    state: layer === "interest" ? "spark" : "working_on",
+                    meta: { ladder_step: 1 },
+                  }),
+                ));
+              setAdding(false);
+              openEntry(entry);
+            })
           }
         />
         <Notice text={error} tone="error" />
@@ -328,130 +363,164 @@ function Possibilities() {
       <Sheet
         open={!!selected}
         onClose={() => setSelected(null)}
-        title={selected?.title || ""}
+        title="Your next step"
       >
-        {selected ? (
+        {selected && (
           <>
-            <Eyebrow>{state(selected)}</Eyebrow>
-            <Body>{selected.body || selected.source}</Body>
-            <Body style={{ fontSize: 13 }}>
-              {layer === "interest"
-                ? "Follow what draws you, try it in real life, and notice what keeps lighting you up. On pause stays part of your story."
-                : layer === "value"
-                  ? "Try it on, choose what feels like yours, and let go of what does not."
-                  : "A part of your story."}
+            <IWillBe>{selected.title}</IWillBe>
+            <Body>
+              {state(selected)} · step{" "}
+              {mission?.ladder_step || requestedStep || step} of 5
             </Body>
-            {moments.map((i) => (
-              <View key={i.id} style={s.section}>
-                <Body>{i.action}</Body>
-                <Body style={{ fontSize: 12 }}>
-                  {dayLabel(i.day)} ·{" "}
-                  {data.checkIns.find((c) => c.intention_id === i.id)?.energy ||
-                    "No energy noted"}
-                </Body>
-                <TextButton
-                  label="Open this moment"
-                  onPress={() => {
-                    setSelected(null);
-                    router.push({ pathname: "/history", params: { id: i.id } });
-                  }}
-                />
-              </View>
-            ))}
-            {layer !== "person" && layer !== "strength" ? (
-              <Button
-                label="Try this next"
+            {ideasLoading ? (
+              <Body>Finding a few ideas…</Body>
+            ) : (
+              <MissionCards
+                missions={options}
+                selected={mission?.id || ""}
+                onSelect={(m) => setMissionId(m.id)}
+              />
+            )}
+            <Notice text={ideasError} tone="error" />
+            {ideasError && (
+              <TextButton
+                label="Try loading ideas again"
                 onPress={() => {
-                  setSelected(null);
-                  router.push({
-                    pathname: "/ritual",
-                    params: {
-                      day: nextIntentionDay(data, today),
-                      [layer === "interest" || layer === "practice"
-                        ? "interest"
-                        : layer === "value"
-                          ? "value"
-                          : "person"]: selected.title,
-                    },
-                  });
+                  setIdeasLoading(true);
+                  setIdeasError("");
+                  setRetry(retry + 1);
                 }}
               />
-            ) : null}
-            {layer === "interest" ? (
+            )}
+            {completed ? (
+              <Body>
+                You’ve reflected on today’s action. Come back tomorrow for a
+                fresh one.
+              </Body>
+            ) : replace ? (
               <>
-                {state(selected) === "All in" ||
-                allInEligible(data, selected, today) ? (
-                  <Button
-                    secondary
-                    label={
-                      state(selected) === "All in"
-                        ? "Return to exploring"
-                        : "Go all in"
-                    }
+                <Title style={{ fontSize: 24 }}>Replace today’s action?</Title>
+                <Body>{current?.action}</Body>
+                <Button label="Replace and choose when" onPress={openAction} />
+                <TextButton
+                  label="Keep today’s action"
+                  onPress={() => setReplace(false)}
+                />
+              </>
+            ) : (
+              <Button
+                label="Make this today’s action"
+                disabled={!mission || ideasLoading}
+                onPress={() => (current ? setReplace(true) : openAction())}
+              />
+            )}
+            <TextButton
+              label="Write my own action"
+              onPress={() => {
+                const entry = selected;
+                setSelected(null);
+                router.push({
+                  pathname: "/ritual",
+                  params: {
+                    [entry.kind === "interest" ? "interest" : "value"]:
+                      entry.title,
+                  },
+                });
+              }}
+            />
+            <TextButton
+              label="Show other ideas"
+              onPress={() => {
+                if (missions.length > 3) {
+                  setOffset(offset + 1);
+                  setMissionId("");
+                } else {
+                  setIdeasLoading(true);
+                  setIdeasError("");
+                  setRequestedStep(Math.min(5, (requestedStep || step) + 1));
+                  setRetry(retry + 1);
+                }
+              }}
+            />
+            <TextButton label="Move stage" onPress={() => setMove(!move)} />
+            {move && (
+              <View style={s.wrap}>
+                {(selected.kind === "interest"
+                  ? stages.slice(0, 4)
+                  : ["Working on", "Important to me", "Let go"]
+                ).map((label) => (
+                  <Chip
+                    key={label}
+                    label={label}
+                    selected={state(selected) === label}
+                    disabled={busy}
                     onPress={() =>
-                      save({
-                        ...selected,
-                        state: state(selected) === "All in" ? "love" : "craft",
+                      run(async () => {
+                        await putEntry({
+                          ...selected,
+                          kind:
+                            selected.kind === "strength"
+                              ? "value"
+                              : selected.kind,
+                          state: stageValues[label],
+                        });
+                        setSelected(null);
                       })
                     }
                   />
-                ) : null}
-                <TextButton
-                  label={
-                    state(selected) === "On pause"
-                      ? "Explore this again"
-                      : "Put this on pause"
-                  }
-                  onPress={() =>
-                    save({
+                ))}
+              </View>
+            )}
+            {selected.kind === "interest" && (
+              <TextButton
+                label={
+                  state(selected) === "On pause"
+                    ? "Resume exploring"
+                    : "Put on pause"
+                }
+                onPress={() =>
+                  run(async () => {
+                    await putEntry({
                       ...selected,
                       state:
                         state(selected) === "On pause"
-                          ? selected.meta.previous_state === "craft"
-                            ? "love"
-                            : selected.meta.previous_state || "spark"
-                          : "ember",
+                          ? selected.meta.previous_state || "spark"
+                          : "paused",
                       meta: {
                         ...selected.meta,
                         previous_state: selected.state,
                       },
+                    });
+                    setSelected(null);
+                  })
+                }
+              />
+            )}
+            <TextButton label="Remove" onPress={() => setRemove(true)} />
+            {remove && (
+              <>
+                <Body>
+                  Remove this from your map? Your past actions will stay in your
+                  history.
+                </Body>
+                <Button
+                  secondary
+                  label="Remove from my map"
+                  loading={busy}
+                  onPress={() =>
+                    run(async () => {
+                      await removeEntry(selected.id, selected.revision);
+                      setSelected(null);
                     })
                   }
                 />
               </>
-            ) : null}
-            {layer === "value" ? (
-              <TextButton
-                label={
-                  state(selected) === "Let go"
-                    ? "Try this on again"
-                    : "Let this value go"
-                }
-                onPress={() =>
-                  save({
-                    ...selected,
-                    state: state(selected) === "Let go" ? "trying" : "let_go",
-                  })
-                }
-              />
-            ) : null}
-            <TextButton
-              label="Remove this"
-              onPress={async () => {
-                try {
-                  await removeEntry(selected.id);
-                  setSelected(null);
-                } catch (e) {
-                  setError((e as Error).message);
-                }
-              }}
-            />
+            )}
             <Notice text={error} tone="error" />
           </>
-        ) : null}
+        )}
       </Sheet>
     </Page>
   );
 }
-
-export default withAccount(Possibilities);
+export default withAccount(MyMap);

@@ -65,6 +65,10 @@ type Context = {
         | "place"
         | "with_person"
         | "revision"
+        | "for_whom"
+        | "for_me"
+        | "mission_id"
+        | "mission_step"
       >
     >,
   ) => Promise<void>;

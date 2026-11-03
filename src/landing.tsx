@@ -21,7 +21,7 @@ const slides = [
     body: "A small daily practice to find your why and live it. Chloe helps you choose one thing that matters today, then gets you off the screen.",
   },
   {
-    label: "A FEW MINUTES, THEN GO LIVE",
+    label: "CHOOSE, THEN GO LIVE",
     title: "One intention.\nA real day.",
     body: "Choose one small “I will” in the morning. Come back at night to notice how it went. No streaks, no score, no catching up.",
   },
@@ -33,7 +33,7 @@ const slides = [
   {
     label: "YOUR FIRST SMALL STEP",
     title: "I will be\nmore me.",
-    body: "You don’t need all the answers. Create your account, then meet Chloe for a gentle first session. About five minutes, at your pace.",
+    body: "You don’t need all the answers. Create your account, then meet Chloe for a gentle first session. At your pace.",
   },
 ];
 
@@ -86,7 +86,7 @@ function Example({ step }: { step: number }) {
         <View style={styles.columns}>
           {[
             ["MAYBE", "Gardening"],
-            ["TRIED IT", "A pottery class"],
+            ["WANT TO TRY", "A pottery class"],
             ["INTO IT", "Cooking"],
           ].map(([label, activity], i) => (
             <View
@@ -127,8 +127,8 @@ function Example({ step }: { step: number }) {
         ],
         [
           "02",
-          "Find your possibilities",
-          "A few picture picks and short stories. Skip any question.",
+          "Start your map",
+          "Interest picks and short stories. Skip any question.",
         ],
         ["03", "Choose one thing", "Take one small commitment into your day."],
       ].map(([number, title, detail]) => (
