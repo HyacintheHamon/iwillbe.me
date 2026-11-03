@@ -13,7 +13,7 @@ This change addresses the post-sign-up feedback: users could see interests but c
 
 ## Data and compatibility
 
-Migration `20261103144719_beta_action_library.sql` is additive. Existing journey IDs, revision checks, reflections and account ownership remain canonical. `priorities` and `user_interests` are security-invoker **views** over that data, rather than a second mutable copy. Old `value`/`strength` storage names remain internal for compatibility; the UI presents priorities. New catalogues and per-user history have explicit grants and row-level security. Private generated missions, faith tradition and history are deleted with the account.
+Migration `20261103153554_beta_action_library.sql` is additive. Existing journey IDs, revision checks, reflections and account ownership remain canonical. `priorities` and `user_interests` are security-invoker **views** over that data, rather than a second mutable copy. Old `value`/`strength` storage names remain internal for compatibility; the UI presents priorities. New catalogues and per-user history have explicit grants and row-level security. Private generated missions, faith tradition and history are deleted with the account.
 
 The supplied night-thought PDF contains 209 entries. All are retained with source links and verification notes; 200 are eligible. Nine entries marked “Verified with caveat” are held as `needs_check` (50, 69, 73, 90, 96, 97, 105, 114, 142). “Verified with correction” entries remain eligible. The import preserves the source's verification claims; this implementation does not independently reverify every citation.
 
@@ -34,13 +34,15 @@ Do not commit service-role keys or generated personal content.
 
 ## Release sequence and remaining checks
 
-1. Review and apply the additive migration to the intended Supabase environment.
+1. Done on 3 November 2026: the additive migration is applied to `mvhqovdznrzoduntyryh` (iwillbe.me), version `20261103153554`. The filename matches the server-assigned history version; the SQL is unchanged from the reviewed candidate.
 2. Deploy `chloe` after the migration; retain the existing Anthropic secret/model configuration.
 3. Publish the matching frontend build. The client needs the new catalogue RPC and commitment columns.
 4. Apply the email templates and configure a verified custom SMTP sender named `iwillbe.me`. Templates alone cannot change the hosted Supabase sender. No SMTP credential or verified sending domain was supplied.
 5. Import the 692-row sheet when available. Test real sign-in, a complete onboarding, map → action → Today, night completion and custom-interest AI generation on Android Chrome and iOS Safari.
 
-No production migration, function deployment, SMTP change or frontend publication is performed by this PR.
+The database migration is applied. Live checks confirm 159 missions, 38 priorities, 15 quick picks and 209 night thoughts (200 eligible), RLS on all new tables and security-invoker views. Existing profile, intention, reflection, message and journey row counts are unchanged. Authenticated-role read/privilege checks pass. Security advisors report no new findings. The pre-existing leaked-password-protection warning remains; see [Supabase password security](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection). The two existing server-only tables without client policies retain their deliberate denial of client access.
+
+The owner authorized direct pushes to `main` for this repository. Function deployment, SMTP setup and frontend publication are separate from this database/code update and have not been performed.
 
 ## Verification
 

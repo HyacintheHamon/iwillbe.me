@@ -6,6 +6,13 @@ The implementation follows the Chloe brief supplied on **26 October 2026**: purp
 
 The [26 October follow-through release note](docs/releases/2026-10-26-followthrough.md) records the original implementation checkpoint. See the [29 October release update](docs/releases/2026-10-29-beta-entry.md) for the applied revision migration and current verification scope. Chloe v8 is active in Supabase.
 
+
+## 3 November beta update
+
+The current code adds action suggestions from My map, the Inter/orange design, 15 quick picks, 38 priorities and the updated Chloe/night-thought flow. [Implementation and release notes](docs/beta-feedback-2026-11.md) are authoritative for this update; the older release details below describe previous checkpoints.
+
+Migration `20261103153554_beta_action_library.sql` is applied to the connected iwillbe.me Supabase project and verified. All nine repository migration versions now match the remote history. Code is pushed directly to `main` as authorized by the owner. Deploy the matching `chloe` function and frontend before treating the new experience as published; SMTP setup and the full 692-mission spreadsheet remain outstanding.
+
 ## October 29 entry update
 
 The [neutral beta entry release note](docs/releases/2026-10-29-beta-entry.md) describes the four-panel introduction and required sign-in before personal questions. Existing guest data remains available for explicit account import. The revision migration is applied and its transactional live checks pass; real email/callback verification remains outstanding before external beta testing.
