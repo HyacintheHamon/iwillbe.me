@@ -5,7 +5,9 @@ dist/
 .git/
 docs/
 test-results/
-supabase/
+# Edge Function shared modules are also imported by the web client.
+supabase/migrations/
+supabase/templates/
 tests/
 ios/
 android/
