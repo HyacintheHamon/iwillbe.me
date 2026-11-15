@@ -15,4 +15,4 @@ These files do not update Supabase's hosted Auth configuration when Vercel build
 | Change email | Confirm your email change for iwillbe.me | `supabase/templates/email_change.html` |
 | Reset password | Reset your iwillbe.me password | `supabase/templates/recovery.html` |
 
-Hosted activation is pending dashboard access. The dashboard required sign-in and the secure sign-in attempt did not establish a session. No email was sent, no sender settings were changed, and live delivery has not been verified.
+Hosted activation completed on 2026-11-15 in the production project `mvhqovdznrzoduntyryh`. All four subjects and HTML bodies were saved through the Supabase dashboard. Each template was reloaded, its branded preview checked, and the persisted HTML body compared with the corresponding repository template; all four matched, including `{{ .ConfirmationURL }}`. The sender, SMTP, redirect, authentication and notification settings were left unchanged. No email was sent, and live delivery has not been verified.
