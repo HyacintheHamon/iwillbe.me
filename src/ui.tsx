@@ -26,15 +26,15 @@ import { ChatCircleIcon } from "phosphor-react-native/src/icons/ChatCircle";
 import { XIcon as X } from "phosphor-react-native/src/icons/X";
 import { router } from "expo-router";
 export const C = {
-  soft: "#F8EAE2",
-  paper: "#F7F6F2",
-  navy: "#121212",
-  ink: "#121212",
+  soft: "#FFF1E6",
+  paper: "#FAF8F5",
+  navy: "#141414",
+  ink: "#141414",
   gold: "#C2410C",
   goldDecorative: "#C2410C",
   goldLight: "#C2410C",
   line: "#E2DED5",
-  muted: "#8A857B",
+  muted: "#77716A",
   white: "#FFFFFF",
   blue: "#436578",
   clay: "#946451",
@@ -205,7 +205,7 @@ export function Chip({
       style={[
         s.chip,
         disabled && { opacity: 0.55 },
-        selected && { borderColor: C.gold, backgroundColor: "#F8EAE2" },
+        selected && { borderColor: C.gold, backgroundColor: "#FFF1E6" },
       ]}
     >
       {selected && <Check size={15} color={C.gold} />}
@@ -342,7 +342,7 @@ export function ChloeMark({ small = false }: { small?: boolean }) {
   return (
     <View
       style={{
-        backgroundColor: "#F8EAE2",
+        backgroundColor: "#FFF1E6",
         padding: small ? 6 : 12,
         borderRadius: 40,
         alignSelf: "flex-start",
@@ -357,11 +357,13 @@ export function Sheet({
   onClose,
   title,
   children,
+  footer,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  footer?: React.ReactNode;
 }) {
   return (
     <Modal
@@ -420,17 +422,18 @@ export function Sheet({
           >
             {children}
           </ScrollView>
+          {footer && <View style={{ paddingTop: 12, gap: 8 }}>{footer}</View>}
         </View>
       </View>
     </Modal>
   );
 }
 export const s = StyleSheet.create({
-  body: { fontFamily: F.sans, fontSize: 17, lineHeight: 25.5, color: C.ink },
+  body: { fontFamily: F.sans, fontSize: 16, lineHeight: 24, color: C.ink },
   title: {
     fontFamily: F.serif,
-    fontSize: 32,
-    lineHeight: 35.2,
+    fontSize: 28,
+    lineHeight: 34,
     color: C.navy,
     letterSpacing: -0.64,
   },
@@ -450,7 +453,7 @@ export const s = StyleSheet.create({
     borderColor: C.line,
     backgroundColor: C.paper,
   },
-  page: { padding: 24, paddingBottom: 36, gap: 32 },
+  page: { padding: 16, paddingBottom: 28, gap: 20 },
   button: {
     minHeight: 56,
     borderRadius: 30,
@@ -525,7 +528,7 @@ export const s = StyleSheet.create({
   },
   row: { flexDirection: "row", alignItems: "center", gap: 12 },
   wrap: { flexDirection: "row", flexWrap: "wrap", gap: 9 },
-  section: { borderTopWidth: 1, borderColor: C.line, paddingTop: 32, gap: 32 },
+  section: { borderTopWidth: 1, borderColor: C.line, paddingTop: 20, gap: 20 },
   card: {
     backgroundColor: C.white,
     padding: 22,

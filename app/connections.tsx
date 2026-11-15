@@ -190,12 +190,12 @@ function Connections() {
         <View key={item.id} style={s.card}>
           <Eyebrow>
             {item.friend_name
-              ? `A Maybe from ${item.friend_name}`
+              ? `An interest from ${item.friend_name}`
               : "A friend’s suggestion"}
           </Eyebrow>
           <Body>{item.content}</Body>
           <Button
-            label="Keep as a Maybe"
+            label="Keep as Want to try"
             onPress={() =>
               action.run(async () => {
                 await putEntry(

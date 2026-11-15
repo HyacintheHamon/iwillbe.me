@@ -53,9 +53,9 @@ export function recordSummary(row: Record<string, unknown> | null): string {
   const state =
     entry.kind === "interest"
       ? named(entry.state, {
-          spark: "Maybe",
-          maybe: "Maybe",
-          unconfirmed: "Maybe",
+          spark: "Want to try",
+          maybe: "Want to try",
+          unconfirmed: "Want to try",
           tried: "Tried it",
           love: "Into it",
           into_it: "Into it",

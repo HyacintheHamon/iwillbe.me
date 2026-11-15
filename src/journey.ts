@@ -79,6 +79,7 @@ export type Entry = {
     last_insight_at?: string;
     carried_question_id?: string;
     carried_question_day?: string;
+    last_stage_asked_day?: string;
   };
 };
 export type EntryInput = Omit<Entry, "id" | "created_at" | "updated_at"> & {
@@ -111,13 +112,14 @@ export function currentWhy(p: Practice) {
 export function interestState(
   p: Practice,
   e: Entry,
-): "Maybe" | "Want to try" | "Into it" | "On pause" | "All in" {
+): "Want to try" | "From time to time" | "Into it" | "On pause" | "All in" {
   if (["craft", "all_in"].includes(e.state)) return "All in";
   if (["ember", "paused", "on_pause"].includes(e.state)) return "On pause";
   // Stage is always an explicit user choice. Completion advances the ladder only.
   if (["love", "into_it"].includes(e.state)) return "Into it";
-  if (["tried", "want_to_try"].includes(e.state)) return "Want to try";
-  return "Maybe";
+  if (["tried", "from_time_to_time"].includes(e.state))
+    return "From time to time";
+  return "Want to try";
 }
 export function allInEligible(p: Practice, e: Entry, day: string) {
   if (interestState(p, e) !== "Into it") return false;

@@ -54,7 +54,7 @@
     "preview": "node scripts/preview.mjs",
     "test:entry": "node scripts/verify-entry.mjs",
     "missions:import": "node --import tsx scripts/import-missions.ts",
-    "test:database": "node scripts/verify-database.mjs",
+    "test:database": "node scripts/verify-round2-database.mjs",
     "test:browser:legacy": "node scripts/verify-entry.mjs && node scripts/verify-ui.mjs && node scripts/verify-guidance.mjs && node scripts/verify-onboarding.mjs && node scripts/verify-chloe.mjs && node scripts/verify-sync.mjs && node scripts/verify-auth.mjs"
   },
   "private": true

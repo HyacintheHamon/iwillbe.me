@@ -1,34 +1,32 @@
-import { withAccount } from "../src/access-gate";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { router } from "expo-router";
+import { withAccount } from "../src/access-gate";
 import { usePractice } from "../src/practice";
-import {
-  currentVision,
-  currentWhy,
-  entriesOf,
-  entryInput,
-  rhythmDue,
-  PLANETS,
-  nextWhyQuestion,
-  suggestedPlanet,
-  weeklyNotices,
-  weekPeriod,
-  whyRevisitDue,
-  type Planet,
-} from "../src/journey";
-import { shiftDay } from "../src/domain";
+import { useRound2 } from "../src/round2-store";
 import { useToday } from "../src/use-today";
 import { useAction } from "../src/use-action";
-import { draftKey, useDraft } from "../src/drafts";
-import { weeklyPossibility } from "../src/guidance";
-import { POSSIBILITIES } from "../src/catalog";
-import { isUnreadyAnswer } from "../src/onboarding";
+import {
+  currentVision,
+  entryInput,
+  interestState,
+  weekPeriod,
+  REVIEW_QUESTIONS,
+} from "../src/journey";
+import {
+  livedFocuses,
+  seasonalSunday,
+  similarInterests,
+  priorityOptions,
+  isHardDay,
+  pickMission,
+  type MomentType,
+} from "../src/round2";
 import {
   Body,
   Button,
   Chip,
-  Eyebrow,
+  C,
   Field,
   Notice,
   Page,
@@ -37,684 +35,558 @@ import {
   TopBar,
   s,
 } from "../src/ui";
-
+import { supabase } from "../src/supabase";
+type Review = {
+  intro: string;
+  pattern: string;
+  reflection: string;
+  moment: MomentType | null;
+  question?: string;
+  target_id?: string;
+};
 function Rhythms() {
-  const { data } = usePractice();
-  const due = rhythmDue(data);
-  const [mode, setMode] = useState<"weekly" | "monthly">(
-    due?.kind === "monthly" ? "monthly" : "weekly",
-  );
-  return <RhythmForm key={mode} mode={mode} setMode={setMode} />;
-}
-function RhythmForm({
-  mode,
-  setMode,
-}: {
-  mode: "weekly" | "monthly";
-  setMode: (mode: "weekly" | "monthly") => void;
-}) {
-  const { data, session, putEntry, removeEntry } = usePractice();
+  const { data, putEntry } = usePractice();
+  const extra = useRound2();
   const today = useToday();
-  const monthly = mode === "monthly";
-  const period = monthly ? `moon:${today.slice(0, 7)}` : weekPeriod(today);
-  const prior = entriesOf(data, "review").find((e) => e.meta.period === period);
-  const [question] = useState(() => nextWhyQuestion(data, today));
-  const priorThought = entriesOf(data, "story").find(
-    (e) => e.title === question && e.meta.period === period,
-  );
-  const priorFocus = entriesOf(data, "preferences").find(
-    (e) => e.title === "Weekly focus",
-  );
   const action = useAction();
-  const [message, setMessage] = useState(""),
-    [backlog, setBacklog] = useState("");
-  const [showTools, setShowTools] = useState(false);
-  const { draft, update, ready, draftError } = useDraft(
-    draftKey(`brief.review.${period}`, session?.user.id),
-    {
-      step: prior?.state === "done" ? 3 : 0,
-      note: prior?.body || "",
-      focus: suggestedPlanet(data, shiftDay(today, 1)),
-      picture: "",
-      storyId: priorThought?.id || "",
-      storyRevision: priorThought?.revision ?? 0,
-      reviewId: prior?.id || "",
-      reviewRevision: prior?.revision ?? 0,
-      focusId: priorFocus?.id || "",
-      focusRevision: priorFocus?.revision ?? 0,
-    },
-  );
-  const notices = weeklyNotices(data, today);
-  const season = entriesOf(data, "preferences").find(
-    (e) => e.title === "Season",
-  );
-  const year = currentVision(data, "year");
-  const why = currentWhy(data);
-  const suggestion = weeklyPossibility(data, today, POSSIBILITIES);
-  const saveSeason = (
-    pace: "stay" | "vary" | "guide",
-    orbit: Planet = season?.meta.orbit || "Be",
-  ) =>
+  const [mode, setMode] = useState<"weekly" | "monthly">("weekly"),
+    [step, setStep] = useState(0),
+    [review, setReview] = useState<Review | null>(null),
+    [note, setNote] = useState(""),
+    [focus, setFocus] = useState(""),
+    [keep, setKeep] = useState(""),
+    [explore, setExplore] = useState(""),
+    [answers, setAnswers] = useState<(number | null)[]>([null, null, null]),
+    [comparison, setComparison] = useState(false),
+    [backlog, setBacklog] = useState(""),
+    [showTools, setShowTools] = useState(false),
+    [reviewError, setReviewError] = useState("");
+  const season = seasonalSunday(today);
+  const lived = livedFocuses(data, today);
+  const suggestions = similarInterests(data);
+  const priorities = priorityOptions(data);
+  const period =
+    mode === "weekly" ? weekPeriod(today) : `moon:${today.slice(0, 7)}`;
+  const hard = extra.summaries[0]?.hard_day || isHardDay(note);
+  const moment = hard ? null : review?.moment;
+  const target = data.entries.find((e) => e.id === review?.target_id);
+  const firstStep = target
+    ? pickMission(
+        data,
+        priorities[0] || "",
+        target.title,
+        "interest",
+        "easy",
+        "do",
+        today,
+      )
+    : undefined;
+  useEffect(() => {
+    let active = true;
+    if (mode === "weekly")
+      void supabase.functions
+        .invoke("chloe", { body: { action: "round2_review", day: today } })
+        .then((r) => {
+          if (!active) return;
+          if (r.error || r.data?.error)
+            setReviewError(
+              "Chloe’s reflection could not load. Your saved actions are still here.",
+            );
+          else setReview(r.data);
+        });
+    return () => {
+      active = false;
+    };
+  }, [mode, today]);
+  const done = () =>
     action.run(async () => {
-      await putEntry(
-        entryInput("preferences", "Season", {
-          id: season?.id,
-          meta: { ...season?.meta, pace, orbit },
-        }),
+      const old = data.entries.find(
+        (e) => e.kind === "review" && e.meta.period === period,
       );
-    });
-  const saveQuestion = (skip = false) =>
-    action.run(async () => {
-      let savedStory = {
-        storyId: draft.storyId,
-        storyRevision: draft.storyRevision,
-      };
-      if (skip || isUnreadyAnswer(draft.note)) {
-        const existing = entriesOf(data, "question").find(
-          (e) => e.title === question,
+      await putEntry(
+        entryInput(
+          "review",
+          mode === "weekly" ? "Sunday review" : "Monthly check-in",
+          {
+            id: old?.id,
+            revision: old?.revision,
+            body: note,
+            state: "done",
+            meta: { period, answers: mode === "monthly" ? answers : undefined },
+          },
+        ),
+      );
+      if (focus) {
+        const oldFocus = data.entries.find(
+          (e) => e.kind === "preferences" && e.title === "Weekly priority",
         );
-        if (question && existing?.state !== "stopped")
-          await putEntry(
-            entryInput("question", question, {
-              id: existing?.id,
-              state: "open",
-              source: "Sunday Explore · left to sit",
-              meta: {
-                last_asked_at: new Date().toISOString(),
-                last_asked_session: period,
-              },
-            }),
-          );
-        setMessage("Let it sit with you. We can come back to it another time.");
-      } else {
-        const existing = entriesOf(data, "story").find(
-          (e) => e.title === question && e.meta.period === period,
-        );
-        const story = await putEntry(
-          entryInput("story", question || "A thought from Sunday", {
-            id: draft.storyId || existing?.id,
-            revision: draft.storyRevision,
-            body: draft.note.trim(),
-            source: "Sunday Explore · in your words",
+        await putEntry(
+          entryInput("preferences", "Weekly priority", {
+            id: oldFocus?.id,
+            revision: oldFocus?.revision,
+            body: focus,
             meta: { period },
           }),
         );
-        savedStory = { storyId: story.id, storyRevision: story.revision ?? 0 };
       }
-      update({
-        ...savedStory,
-        step: 2,
-        focus:
-          suggestion?.planet && suggestion.planet !== "Surprise"
-            ? suggestion.planet
-            : draft.focus,
-      });
+      setStep(6);
     });
-  const finish = () =>
+  const saveReflection = () =>
     action.run(async () => {
-      const review = await putEntry(
-        entryInput("review", monthly ? "Monthly check-in" : "Sunday Explore", {
-          id: draft.reviewId || prior?.id,
-          revision: draft.reviewRevision,
-          body: draft.note.trim(),
-          state: "done",
-          source: "A private reflection",
-          source_ids: notices.map((n) => n.sourceId),
-          meta: { period, version: 2 },
-        }),
-      );
-      update({ reviewId: review.id, reviewRevision: review.revision ?? 0 });
-      let savedFocus = {
-        focusId: draft.focusId,
-        focusRevision: draft.focusRevision,
-      };
-      if (!monthly) {
-        const focus = entriesOf(data, "preferences").find(
-          (e) => e.title === "Weekly focus",
+      if (note.trim())
+        await putEntry(
+          entryInput(
+            "story",
+            review?.reflection || "What was the best part of your week?",
+            { body: note, source: "Sunday · your words", meta: { period } },
+          ),
         );
-        const saved = await putEntry(
-          entryInput("preferences", "Weekly focus", {
-            id: draft.focusId || focus?.id,
-            revision: draft.focusRevision,
-            meta: { focus_area: draft.focus, focus_until: shiftDay(today, 7) },
+      setStep(moment === "narrowing" ? 3 : 4);
+    });
+  const addInterest = (name: string, tryNow: boolean) =>
+    action.run(async () => {
+      if (!data.entries.some((e) => e.kind === "interest" && e.title === name))
+        await putEntry(
+          entryInput("interest", name, {
+            state: "want_to_try",
+            source: "Sunday · close to what you love",
           }),
         );
-        savedFocus = { focusId: saved.id, focusRevision: saved.revision ?? 0 };
-      }
-      update({
-        step: 3,
-        reviewId: review.id,
-        reviewRevision: review.revision ?? 0,
-        ...savedFocus,
-      });
-      setMessage("Saved privately. Take it with you into the week.");
+      if (tryNow) setExplore(name);
     });
-  const revisit = whyRevisitDue(data, today);
+  const annual =
+    !!data.profile.joined_at &&
+    today.slice(5, 7) === data.profile.joined_at.slice(5, 7) &&
+    Number(today.slice(0, 4)) > Number(data.profile.joined_at.slice(0, 4));
   return (
-    <Page header={<TopBar title="Your rhythms" />}>
+    <Page header={<TopBar title="Your rhythms" />} contentStyle={{ gap: 18 }}>
       <View style={s.wrap}>
-        <Chip
-          label="Sunday Explore"
-          selected={!monthly}
-          onPress={() => setMode("weekly")}
-        />
-        <Chip
-          label="Monthly check-in"
-          selected={monthly}
-          onPress={() => setMode("monthly")}
-        />
+        {(["weekly", "monthly"] as const).map((m) => (
+          <Chip
+            key={m}
+            label={m === "weekly" ? "Sunday review" : "Monthly check-in"}
+            selected={mode === m}
+            onPress={() => {
+              setMode(m);
+              setStep(0);
+            }}
+          />
+        ))}
       </View>
-      <Eyebrow>
-        {monthly ? "A little room to look ahead" : "Whenever you have room"}
-      </Eyebrow>
-      {ready && draft.step === 0 ? (
+      {step === 6 ? (
         <>
           <Title>
-            {monthly
-              ? "Is this still the life you want?"
-              : "Here’s what I noticed about you this week"}
+            {mode === "weekly"
+              ? "Your week is set."
+              : "A little more direction."}
           </Title>
-          {monthly ? (
+          {focus && (
+            <Body>This week I’ll lean toward {focus} in your mornings.</Body>
+          )}
+          <Button label="Back to Today" onPress={() => router.replace("/")} />
+        </>
+      ) : mode === "weekly" ? (
+        <>
+          {step === 0 && (
             <>
-              <Eyebrow>One year out</Eyebrow>
+              <Title>
+                {season
+                  ? "What you planted this season"
+                  : "What you planted this week"}
+              </Title>
               <Body>
-                {year?.body ||
-                  "Your picture is still forming. You can give it a little space when you’re ready."}
+                Here’s who you were {season ? "this season" : "this week"}.
               </Body>
-              {year ? (
-                <View style={s.wrap}>
-                  <Chip
-                    label="Still true"
-                    selected={draft.picture === "true"}
-                    onPress={() =>
-                      action.run(async () => {
-                        if (draft.picture !== "true")
-                          await putEntry(
-                            entryInput("vision", "One year out", {
-                              body: year.body,
-                              source: "Reaffirmed at your monthly check-in",
-                              meta: {
-                                ...year.meta,
-                                period,
-                                version: (year.meta.version || 1) + 1,
-                              },
-                            }),
-                          );
-                        update({ picture: "true", step: 2 });
-                      })
-                    }
-                  />
-                  <Chip
-                    label="Tweak it"
-                    onPress={() => router.push("/telescope")}
-                  />
-                  <Chip
-                    label="Something’s changed"
-                    onPress={() =>
-                      router.push({
-                        pathname: "/telescope",
-                        params: { changed: "true" },
-                      })
-                    }
-                  />
-                </View>
-              ) : (
-                <Button
-                  label="Picture One year out"
-                  onPress={() => router.push("/telescope")}
-                />
-              )}
-              <TextButton
-                label="Let this sit for now"
-                onPress={() => update({ step: 2 })}
-              />
-            </>
-          ) : (
-            <>
-              {notices.length ? (
-                notices.map((notice) => (
-                  <View key={notice.sourceId + notice.text} style={s.card}>
-                    <Body>{notice.text}</Body>
-                    <TextButton
-                      label="See this moment"
-                      onPress={() =>
-                        router.push(
-                          data.intentions.some((i) => i.id === notice.sourceId)
-                            ? {
-                                pathname: "/history",
-                                params: { id: notice.sourceId },
-                              }
-                            : "/galaxy",
-                        )
-                      }
-                    />
+              {lived.length ? (
+                lived.map((i) => (
+                  <View
+                    key={i.id}
+                    style={{
+                      gap: 5,
+                      paddingVertical: 10,
+                      borderBottomWidth: 1,
+                      borderColor: C.line,
+                    }}
+                  >
+                    <Body style={{ fontSize: 13, color: C.muted }}>
+                      {new Date(`${i.day}T12:00:00`).toLocaleDateString(
+                        "en-US",
+                        {
+                          weekday: "long",
+                          ...(season ? { month: "short", day: "numeric" } : {}),
+                        },
+                      )}
+                      {i.value ? ` · ${i.value}` : ""}
+                      {i.place || i.person ? ` · ${i.place || i.person}` : ""}
+                    </Body>
+                    <Body>{i.action}</Body>
                   </View>
                 ))
               ) : (
                 <Body>
-                  There’s room to notice something now. Start with a moment you
-                  remember from this week.
+                  Your lived steps will appear here after a night check-in.
                 </Body>
               )}
+              {review?.intro && <Body>{review.intro}</Body>}
+              <Notice text={reviewError} />
               <Button
-                label="Make a little space"
-                onPress={() => update({ step: 1 })}
+                label="Next"
+                onPress={() => setStep(review?.pattern ? 1 : 2)}
               />
             </>
           )}
-        </>
-      ) : null}
-      {ready && draft.step === 1 ? (
-        <>
-          <Title>{question || "A little room to notice."}</Title>
-          <Body>One thought is enough. Your why can keep evolving.</Body>
-          <Field
-            label="A thought to keep"
-            multiline
-            value={draft.note}
-            onChangeText={(note) => update({ note })}
-            maxLength={3000}
-          />
-          <Button
-            label="Keep this thought"
-            disabled={!draft.note.trim()}
-            loading={action.busy}
-            onPress={() => saveQuestion()}
-          />
-          <TextButton
-            label="I don’t know yet"
-            onPress={() => saveQuestion(true)}
-          />
-        </>
-      ) : null}
-      {ready && draft.step === 2 ? (
-        <>
-          <Title>
-            {monthly
-              ? "Carry what still feels true."
-              : "Something worth exploring."}
-          </Title>
-          {!monthly && suggestion ? (
-            <View style={s.card}>
-              <Eyebrow>{suggestion.title}</Eyebrow>
-              <Body>
-                {suggestion.reason}{" "}
-                {suggestion.title !== suggestion.sourceTitle
-                  ? `${suggestion.title} is a nearby possibility to try.`
-                  : "There may be more to explore there."}
-              </Body>
-              <Body>{suggestion.first}</Body>
-              <Body style={{ fontSize: 13 }}>{suggestion.details}</Body>
-              <TextButton
-                label="Keep this as a Maybe"
+          {step === 1 && (
+            <>
+              <Title>One thing I noticed</Title>
+              <Body>{review?.pattern}</Body>
+              <Button
+                label="Yes, that's me"
                 onPress={() =>
                   action.run(async () => {
-                    if (
-                      !entriesOf(data, "interest").some(
-                        (e) => e.title === suggestion.title,
-                      )
-                    )
-                      await putEntry(
-                        entryInput("interest", suggestion.title, {
-                          state: "spark",
-                          body: suggestion.description,
-                          source: `Sunday Explore · connected to ${suggestion.sourceTitle}`,
-                          source_ids: suggestion.sourceIds,
-                          meta: { planet: suggestion.planet },
-                        }),
-                      );
-                    setMessage("Kept in your map.");
+                    await putEntry(
+                      entryInput(
+                        "story",
+                        review?.pattern || "A pattern from Sunday",
+                        {
+                          body: "Yes, that’s me",
+                          source: "Confirmed Sunday pattern",
+                          meta: { period },
+                        },
+                      ),
+                    );
+                    setStep(2);
+                  })
+                }
+              />
+              <TextButton label="Not really" onPress={() => setStep(2)} />
+            </>
+          )}
+          {step === 2 && (
+            <>
+              <Title>A moment to reflect</Title>
+              <Body>
+                {review?.reflection || "What was the best part of your week?"}
+              </Body>
+              <Field
+                multiline
+                label="In your words"
+                value={note}
+                onChangeText={setNote}
+                maxLength={2000}
+              />
+              {moment === "people_question" && !!note.trim() && (
+                <>
+                  <TextButton
+                    label="Add to my places"
+                    onPress={() =>
+                      action.run(async () => {
+                        await extra.addPlace(`with ${note.trim()}`);
+                        setStep(4);
+                      })
+                    }
+                  />
+                  <TextButton
+                    label="Add to things I want to do"
+                    onPress={() =>
+                      action.run(async () => {
+                        await putEntry(
+                          entryInput(
+                            "backlog",
+                            `Spend time with ${note.trim()}`,
+                            { state: "open", source: "Sunday · chosen by you" },
+                          ),
+                        );
+                        setStep(4);
+                      })
+                    }
+                  />
+                </>
+              )}
+              <Button
+                label={moment === "people_question" ? "Just noting it" : "Next"}
+                onPress={saveReflection}
+              />
+              <TextButton
+                label="Skip"
+                onPress={() => setStep(moment === "narrowing" ? 3 : 4)}
+              />
+            </>
+          )}
+          {step === 3 && moment === "narrowing" && (
+            <>
+              <Title>What lights you up?</Title>
+              <Body>
+                If you could only keep one of these, which would it be?
+              </Body>
+              <View style={s.wrap}>
+                {data.entries
+                  .filter(
+                    (e) =>
+                      e.kind === "interest" &&
+                      interestState(data, e) === "Into it",
+                  )
+                  .map((e) => (
+                    <Chip
+                      key={e.id}
+                      label={e.title}
+                      selected={keep === e.id}
+                      onPress={() => setKeep(e.id)}
+                    />
+                  ))}
+              </View>
+              <Button
+                label="Move them back"
+                disabled={!keep}
+                onPress={() =>
+                  action.run(async () => {
+                    for (const e of data.entries.filter(
+                      (e) =>
+                        e.kind === "interest" &&
+                        interestState(data, e) === "Into it" &&
+                        e.id !== keep,
+                    ))
+                      await putEntry({ ...e, state: "from_time_to_time" });
+                    setStep(4);
                   })
                 }
               />
               <TextButton
-                label="Explore it in real life"
-                onPress={() =>
-                  router.push({
-                    pathname: "/ritual",
-                    params: {
-                      action: suggestion.first,
-                      interest: suggestion.title,
-                      planet: suggestion.planet,
-                    },
-                  })
-                }
+                label="Keep them as they are"
+                onPress={() => setStep(4)}
               />
-            </View>
-          ) : !monthly ? (
-            <TextButton
-              label="Browse a few possibilities"
-              onPress={() => router.push("/explore")}
-            />
-          ) : null}
-          {!monthly ? (
-            <>
-              <Body>
-                {season?.meta.pace === "stay"
-                  ? `Your mornings will stay with ${season.meta.orbit || "Be"}.`
-                  : `This week I’ll lean toward ${draft.focus} in your mornings. Sound right?`}
-              </Body>
-              {season?.meta.pace !== "stay" ? (
-                <View style={s.wrap}>
-                  {PLANETS.slice(0, 5).map((area) => (
-                    <Chip
-                      key={area}
-                      label={area}
-                      selected={draft.focus === area}
-                      onPress={() => update({ focus: area })}
-                    />
-                  ))}
-                </View>
-              ) : null}
-              {notices.length > 1 ? (
-                <TextButton
-                  label={
-                    why
-                      ? "See what this brings to my why"
-                      : "Give my why a little shape"
-                  }
-                  onPress={() => router.push("/why")}
-                />
-              ) : null}
             </>
-          ) : (
+          )}
+          {(step === 4 || (step === 3 && moment !== "narrowing")) && (
             <>
-              <Body>
-                {why?.body ||
-                  "Your why is still forming. Your days will give it words."}
-              </Body>
-              {revisit ? (
-                <View style={s.card}>
-                  <Eyebrow>Why revisit</Eyebrow>
+              <Title>Close to what you love</Title>
+              {suggestions.map((l) => (
+                <View key={l.similar_interest} style={s.card}>
+                  <Title style={{ fontSize: 21 }}>{l.similar_interest}</Title>
                   <Body>
-                    Bring your recent moments, your current why and both
-                    pictures of your future together.
+                    Similar to {l.interest}: {l.reason}
                   </Body>
                   <Button
-                    label="Revisit my why"
+                    secondary
+                    label={`Try ${l.similar_interest} this week`}
+                    onPress={() => addInterest(l.similar_interest, true)}
+                  />
+                  <TextButton
+                    label={`Save ${l.similar_interest} for later`}
+                    onPress={() => addInterest(l.similar_interest, false)}
+                  />
+                </View>
+              ))}
+              {(moment === "worst_case" || moment === "cost_of_waiting") && (
+                <View style={s.card}>
+                  <Body>{target?.title}</Body>
+                  <Body>{review?.question}</Body>
+                  <Field
+                    label="What comes to mind?"
+                    value={note}
+                    onChangeText={setNote}
+                    maxLength={1500}
+                  />
+                  <Body>
+                    {firstStep?.mission_text ||
+                      `Take five minutes to find one practical first step toward ${target?.title || "this"}.`}
+                  </Body>
+                  {!!firstStep?.first_step && (
+                    <Body>{firstStep.first_step}</Body>
+                  )}
+                  <Button
+                    label="This week"
+                    onPress={() => {
+                      const item = data.entries.find(
+                        (e) => e.id === review?.target_id,
+                      );
+                      if (item) setExplore(item.title);
+                      setStep(5);
+                    }}
+                  />
+                  <TextButton label="Later" onPress={() => setStep(5)} />
+                  <TextButton
+                    label="Let it go"
                     onPress={() =>
-                      router.push({
-                        pathname: "/why",
-                        params: { revisit: "true" },
+                      action.run(async () => {
+                        const item = data.entries.find(
+                          (e) => e.id === review?.target_id,
+                        );
+                        if (item)
+                          await putEntry({
+                            ...item,
+                            state:
+                              item.kind === "interest"
+                                ? "on_pause"
+                                : "released",
+                          });
+                        setStep(5);
                       })
                     }
                   />
                 </View>
-              ) : null}
+              )}
+              <Button label="Plan the week" onPress={() => setStep(5)} />
             </>
           )}
-          <Button
-            label={monthly ? "Keep this reflection" : "Sounds right"}
-            loading={action.busy}
-            onPress={finish}
-          />
-          <TextButton
-            label={
-              monthly
-                ? "Talk through this month with Chloe"
-                : "Keep exploring with Chloe"
-            }
-            onPress={() =>
-              router.push({
-                pathname: "/chloe",
-                params: {
-                  mode: monthly ? "fullmoon" : "sunday",
-                  question: monthly
-                    ? "Help me look at what still feels true in my life this month."
-                    : "Help me explore one possibility connected to what lit me up this week.",
-                },
-              })
-            }
-          />
-          {!monthly &&
-          (!currentVision(data, "year") || !currentVision(data, "life")) ? (
-            <TextButton
-              label="If I have a moment: picture my future"
-              onPress={() => router.push("/telescope")}
-            />
-          ) : null}
-          {!monthly &&
-          Math.floor(Date.parse(`${today}T12:00:00Z`) / (7 * 86400000)) % 4 ===
-            0 ? (
-            <TextButton
-              label="Ask a friend what they think I’d love"
-              onPress={() => router.push("/connections")}
-            />
-          ) : null}
-        </>
-      ) : null}
-      {ready && draft.step === 3 ? (
-        <>
-          <Title>A little room to live.</Title>
-          <Body>
-            {monthly
-              ? "Keep what feels true. Let the rest take shape in your days."
-              : "Your mornings will carry this forward. Go live a little."}
-          </Body>
-          <Button label="Back to today" onPress={() => router.replace("/")} />
-        </>
-      ) : null}
-      <Notice
-        text={action.error || draftError || message}
-        tone={action.error || draftError ? "error" : "normal"}
-      />
-      <TextButton
-        label={
-          showTools
-            ? "Close my rhythm tools"
-            : "My focus, Meaning To and Open Questions"
-        }
-        onPress={() => setShowTools(!showTools)}
-      />
-      {showTools ? (
-        <>
-          <TextButton
-            label={
-              monthly
-                ? "Talk through this month with Chloe"
-                : "Keep exploring with Chloe"
-            }
-            onPress={() =>
-              router.push({
-                pathname: "/chloe",
-                params: { mode: monthly ? "fullmoon" : "sunday" },
-              })
-            }
-          />
-          {!currentVision(data, "year") || !currentVision(data, "life") ? (
-            <View style={s.card}>
-              <Eyebrow>If you have a moment</Eyebrow>
-              <Body>
-                One year out and Later in life can give your days a direction.
-                There’s no hurry.
-              </Body>
-              <TextButton
-                label="Look a little further"
-                onPress={() => router.push("/telescope")}
-              />
-            </View>
-          ) : null}
-          {draft.step === 3 ? (
-            <TextButton
-              label="Ask a friend: What do you think I’d love?"
-              onPress={() => router.push("/connections")}
-            />
-          ) : null}
-          <View style={s.section}>
-            <Eyebrow>My focus</Eyebrow>
-            <Body>Choose how your mornings begin.</Body>
-            <View style={s.wrap}>
-              {(
-                [
-                  ["stay", "Focus on one area"],
-                  ["vary", "Rotate areas"],
-                  ["guide", "Let Chloe choose"],
-                ] as const
-              ).map(([pace, label]) => (
-                <Chip
-                  key={pace}
-                  label={label}
-                  selected={(season?.meta.pace || "guide") === pace}
-                  onPress={() => saveSeason(pace)}
-                />
-              ))}
-            </View>
-            {season?.meta.pace === "stay" ? (
+          {step === 5 && (
+            <>
+              <Title>Plan the week</Title>
+              {explore && <Body>You chose to explore {explore}.</Body>}
+              <Body>Which priority will you lean into?</Body>
               <View style={s.wrap}>
-                {PLANETS.slice(0, 5).map((area) => (
+                {priorities.map((p) => (
                   <Chip
-                    key={area}
-                    label={area}
-                    selected={season.meta.orbit === area}
-                    onPress={() => saveSeason("stay", area)}
+                    key={p}
+                    label={p}
+                    selected={focus === p}
+                    onPress={() => setFocus(p)}
                   />
                 ))}
               </View>
-            ) : null}
-          </View>
-          <View style={s.section}>
-            <Eyebrow>Meaning To</Eyebrow>
-            <Body>Room for another day. Letting it go is a choice too.</Body>
-            <Field
-              label="Something I’ve been meaning to do"
-              value={backlog}
-              onChangeText={setBacklog}
-              maxLength={500}
-            />
-            <Button
-              secondary
-              label="Keep it for later"
-              disabled={!backlog.trim()}
-              onPress={() =>
-                action.run(async () => {
-                  await putEntry(
-                    entryInput("backlog", backlog.trim(), {
-                      state: "open",
-                      meta: { passes: 0 },
-                    }),
-                  );
-                  setBacklog("");
-                })
-              }
-            />
-            {entriesOf(data, "backlog")
-              .filter((e) => e.state === "open")
-              .map((e) => (
-                <View key={e.id} style={s.card}>
-                  <Body>{e.title}</Body>
-                  {(e.meta.passes || 0) >= 3 ||
-                  Date.parse(`${today}T12:00:00Z`) - Date.parse(e.created_at) >=
-                    14 * 86400000 ? (
-                    <Body>Do it this week, or let it go?</Body>
-                  ) : null}
-                  <TextButton
-                    label="Do this today"
-                    onPress={() =>
-                      router.push({
-                        pathname: "/ritual",
-                        params: { action: e.title, backlog: e.id },
-                      })
-                    }
-                  />
-                  <View style={s.wrap}>
-                    <Chip
-                      label="Done"
-                      onPress={() =>
-                        action.run(async () => {
-                          await putEntry({ ...e, state: "done" });
-                        })
-                      }
-                    />
-                    <Chip
-                      label="Release it"
-                      onPress={() =>
-                        action.run(async () => {
-                          await putEntry({ ...e, state: "released" });
-                          setMessage("Letting it go is a choice too.");
-                        })
-                      }
-                    />
-                    <Chip
-                      label="Not now"
-                      onPress={() =>
-                        action.run(async () => {
-                          await putEntry({
-                            ...e,
-                            meta: {
-                              ...e.meta,
-                              passes: (e.meta.passes || 0) + 1,
-                            },
-                          });
-                        })
-                      }
-                    />
-                  </View>
-                </View>
-              ))}
-            {entriesOf(data, "backlog")
-              .filter((e) => ["done", "released"].includes(e.state))
-              .slice(-5)
-              .map((e) => (
-                <Body key={e.id} style={{ fontSize: 13 }}>
-                  {e.title} · {e.state === "done" ? "Done" : "Released"}
-                </Body>
-              ))}
-          </View>
-          <View style={s.section}>
-            <Eyebrow>Open Questions</Eyebrow>
-            <Body>
-              Let these sit with you. Chloe may offer one another day, never
-              twice in a row.
-            </Body>
-            {entriesOf(data, "question")
-              .filter((e) => !["stopped", "answered"].includes(e.state))
-              .map((e) => (
-                <View key={e.id} style={s.card}>
-                  <Body>{e.title}</Body>
-                  <TextButton
-                    label="Think about this with Chloe"
-                    onPress={() =>
-                      router.push({
-                        pathname: "/chloe",
-                        params: { question: e.title, mode: "discovery" },
-                      })
-                    }
-                  />
-                  <TextButton
-                    label="Stop asking this"
-                    onPress={() =>
-                      action.run(async () => {
-                        await putEntry({ ...e, state: "stopped" });
-                      })
-                    }
-                  />
-                  <TextButton
-                    label="Remove this question"
-                    onPress={() =>
-                      action.run(async () => {
-                        await removeEntry(e.id);
-                      })
-                    }
-                  />
-                </View>
-              ))}
-          </View>
-          <TextButton
-            label="One year out and Later in life"
-            onPress={() => router.push("/telescope")}
-          />
+              <Button label="Set my week" onPress={done} />
+            </>
+          )}
         </>
-      ) : null}
-      {showTools ? (
-        <TextButton
-          label="A big change in my life · revisit my why"
-          onPress={() =>
-            router.push({ pathname: "/why", params: { revisit: "true" } })
-          }
-        />
-      ) : null}
+      ) : (
+        <>
+          {step < 3 ? (
+            <>
+              <Title>A moment to check in</Title>
+              <Body>{REVIEW_QUESTIONS[step]}</Body>
+              <View style={s.wrap}>
+                {Array.from({ length: 11 }, (_, n) => (
+                  <Chip
+                    key={n}
+                    label={String(n)}
+                    selected={answers[step] === n}
+                    onPress={() =>
+                      setAnswers((a) => a.map((v, i) => (i === step ? n : v)))
+                    }
+                  />
+                ))}
+              </View>
+              <Button label="Next" onPress={() => setStep(step + 1)} />
+              <TextButton label="Skip" onPress={() => setStep(step + 1)} />
+            </>
+          ) : (
+            <>
+              <Title>Is this still the life you want?</Title>
+              <Body>
+                {currentVision(data, "year")?.body ||
+                  "Your one year out picture is still taking shape."}
+              </Body>
+              <View style={s.wrap}>
+                <TextButton label="Still true" onPress={done} />
+                <TextButton
+                  label="Tweak it"
+                  onPress={() => router.push("/telescope")}
+                />
+                <TextButton
+                  label="Something's changed"
+                  onPress={() => router.push("/why")}
+                />
+              </View>
+              <TextButton
+                label="Show how things have changed"
+                onPress={() => setComparison(!comparison)}
+              />
+              {comparison && (
+                <Body>
+                  {answers
+                    .map((v, i) => {
+                      const before = data.profile.baseline_answers?.[i];
+                      return v === null || before == null
+                        ? ""
+                        : v > before
+                          ? [
+                              "Your days feel more like your own.",
+                              "Your days feel more worthwhile.",
+                              "You feel more connected.",
+                            ][i]
+                          : v < before
+                            ? [
+                                "Your days feel less like your own right now.",
+                                "Your days feel less worthwhile right now.",
+                                "You feel less connected right now.",
+                              ][i]
+                            : [
+                                "Your sense of direction feels steady.",
+                                "Your sense of purpose feels steady.",
+                                "Your connection with others feels steady.",
+                              ][i];
+                    })
+                    .filter(Boolean)
+                    .join(" ") ||
+                    "Answer these questions and the starting-point questions to see a change in words."}
+                </Body>
+              )}
+              {annual && (
+                <View style={s.card}>
+                  <Body>
+                    What would you like to be, do, have, see or share next?
+                  </Body>
+                  <TextButton
+                    label="Refresh my someday list"
+                    onPress={() => router.push("/telescope")}
+                  />
+                </View>
+              )}
+              <Button label="Finish check-in" onPress={done} />
+            </>
+          )}
+        </>
+      )}
+      <TextButton
+        label="Things I want to do and questions to come back to"
+        onPress={() => setShowTools(!showTools)}
+      />
+      {showTools && (
+        <View style={s.card}>
+          <Field
+            label="Something I want to do"
+            value={backlog}
+            onChangeText={setBacklog}
+            maxLength={300}
+          />
+          <Button
+            secondary
+            label="Keep for later"
+            disabled={!backlog.trim()}
+            onPress={() =>
+              action.run(async () => {
+                await putEntry(
+                  entryInput("backlog", backlog.trim(), { state: "open" }),
+                );
+                setBacklog("");
+              })
+            }
+          />
+          {data.entries
+            .filter(
+              (e) =>
+                ["backlog", "question"].includes(e.kind) &&
+                !["done", "released", "stopped", "answered"].includes(e.state),
+            )
+            .map((e) => (
+              <View key={e.id}>
+                <Body>{e.title}</Body>
+                <TextButton
+                  label={`Let go: ${e.title}`}
+                  onPress={() =>
+                    action.run(async () => {
+                      await putEntry({
+                        ...e,
+                        state: e.kind === "question" ? "stopped" : "released",
+                      });
+                    })
+                  }
+                />
+              </View>
+            ))}
+        </View>
+      )}
+      <Notice text={action.error || extra.error} tone="error" />
     </Page>
   );
 }
-
 export default withAccount(Rhythms);

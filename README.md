@@ -7,6 +7,12 @@ The implementation follows the Chloe brief supplied on **26 October 2026**: purp
 The [26 October follow-through release note](docs/releases/2026-10-26-followthrough.md) records the original implementation checkpoint. See the [29 October release update](docs/releases/2026-10-29-beta-entry.md) for the applied revision migration and current verification scope. Chloe v8 is active in Supabase.
 
 
+## 15 November — Round 2
+
+The [Round 2 release notes](docs/releases/2026-11-15-round2.md) describe the current implementation. The supplied developer pack and workbook replace the older area/category model with priorities, interests and places. Today has a typed focus and two scroll wheels; My map has five interest stages; Future me includes a four-horizon Someday list. The full catalogue contains 1,089 missions (180 Learn and 15 Someday starters), 44 interest links and 56 books.
+
+Migration `20261115040953_round2_focus_and_library.sql` is applied to the connected Supabase project. Chloe v10 is active. The older release sections below are historical checkpoints, not current screen specifications.
+
 ## 3 November beta update
 
 The current code adds action suggestions from My map, the Inter/orange design, 15 quick picks, 38 priorities and the updated Chloe/night-thought flow. [Implementation and release notes](docs/beta-feedback-2026-11.md) are authoritative for this update; the older release details below describe previous checkpoints.

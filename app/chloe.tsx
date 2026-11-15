@@ -36,12 +36,11 @@ import {
   entriesOf,
   entryInput,
   returningToPractice,
-  suggestedPlanet,
   formatCommitment,
   type EntryKind,
 } from "../src/journey";
 import { useToday } from "../src/use-today";
-import { shiftDay } from "../src/domain";
+import { weekPeriod } from "../src/journey";
 import {
   ChloeReflection,
   type PendingReflection,
@@ -84,7 +83,7 @@ function ChloeSession() {
       source_ids: string[];
     } | null>(null);
   const { draft, update, ready, draftError } = useDraft(
-    draftKey("chloe", session?.user.id),
+    draftKey("chloe.round2", session?.user.id),
     {
       input: params.question || "",
       reflection: null as PendingReflection | null,
@@ -168,7 +167,6 @@ function ChloeSession() {
           mode,
           session_id: sessionId,
           returning_today: returningToday,
-          area: suggestedPlanet(data, today),
         },
       });
       assertOwner();
@@ -508,25 +506,15 @@ function ChloeSession() {
                 if (!focus) return;
                 try {
                   const prefs = entriesOf(data, "preferences").find(
-                    (e) => e.title === "Season",
+                    (e) => e.title === "Weekly priority",
                   );
-                  if (
-                    prefs?.meta.pace === "stay" &&
-                    prefs.meta.orbit !== focus.area
-                  )
-                    throw new Error(
-                      "Your fixed focus has changed. Keep it, or choose a new focus in Rhythms.",
-                    );
                   await putEntry(
-                    entryInput("preferences", "Season", {
+                    entryInput("preferences", "Weekly priority", {
                       ...prefs,
-                      source: "Confirmed in Sunday Explore",
+                      body: focus.area,
+                      source: "Confirmed in Sunday review",
                       source_ids: focus.source_ids,
-                      meta: {
-                        ...prefs?.meta,
-                        focus_area: focus.area,
-                        focus_until: shiftDay(today, 6),
-                      },
+                      meta: { period: weekPeriod(today) },
                     }),
                   );
                   update({ weeklyFocus: null });
@@ -618,7 +606,7 @@ function ChloeSession() {
             <Button
               label={
                 discovery.kind === "interest"
-                  ? "Add as a Maybe"
+                  ? "Add as Want to try"
                   : discovery.kind === "value"
                     ? "Try this value on"
                     : discovery.kind === "person"

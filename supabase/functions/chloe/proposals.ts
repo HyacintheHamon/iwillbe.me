@@ -18,7 +18,7 @@ export type ReflectionProposal = {
   }[];
 };
 export type WeeklyFocusProposal = {
-  area: "Be" | "People" | "Causes" | "Passions" | "Grow";
+  area: string;
   reason: string;
   source_ids: string[];
 };
@@ -76,7 +76,6 @@ export const weeklyFocusSchema = nullable({
   properties: {
     area: {
       type: "string",
-      enum: ["Be", "People", "Causes", "Passions", "Grow"],
     },
     reason: { type: "string" },
     source_ids: { type: "array", items: { type: "string" } },
@@ -475,14 +474,16 @@ export function validateWeeklyFocus(
   raw: unknown,
   mode: string,
   evidenceIds: Set<string>,
-  focus: { pace?: unknown; orbit?: unknown } | null,
+  focus: { pace?: unknown; orbit?: unknown; priorities?: string[] } | null,
 ): WeeklyFocusProposal | null {
   if (
     !["sunday", "explore"].includes(mode) ||
     !record(raw) ||
-    !["Be", "People", "Causes", "Passions", "Grow"].includes(
-      String(raw.area),
-    ) ||
+    typeof raw.area !== "string" ||
+    !raw.area.trim() ||
+    raw.area.length > 80 ||
+    ["Be", "People", "Causes", "Passions", "Grow"].includes(String(raw.area)) ||
+    (focus?.priorities && !focus.priorities.includes(String(raw.area))) ||
     typeof raw.reason !== "string" ||
     !raw.reason.trim() ||
     raw.reason.length > 500 ||

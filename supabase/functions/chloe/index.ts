@@ -1,4 +1,5 @@
 import { missionTag } from "../_shared/missions.ts";
+import { round2Action, round2Context } from "./round2.ts";
 import { personalMissions, nightThought } from "./library.ts";
 import { supportLevel, SUPPORT_REPLY } from "../_shared/safety.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.118.0";
@@ -215,6 +216,44 @@ Deno.serve(async (req: Request) => {
       .eq("user_id", user.id)
       .maybeSingle();
     if (safety.error) throw safety.error;
+    if (typeof body.action === "string" && body.action.startsWith("round2_")) {
+      if ((safety.data?.level || 0) >= 2)
+        return json({
+          suppressed: true,
+          summary:
+            "Take some space for support. You can return when you are ready.",
+          moment: null,
+        });
+      const key = Deno.env.get("ANTHROPIC_API_KEY") || "";
+      if (body.action !== "round2_moment") {
+        if (!key)
+          return json(
+            {
+              error:
+                "Chloe is taking a pause. Your saved words are still here.",
+            },
+            503,
+          );
+        const quota = await admin.rpc("reserve_chloe_request", {
+          p_user_id: user.id,
+        });
+        if (quota.error || !quota.data)
+          return json(
+            { error: "Chloe is taking a pause. Please try later." },
+            429,
+          );
+      }
+      return json(
+        await round2Action(
+          scoped,
+          admin,
+          user.id,
+          body,
+          key,
+          Deno.env.get("ANTHROPIC_MODEL") || "claude-sonnet-5-5",
+        ),
+      );
+    }
     if (body.action === "night_thought") {
       if ((safety.data?.level || 0) >= 2)
         return json({ thought: null, suppressed: true });
@@ -328,7 +367,7 @@ Deno.serve(async (req: Request) => {
       scoped
         .from("intentions")
         .select(
-          "id,day,action,value,person,interest,interest_id,value_id,planet,kind,when_context,place,with_person,created_at",
+          "id,day,action,value,person,interest,interest_id,value_id,kind,when_context,place,with_person,created_at,source,level,type,someday_item_id",
         )
         .gte("day", since.slice(0, 10))
         .order("day", { ascending: false })
@@ -451,6 +490,7 @@ Deno.serve(async (req: Request) => {
         : (missionRows.data || []).slice(0, 15);
     const enrichedContext = {
       ...context,
+      round2: await round2Context(scoped, user.id),
       missions: missionContext,
       ritual: {
         action:
@@ -574,7 +614,9 @@ Deno.serve(async (req: Request) => {
       answer.weekly_focus,
       mode,
       evidenceIds,
-      context.focus,
+      {
+        priorities: enrichedContext.round2.priorities.map((e: any) => e.title),
+      },
     );
     const discovery = answer.discovery;
     if (

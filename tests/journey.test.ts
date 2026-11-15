@@ -71,7 +71,7 @@ test("completed missions never change an interest stage without agreement", () =
     reflection: "",
     created_at: n ? "2026-10-25T20:00:00Z" : "2026-09-01T20:00:00Z",
   }));
-  assert.equal(interestState(p, interest), "Maybe");
+  assert.equal(interestState(p, interest), "Want to try");
   assert.equal(allInEligible(p, interest, "2026-10-26"), false);
   assert.equal(allInEligible(p, interest, "2026-11-08"), false);
 });
@@ -213,13 +213,13 @@ test("completion never invents energy or value conviction, and absence never dim
       created_at: `2026-01-0${n + 1}`,
     });
   }
-  assert.equal(interestState(p, interest), "Maybe");
+  assert.equal(interestState(p, interest), "Want to try");
   assert.equal(valueState(p, value), "Working on");
   p.checkIns.forEach((c) => {
     c.energy = "lit";
     c.value_choice = "yes";
   });
-  assert.equal(interestState(p, interest), "Maybe");
+  assert.equal(interestState(p, interest), "Want to try");
   assert.equal(valueState(p, value), "Important to me");
   p.checkIns[2].value_choice = "not_mine";
   assert.equal(valueState(p, value), "Let go");
@@ -252,7 +252,7 @@ test("already loved is self report, and not-yet cannot count as a lived positive
       energy: "lit",
     },
   ];
-  assert.equal(interestState(p, e("interest", "Teaching")), "Maybe");
+  assert.equal(interestState(p, e("interest", "Teaching")), "Want to try");
 });
 test("monthly reviews wait until a later month; Sunday invitations use the profile timezone", () => {
   const p = emptyPractice();
