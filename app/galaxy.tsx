@@ -1,22 +1,24 @@
-import { withAccount } from "../src/access-gate";
-import React, { useEffect, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import React, { useState } from "react";
+import { View, Pressable } from "react-native";
 import { router } from "expo-router";
+import { withAccount } from "../src/access-gate";
 import { usePractice } from "../src/practice";
+import { useToday } from "../src/use-today";
+import { useRound2 } from "../src/round2-store";
+import { useAction } from "../src/use-action";
 import {
   currentWhy,
-  entryInput,
   interestState,
   valueState,
+  entryInput,
   type Entry,
 } from "../src/journey";
-import { useToday } from "../src/use-today";
+import { STAGES, STAGE_VALUES, pickMission, type Level } from "../src/round2";
 import {
   Body,
   Button,
   C,
   Chip,
-  Eyebrow,
   F,
   Field,
   Notice,
@@ -27,465 +29,375 @@ import {
   TopBar,
   s,
 } from "../src/ui";
-import { IWillBe } from "../src/priority-onboarding";
-import {
-  loadMissions,
-  ladderStep,
-  missionTrio,
-  missionTag,
-  type Mission,
-} from "../src/missions";
-import { MissionCards } from "../src/mission-cards";
-import { priorityName } from "../src/priorities";
-const stages = ["All in", "Into it", "Want to try", "Maybe", "On pause"];
-const stageValues: Record<string, string> = {
-  "All in": "all_in",
-  "Into it": "into_it",
-  "Want to try": "want_to_try",
-  Maybe: "spark",
-  "On pause": "paused",
-  "Working on": "working_on",
-  "Important to me": "important",
-  "Let go": "let_go",
-};
+import { useFocusMission } from "../src/use-focus-mission";
+import { FocusCard } from "../src/focus-card";
 function MyMap() {
-  const { data, putEntry, removeEntry } = usePractice();
+  const { data, putEntry, removeEntry, saveIntention } = usePractice();
+  const action = useAction();
+  const extra = useRound2();
   const today = useToday();
-  const [layer, setLayer] = useState<"interest" | "value">("interest"),
-    [selected, setSelected] = useState<Entry | null>(null),
+  const [selected, setSelected] = useState<Entry | null>(null),
+    [level, setLevel] = useState<Level>("easy"),
     [adding, setAdding] = useState(false),
+    [kind, setKind] = useState<"interest" | "value">("interest"),
     [name, setName] = useState(""),
-    [error, setError] = useState(""),
-    [busy, setBusy] = useState(false),
-    [paused, setPaused] = useState(false),
     [move, setMove] = useState(false),
-    [remove, setRemove] = useState(false);
-  const [missions, setMissions] = useState<Mission[]>([]),
-    [missionId, setMissionId] = useState(""),
-    [offset, setOffset] = useState(0),
-    [requestedStep, setRequestedStep] = useState(0),
-    [ideasLoading, setIdeasLoading] = useState(false),
-    [ideasError, setIdeasError] = useState(""),
-    [retry, setRetry] = useState(0),
-    [replace, setReplace] = useState(false);
+    [allIn, setAllIn] = useState(false),
+    [notice, setNotice] = useState("");
   const why = currentWhy(data);
-  const step = selected ? ladderStep(data, selected) : 1;
-  const lastActivity = (entry: Entry) =>
-    [
-      entry.meta.last_activity_at || entry.updated_at,
-      ...data.intentions
-        .filter(
-          (i) =>
-            i.interest_id === entry.id &&
-            data.checkIns.some(
-              (c) => c.intention_id === i.id && c.outcome === "yes",
-            ),
-        )
-        .map((i) => i.day),
-    ]
-      .sort()
-      .at(-1) || entry.updated_at;
-  const items = data.entries
-    .filter((e) =>
-      layer === "value"
-        ? ["value", "strength"].includes(e.kind)
-        : e.kind === "interest",
-    )
-    .filter(
-      (e, i, all) =>
-        layer !== "value" ||
-        all.findIndex(
-          (x) => priorityName(x.title) === priorityName(e.title),
-        ) === i,
-    )
-    .sort((a, b) => lastActivity(b).localeCompare(lastActivity(a)));
-  const openEntry = (entry: Entry) => {
-    setMissions([]);
-    setMissionId("");
-    setIdeasError("");
-    setReplace(false);
-    setMove(false);
-    setRemove(false);
-    setOffset(0);
-    setRequestedStep(0);
-    setIdeasLoading(true);
-    setSelected(entry);
-  };
-  const state = (e: Entry) =>
-    e.kind === "interest"
-      ? interestState(data, e)
-      : e.kind === "strength"
-        ? "Important to me"
-        : valueState(data, e);
-  const run = async (work: () => Promise<void>) => {
-    if (busy) return;
-    setBusy(true);
-    setError("");
-    try {
-      await work();
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  };
-  useEffect(() => {
-    let active = true;
-    if (!selected) return;
-    loadMissions(missionTag(selected.title), requestedStep || step)
-      .then(
-        (result) => {
-          if (active) {
-            setMissions(result.missions);
-            setMissionId(
-              missionTrio(result.missions).find((m) => m.size === "Normal")
-                ?.id || "",
-            );
-          }
-        },
-        (e) => {
-          if (active) setIdeasError(e.message);
-        },
+  const interests = data.entries.filter((e) => e.kind === "interest");
+  const selectedPriority = selected?.kind === "value" ? selected.title : "";
+  const library = selected
+    ? pickMission(
+        data,
+        selectedPriority,
+        selected.kind === "interest" ? selected.title : "anywhere",
+        selected.kind === "interest" ? "interest" : "anywhere",
+        level,
+        "do",
+        today,
       )
-      .finally(() => {
-        if (active) setIdeasLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [selected, step, retry, requestedStep]);
-  const options = missionTrio(missions, offset);
-  const mission =
-    options.find((m) => m.id === missionId) ||
-    options.find((m) => m.size === "Normal");
-  const openAction = () => {
-    if (!selected || !mission) return;
-    const entry = selected;
-    setSelected(null);
-    router.push({
-      pathname: "/ritual",
-      params: {
-        day: today,
-        action: mission.mission_text,
-        interest: entry.kind === "interest" ? entry.title : "",
-        value: entry.kind !== "interest" ? entry.title : "",
-        planet: mission.area,
-        mission_id: mission.id,
-        mission_step: String(mission.ladder_step),
-        from_map: "1",
-      },
-    });
+    : undefined;
+  const generated = useFocusMission(
+    library,
+    selected?.title || "",
+    level,
+    !!selected,
+  );
+  const mission = generated.mission;
+  const open = (entry: Entry) => {
+    setSelected(entry);
+    setLevel("easy");
+    setMove(false);
+    setAllIn(false);
+    setNotice("");
   };
-  const current = data.intentions.find((i) => i.day === today);
-  const completed =
-    !!current && data.checkIns.some((c) => c.intention_id === current.id);
+  const changeState = (state: string) =>
+    action.run(async () => {
+      if (!selected) return;
+      await putEntry({ ...selected, state });
+      setSelected(null);
+    });
+  const accept = () =>
+    action.run(async () => {
+      if (!selected || !mission) return;
+      await saveIntention(
+        mission.mission_text,
+        selected.kind === "value"
+          ? selected.title
+          : mission.priorities.find((p) =>
+              data.entries.some((e) => e.kind === "value" && e.title === p),
+            ) || "",
+        "",
+        today,
+        selected.kind === "interest" ? selected.title : "",
+        {
+          source: "suggested",
+          mission_id: mission.id,
+          mission_step: mission.ladder_step,
+          level,
+          type: mission.type as "do" | "learn",
+        },
+      );
+      setSelected(null);
+      router.replace("/");
+    });
   return (
-    <Page header={<TopBar back={false} title="iwillbe.me" />}>
-      <Eyebrow>What matters. What’s next.</Eyebrow>
+    <Page
+      header={<TopBar title="be.me" back={false} />}
+      contentStyle={{ gap: 18 }}
+    >
       <Title>My map</Title>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Shape my why"
-        onPress={() => router.push("/why")}
-        style={s.card}
-      >
-        <Eyebrow>MY WHY</Eyebrow>
-        <Body numberOfLines={2}>
+      <View style={s.card}>
+        <Body style={{ fontFamily: F.strong }}>My why</Body>
+        <Body>
           {why?.body || "Still forming. Your choices will help it take shape."}
         </Body>
-        <Body style={{ color: C.gold }}>Shape my why →</Body>
-      </Pressable>
-      <View style={s.wrap}>
-        <Chip
-          label="Interests"
-          selected={layer === "interest"}
-          onPress={() => setLayer("interest")}
-        />
-        <Chip
-          label="Priorities"
-          selected={layer === "value"}
-          onPress={() => setLayer("value")}
+        <TextButton
+          label="Shape my why"
+          color={C.gold}
+          onPress={() => router.push("/why")}
         />
       </View>
-      <Body>Tap a word for something you can do today.</Body>
-      {!items.length && (
-        <Body>
-          {layer === "interest"
-            ? "Add something you’re curious about. We’ll help you find a first step."
-            : "Add a priority you want to live, or start with your map’s quick picks."}
-        </Body>
-      )}
-      {(layer === "interest"
-        ? stages
-        : ["Working on", "Important to me", "Let go"]
-      ).map((group) => {
-        const grouped = items.filter((e) => state(e) === group);
-        if (!grouped.length) return null;
-        const collapsed = group === "On pause" || group === "Let go";
-        return (
-          <View key={group} style={{ gap: 12, marginTop: 12 }}>
-            {collapsed ? (
-              <TextButton
-                label={`${group} (${grouped.length})`}
-                onPress={() => setPaused(!paused)}
-              />
-            ) : (
-              <Eyebrow style={{ color: "#5C5850", fontFamily: F.strong }}>
-                {group}
-              </Eyebrow>
-            )}
-            {(!collapsed || paused) && (
-              <View
-                style={{
-                  flexDirection: "row",
-                  flexWrap: "wrap",
-                  alignItems: "center",
-                  columnGap: 4,
-                }}
-              >
-                {grouped.map((entry, i) => (
-                  <React.Fragment key={entry.id}>
-                    {i > 0 && (
-                      <Text style={{ fontSize: 20, color: "#C9C5BC" }}>
-                        {" "}
-                        ·{" "}
-                      </Text>
-                    )}
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel={`${entry.title} · ${group}`}
-                      onPress={() => {
-                        setError("");
-                        openEntry(entry);
-                      }}
-                      style={{ minHeight: 44, justifyContent: "center" }}
-                    >
-                      <Text
-                        style={{
-                          fontSize: 20,
-                          lineHeight: 30,
-                          fontFamily:
-                            group === "Maybe"
-                              ? F.sans
-                              : ["Into it", "All in", "Working on"].includes(
-                                    group,
-                                  )
-                                ? F.bold
-                                : F.medium,
-                          color:
-                            group === "Maybe"
-                              ? "#8A857B"
-                              : group === "All in"
-                                ? C.gold
-                                : C.navy,
-                          borderBottomWidth: group === "Into it" ? 3 : 0,
-                          borderBottomColor: C.gold,
-                        }}
-                      >
-                        {entry.title}
-                      </Text>
-                    </Pressable>
-                  </React.Fragment>
+      <View style={{ gap: 12 }}>
+        <Title style={{ fontSize: 22 }}>Priorities</Title>
+        {(["Working on", "Important to me"] as const).map((state) => (
+          <View key={state} style={{ gap: 8 }}>
+            <Body style={{ fontSize: 13, color: C.muted }}>{state}</Body>
+            <View style={s.wrap}>
+              {data.entries
+                .filter(
+                  (e) => e.kind === "value" && valueState(data, e) === state,
+                )
+                .map((e) => (
+                  <Chip
+                    key={e.id}
+                    label={`iwillbe.${e.title}`}
+                    onPress={() => open(e)}
+                  />
                 ))}
-              </View>
-            )}
+            </View>
           </View>
-        );
-      })}
+        ))}
+      </View>
       <TextButton
-        label="+ Add to my map"
+        label="+ Add a priority"
         color={C.gold}
         onPress={() => {
+          setKind("value");
           setName("");
-          setError("");
+          setAdding(true);
+        }}
+      />
+      <Title style={{ fontSize: 22 }}>Interests</Title>
+      <Body style={{ color: C.muted, fontSize: 14 }}>
+        Tap a word for your next step.
+      </Body>
+      {STAGES.map((stage) => {
+        const items = interests.filter((e) => interestState(data, e) === stage);
+        return items.length ? (
+          <View key={stage} style={{ gap: 6 }}>
+            <Body style={{ fontSize: 13, color: C.muted }}>{stage}</Body>
+            <View style={[s.wrap, { columnGap: 12 }]}>
+              {items.map((e) => (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`${e.title} · ${stage}`}
+                  key={e.id}
+                  onPress={() => open(e)}
+                  style={{
+                    minHeight: 44,
+                    justifyContent: "center",
+                    borderBottomWidth: stage === "Into it" ? 2 : 0,
+                    borderColor: C.gold,
+                  }}
+                >
+                  <Body
+                    style={{
+                      fontSize: 20,
+                      fontFamily:
+                        stage === "All in" || stage === "Into it"
+                          ? F.bold
+                          : F.medium,
+                      color:
+                        stage === "All in"
+                          ? C.gold
+                          : stage === "On pause"
+                            ? C.muted
+                            : C.navy,
+                    }}
+                  >
+                    {e.title}
+                  </Body>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        ) : null;
+      })}
+      <TextButton
+        label="+ Add an interest"
+        color={C.gold}
+        onPress={() => {
+          setKind("interest");
+          setName("");
           setAdding(true);
         }}
       />
       <View style={s.section}>
         <TextButton
-          label="People I admire, habits and history"
-          onPress={() => router.push("/history")}
-        />
-        <TextButton
-          label="One year out and Later in life"
+          label="Future me · One year out, later in life and my someday list"
           onPress={() => router.push("/telescope")}
         />
         <TextButton
-          label="Meaning To and Open Questions"
+          label="Your rhythms"
           onPress={() => router.push("/rhythms")}
+        />
+        <TextButton
+          label="People I admire and saved thoughts"
+          onPress={() => router.push("/history")}
         />
       </View>
       <Sheet
         open={adding}
         onClose={() => setAdding(false)}
         title={
-          layer === "interest"
+          kind === "interest"
             ? "What would you like to explore?"
             : "Who do you want to be?"
         }
+        footer={
+          <Button
+            label="Add to my map"
+            disabled={!name.trim()}
+            loading={action.busy}
+            onPress={() =>
+              action.run(async () => {
+                const title = name.trim().toLowerCase();
+                const prior = data.entries.find(
+                  (e) => e.kind === kind && e.title === title,
+                );
+                const entry =
+                  prior ||
+                  (await putEntry(
+                    entryInput(kind, title, {
+                      state: kind === "interest" ? "want_to_try" : "working_on",
+                    }),
+                  ));
+                setAdding(false);
+                open(entry);
+              })
+            }
+          />
+        }
       >
         <Field
-          label={layer === "interest" ? "An interest" : "A priority"}
+          label={kind === "interest" ? "An interest" : "A priority"}
           value={name}
           onChangeText={setName}
           maxLength={80}
-          placeholder={
-            layer === "interest" ? "e.g. learning guitar" : "e.g. patient"
-          }
         />
-        <Button
-          label="Add to my map"
-          disabled={!name.trim()}
-          loading={busy}
-          onPress={() =>
-            run(async () => {
-              const title =
-                layer === "interest" ? missionTag(name) : priorityName(name);
-              const known = data.entries.find(
-                (e) =>
-                  e.kind === layer && missionTag(e.title) === missionTag(title),
-              );
-              const entry =
-                known ||
-                (await putEntry(
-                  entryInput(layer, title, {
-                    state: layer === "interest" ? "spark" : "working_on",
-                    meta: { ladder_step: 1 },
-                  }),
-                ));
-              setAdding(false);
-              openEntry(entry);
-            })
-          }
-        />
-        <Notice text={error} tone="error" />
+        <Notice text={action.error} tone="error" />
       </Sheet>
       <Sheet
         open={!!selected}
         onClose={() => setSelected(null)}
-        title="Your next step"
+        title={
+          selected
+            ? `${selected.kind === "value" ? "iwillbe." : ""}${selected.title} · step ${mission?.ladder_step || 1} of 5`
+            : "Your next step"
+        }
+        footer={
+          selected ? (
+            <View style={s.row}>
+              <View style={{ flex: 1 }}>
+                <Button
+                  label="Make it today's focus"
+                  disabled={!mission}
+                  loading={action.busy}
+                  onPress={accept}
+                />
+              </View>
+              <TextButton
+                label={level === "stretch" ? "Easier" : "Harder"}
+                onPress={() =>
+                  setLevel(
+                    level === "easy"
+                      ? "normal"
+                      : level === "normal"
+                        ? "stretch"
+                        : "easy",
+                  )
+                }
+              />
+            </View>
+          ) : undefined
+        }
       >
         {selected && (
           <>
-            <IWillBe>{selected.title}</IWillBe>
-            <Body>
-              {state(selected)} · step{" "}
-              {mission?.ladder_step || requestedStep || step} of 5
-            </Body>
-            {ideasLoading ? (
-              <Body>Finding a few ideas…</Body>
-            ) : (
-              <MissionCards
-                missions={options}
-                selected={mission?.id || ""}
-                onSelect={(m) => setMissionId(m.id)}
-              />
-            )}
-            <Notice text={ideasError} tone="error" />
-            {ideasError && (
+            <FocusCard
+              hideActions
+              mission={mission}
+              level={level}
+              onLevel={setLevel}
+              onAccept={accept}
+              loading={action.busy}
+              label="Make it today's focus"
+            />
+            {!mission && (
               <TextButton
-                label="Try loading ideas again"
+                label="Write my own focus"
                 onPress={() => {
-                  setIdeasLoading(true);
-                  setIdeasError("");
-                  setRetry(retry + 1);
+                  setSelected(null);
+                  router.replace("/");
                 }}
               />
             )}
-            {completed ? (
-              <Body>
-                You’ve reflected on today’s action. Come back tomorrow for a
-                fresh one.
-              </Body>
-            ) : replace ? (
+            {generated.error && (
               <>
-                <Title style={{ fontSize: 24 }}>Replace today’s action?</Title>
-                <Body>{current?.action}</Body>
-                <Button label="Replace and choose when" onPress={openAction} />
-                <TextButton
-                  label="Keep today’s action"
-                  onPress={() => setReplace(false)}
-                />
+                <Notice text={generated.error} />
+                <TextButton label="Retry ideas" onPress={generated.retry} />
               </>
-            ) : (
-              <Button
-                label="Make this today’s action"
-                disabled={!mission || ideasLoading}
-                onPress={() => (current ? setReplace(true) : openAction())}
-              />
             )}
-            <TextButton
-              label="Write my own action"
-              onPress={() => {
-                const entry = selected;
-                setSelected(null);
-                router.push({
-                  pathname: "/ritual",
-                  params: {
-                    [entry.kind === "interest" ? "interest" : "value"]:
-                      entry.title,
-                  },
-                });
-              }}
-            />
-            <TextButton
-              label="Show other ideas"
-              onPress={() => {
-                if (missions.length > 3) {
-                  setOffset(offset + 1);
-                  setMissionId("");
-                } else {
-                  setIdeasLoading(true);
-                  setIdeasError("");
-                  setRequestedStep(Math.min(5, (requestedStep || step) + 1));
-                  setRetry(retry + 1);
-                }
-              }}
-            />
-            <TextButton label="Move stage" onPress={() => setMove(!move)} />
+            <TextButton label="Move to" onPress={() => setMove(!move)} />
             {move && (
               <View style={s.wrap}>
                 {(selected.kind === "interest"
-                  ? stages.slice(0, 4)
+                  ? STAGES.slice(0, 4)
                   : ["Working on", "Important to me", "Let go"]
-                ).map((label) => (
+                ).map((stage, i) => (
                   <Chip
-                    key={label}
-                    label={label}
-                    selected={state(selected) === label}
-                    disabled={busy}
-                    onPress={() =>
-                      run(async () => {
-                        await putEntry({
-                          ...selected,
-                          kind:
-                            selected.kind === "strength"
-                              ? "value"
-                              : selected.kind,
-                          state: stageValues[label],
+                    key={stage}
+                    label={stage}
+                    onPress={() => {
+                      if (stage === "All in")
+                        void action.run(async () => {
+                          const allowed = await extra.recordMoment(
+                            "all_in_check",
+                            `map:${today}`,
+                            !!extra.summaries[0]?.hard_day,
+                          );
+                          if (allowed) setAllIn(true);
+                          else {
+                            await putEntry({ ...selected, state: "all_in" });
+                            setSelected(null);
+                          }
                         });
-                        setSelected(null);
-                      })
-                    }
+                      else
+                        void changeState(
+                          selected.kind === "interest"
+                            ? STAGE_VALUES[i]
+                            : ["working_on", "important", "let_go"][i],
+                        );
+                    }}
                   />
                 ))}
+              </View>
+            )}
+            {allIn && (
+              <View
+                style={{
+                  gap: 10,
+                  backgroundColor: C.soft,
+                  padding: 14,
+                  borderRadius: 14,
+                }}
+              >
+                <Body>
+                  Is this something you truly want to go all in on, or is it
+                  just interesting right now?
+                </Body>
+                <Button
+                  label="All in"
+                  onPress={() =>
+                    action.run(async () => {
+                      await putEntry({ ...selected, state: "all_in" });
+                      setSelected(null);
+                    })
+                  }
+                />
+                <TextButton
+                  label="Just interesting for now"
+                  onPress={() => changeState("into_it")}
+                />
               </View>
             )}
             {selected.kind === "interest" && (
               <TextButton
                 label={
-                  state(selected) === "On pause"
-                    ? "Resume exploring"
+                  interestState(data, selected) === "On pause"
+                    ? "Bring back"
                     : "Put on pause"
                 }
                 onPress={() =>
-                  run(async () => {
+                  action.run(async () => {
                     await putEntry({
                       ...selected,
                       state:
-                        state(selected) === "On pause"
-                          ? selected.meta.previous_state || "spark"
-                          : "paused",
+                        interestState(data, selected) === "On pause"
+                          ? selected.meta.previous_state || "want_to_try"
+                          : "on_pause",
                       meta: {
                         ...selected.meta,
                         previous_state: selected.state,
@@ -496,30 +408,20 @@ function MyMap() {
                 }
               />
             )}
-            <TextButton label="Remove" onPress={() => setRemove(true)} />
-            {remove && (
-              <>
-                <Body>
-                  Remove this from your map? Your past actions will stay in your
-                  history.
-                </Body>
-                <Button
-                  secondary
-                  label="Remove from my map"
-                  loading={busy}
-                  onPress={() =>
-                    run(async () => {
-                      await removeEntry(selected.id, selected.revision);
-                      setSelected(null);
-                    })
-                  }
-                />
-              </>
-            )}
-            <Notice text={error} tone="error" />
+            <TextButton
+              label="Remove"
+              onPress={() =>
+                action.run(async () => {
+                  await removeEntry(selected.id, selected.revision);
+                  setSelected(null);
+                })
+              }
+            />
+            <Notice text={action.error || notice} tone="error" />
           </>
         )}
       </Sheet>
+      <Notice text={extra.error} tone="error" />
     </Page>
   );
 }

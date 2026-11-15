@@ -9,19 +9,15 @@ export function useOnboardingCatalogue() {
     Promise.all([
       supabase
         .from("quick_pick_cards")
-        .select("id,title,description,domain")
+        .select("id,title,description")
         .order("position"),
-      supabase
-        .from("priority_words")
-        .select("name,priority_group")
-        .order("position"),
+      supabase.from("priority_words").select("name").order("position"),
     ]).then(([picks, words]) => {
       if (!alive) return;
-      if (!picks.error && picks.data?.length) setCards(picks.data);
+      if (!picks.error && picks.data?.length)
+        setCards(picks.data.map((p) => ({ ...p, domain: "" })));
       if (!words.error && words.data?.length)
-        setPriorities(
-          words.data.map((p) => ({ name: p.name, group: p.priority_group })),
-        );
+        setPriorities(words.data.map((p) => ({ name: p.name, group: "" })));
     });
     return () => {
       alive = false;

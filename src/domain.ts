@@ -4,6 +4,8 @@ export type Profile = {
   revision?: number;
   display_name: string;
   faith_tradition?: string | null;
+  joined_at?: string;
+  baseline_answers?: (number | null)[] | null;
   north_star: string;
   values: string[];
   interests: string[];
@@ -31,6 +33,10 @@ export type Intention = {
   for_me?: boolean;
   mission_id?: string | null;
   mission_step?: number | null;
+  source?: "typed" | "suggested";
+  level?: "easy" | "normal" | "stretch" | null;
+  type?: "do" | "learn";
+  someday_item_id?: string | null;
   created_at: string;
 };
 export type CheckIn = {

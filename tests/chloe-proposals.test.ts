@@ -340,9 +340,9 @@ test("replacement values need the person's exact named value, never an invented 
     null,
   );
 });
-test("weekly focus needs evidence and respects a fixed area", () => {
+test("weekly priority needs evidence and respects an explicit choice", () => {
   const proposal = {
-    area: "Grow",
+    area: "always learning",
     reason: "You enjoyed teaching your niece.",
     source_ids: ["source"],
   };
@@ -358,7 +358,7 @@ test("weekly focus needs evidence and respects a fixed area", () => {
   assert.equal(
     validateWeeklyFocus(proposal, "sunday", new Set(["source"]), {
       pace: "stay",
-      orbit: "People",
+      orbit: "kind",
     }),
     null,
   );

@@ -1,3 +1,4 @@
+import { NightSummary } from "../src/night-summary";
 import { NightThought } from "../src/night-thought";
 import { withAccount } from "../src/access-gate";
 import React, { useEffect, useState } from "react";
@@ -225,7 +226,7 @@ function QuietNight({ today }: { today: string }) {
             <Notice text={error || draftError} tone="error" />
             <Button
               label={
-                draft.naming ? "Keep this as a Maybe" : "Keep this thought"
+                draft.naming ? "Keep this as Want to try" : "Keep this thought"
               }
               disabled={
                 !draft.note.trim() ||
@@ -257,7 +258,12 @@ function QuietNight({ today }: { today: string }) {
       {done || !question ? (
         <>
           <Body>Leave it here. Enjoy the rest of your evening.</Body>
-          {done && <NightThought reflection={draft.note} />}
+          {done && (
+            <>
+              <NightSummary reflection={draft.note} />
+              <NightThought reflection={draft.note} />
+            </>
+          )}
           <Button
             label="Done for tonight"
             onPress={() =>
@@ -760,6 +766,7 @@ function ReflectionForm({
       {done ? (
         <>
           {insight ? <Body>{insight}</Body> : null}
+          <NightSummary reflection={draft.note} />
           <NightThought reflection={draft.note} />
           <TextButton
             label="Choose an action for tomorrow"

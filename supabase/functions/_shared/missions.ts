@@ -2,7 +2,7 @@ export type Mission = {
   id: string;
   mission_text: string;
   first_step: string;
-  area: "Be" | "People" | "Causes" | "Passions" | "Grow";
+  area?: "Be" | "People" | "Causes" | "Passions" | "Grow";
   tags: string[];
   quick_picks: string[];
   priorities: string[];

@@ -69,6 +69,10 @@ type Context = {
         | "for_me"
         | "mission_id"
         | "mission_step"
+        | "source"
+        | "level"
+        | "type"
+        | "someday_item_id"
       >
     >,
   ) => Promise<void>;
@@ -668,14 +672,20 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
         throw new Error("Choose today or tomorrow for a new intention.");
       const owner = user.current;
       const existing = current.current.intentions.find((i) => i.day === day);
-      if (
-        existing &&
-        current.current.checkIns.some((c) => c.intention_id === existing.id)
-      )
-        throw new Error(
-          "This intention already has a reflection. Choose tomorrow for a fresh intention.",
-        );
+      const replacingReflection =
+        !!existing &&
+        current.current.checkIns.some((c) => c.intention_id === existing.id);
       const intention: Intention = {
+        source: "typed",
+        mission_id: null,
+        mission_step: null,
+        level: null,
+        type: "do",
+        someday_item_id: null,
+        place: "",
+        when_context: "",
+        for_me: false,
+        for_whom: "",
         ...details,
         id: existing?.id || newId(),
         day,
@@ -704,7 +714,7 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
           const now = new Date().toISOString();
           const entry: Entry = {
             ...entryInput(kind, title, {
-              state: kind === "value" ? "trying" : "spark",
+              state: kind === "value" ? "working_on" : "want_to_try",
               source: "Chosen for a daily intention",
             }),
             id: newId(),
@@ -733,7 +743,17 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
         current.current.entries.find(
           (e) => e.kind === "value" && e.title === value,
         )?.id || null;
-      await write("intentions", intention, "user_id,day");
+      if (replacingReflection && existing && owner) {
+        const result = await supabase.rpc("replace_daily_focus", {
+          p_id: existing.id,
+          p_revision: existing.revision || 1,
+          p_focus: intention,
+        });
+        if (result.error) throw new Error(result.error.message);
+        if (owner !== user.current)
+          throw new Error("Your account changed. Please reopen your account.");
+        Object.assign(intention, result.data);
+      } else await write("intentions", intention, "user_id,day");
       recordUsage(
         current.current,
         owner,
@@ -742,6 +762,11 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
       await commit(
         {
           ...current.current,
+          checkIns: replacingReflection
+            ? current.current.checkIns.filter(
+                (c) => c.intention_id !== existing?.id,
+              )
+            : current.current.checkIns,
           intentions: [
             intention,
             ...current.current.intentions.filter(

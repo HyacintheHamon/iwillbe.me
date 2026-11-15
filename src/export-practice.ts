@@ -32,6 +32,10 @@ export async function exportPractice(local: Practice, owner?: string) {
     events,
     feedback,
     entitlements,
+    places,
+    somedayItems,
+    chloeMoments,
+    checkinSummaries,
   ] = await Promise.all([
     allRows("intentions"),
     allRows("check_ins", "intention_id"),
@@ -43,6 +47,10 @@ export async function exportPractice(local: Practice, owner?: string) {
     allRows("product_events"),
     allRows("product_feedback"),
     allRows("entitlements", "user_id"),
+    allRows("places"),
+    allRows("someday_items"),
+    allRows("chloe_moments"),
+    allRows("checkin_summaries", "day"),
   ]);
   return {
     exported_at: new Date().toISOString(),
@@ -57,5 +65,9 @@ export async function exportPractice(local: Practice, owner?: string) {
     events,
     feedback,
     entitlements,
+    places,
+    somedayItems,
+    chloeMoments,
+    checkinSummaries,
   };
 }

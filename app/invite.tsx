@@ -115,7 +115,7 @@ export default function Invite() {
               <Body>
                 Your suggestion will be shared with the person who created this
                 link, along with your name if you add it. They decide whether to
-                keep it as a Maybe.
+                keep it as Want to try.
               </Body>
               <Button
                 label="Send this suggestion"
@@ -156,7 +156,7 @@ export default function Invite() {
               />
               <Button
                 secondary
-                label="Save it as a Maybe"
+                label="Save it as Want to try"
                 onPress={() =>
                   action.run(async () => {
                     await remember();
