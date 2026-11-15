@@ -91,4 +91,14 @@ await assert.rejects(() =>
 console.log(
   "PASS atomic replacement, preserved reflection and stale revision rejection",
 );
+await db.exec("reset role");
+await db.exec(
+  await readFile(
+    new URL("../tests/onboarding-completion.sql", import.meta.url),
+    "utf8",
+  ),
+);
+console.log(
+  "PASS final onboarding save, ten priorities, skipped answers and owner isolation",
+);
 await db.close();
