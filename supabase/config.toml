@@ -11,5 +11,13 @@ subject = "Confirm your email for iwillbe.me"
 content_path = "./supabase/templates/confirmation.html"
 
 [auth.email.template.magic_link]
-subject = "Your sign-in link for iwillbe.me"
+subject = "Your iwillbe.me sign-in link"
 content_path = "./supabase/templates/magic_link.html"
+
+[auth.email.template.email_change]
+subject = "Confirm your email change for iwillbe.me"
+content_path = "./supabase/templates/email_change.html"
+
+[auth.email.template.recovery]
+subject = "Reset your iwillbe.me password"
+content_path = "./supabase/templates/recovery.html"
