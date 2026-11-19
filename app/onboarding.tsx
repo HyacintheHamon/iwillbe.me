@@ -6,7 +6,14 @@ import { usePractice } from "../src/practice";
 import { useRound2 } from "../src/round2-store";
 import { useAction } from "../src/use-action";
 import { draftKey, useDraft } from "../src/drafts";
-import { entryInput, REVIEW_QUESTIONS, type EntryInput } from "../src/journey";
+import {
+  entryInput,
+  REVIEW_QUESTIONS,
+  type Entry,
+  type EntryInput,
+} from "../src/journey";
+import { AI_DISCLOSURE, CHLOE_INTRO } from "../src/today-flow";
+import { KIDS_AGES, type KidsAge } from "../src/round3-preference-rules";
 import {
   PRIORITY_WORDS,
   QUICK_PICKS,
@@ -45,6 +52,23 @@ const PICK_STATE = {
   like: "from_time_to_time",
   open: "want_to_try",
 };
+const STEP_NAMES = [
+  "Introduction",
+  "Strengths",
+  "Who comes to you",
+  "Ten priorities",
+  "Three priorities to work on",
+  "Faith tradition",
+  "Childhood interests",
+  "Quick picks",
+  "Something to grow into",
+  "People",
+  "Places",
+  "Check-in anchors",
+  "First why",
+  "Starting point",
+  "Completed",
+];
 function Onboarding() {
   const { data, session, saveProfile, putEntry, removeEntry } = usePractice();
   const extra = useRound2();
@@ -70,6 +94,9 @@ function Onboarding() {
       where: [] as string[],
       customWho: "",
       customWhere: "",
+      kidsAges: (data.entries.find(
+        (e) => e.kind === "preferences" && e.title === "Kids ages",
+      )?.meta.ages || []) as KidsAge[],
       morning: "",
       night: "",
       why: "",
@@ -77,6 +104,53 @@ function Onboarding() {
       baselineIndex: 0,
     },
   );
+  const progressQueue = useRef(Promise.resolve());
+  const progressEntry = useRef<Entry | undefined>(undefined);
+  const progressKey = useRef("");
+  useEffect(() => {
+    if (!ready || !session?.user.id || data.profile.onboarded) return;
+    const key = [
+      session.user.id,
+      draft.step,
+      draft.cursor,
+      draft.baselineIndex,
+    ].join(":");
+    if (progressKey.current === key) return;
+    progressKey.current = key;
+    const snapshot = {
+      step: draft.step,
+      onboarding_step: STEP_NAMES[draft.step] || "In progress",
+      cursor: draft.cursor,
+    };
+    progressQueue.current = progressQueue.current
+      .catch(() => {})
+      .then(async () => {
+        const existing =
+          progressEntry.current ||
+          latest.current.entries.find(
+            (entry) =>
+              entry.kind === "preferences" &&
+              entry.title === "Onboarding progress",
+          );
+        progressEntry.current = await putEntry(
+          entryInput("preferences", "Onboarding progress", {
+            id: existing?.id,
+            revision: existing?.revision,
+            source: "Start your map progress",
+            meta: snapshot,
+          }),
+        );
+      })
+      .catch(() => {});
+  }, [
+    ready,
+    session?.user.id,
+    data.profile.onboarded,
+    draft.step,
+    draft.cursor,
+    draft.baselineIndex,
+    putEntry,
+  ]);
   const persist = async (input: EntryInput) => {
     const old = latest.current.entries.find(
       (e) => e.kind === input.kind && e.title === input.title,
@@ -194,12 +268,28 @@ function Onboarding() {
             );
         } else await saveInterests(draft.growth, "growth");
       }
-      if (draft.step === 9)
+      if (draft.step === 9) {
         for (const label of [
           ...draft.who,
           ...(draft.customWho.trim() ? [`with ${draft.customWho.trim()}`] : []),
         ])
           await extra.addPlace(label);
+        if (draft.who.includes("with my kids")) {
+          const existing = latest.current.entries.find(
+            (e) => e.kind === "preferences" && e.title === "Kids ages",
+          );
+          if (!existing?.meta.asked)
+            await persist(
+              entryInput("preferences", "Kids ages", {
+                body: draft.kidsAges.join(", "),
+                source: draft.kidsAges.length
+                  ? "Chosen in Start your map"
+                  : "Left open in Start your map",
+                meta: { ...existing?.meta, ages: draft.kidsAges, asked: true },
+              }),
+            );
+        }
+      }
       if (draft.step === 10)
         for (const label of [
           ...draft.where,
@@ -358,6 +448,13 @@ function Onboarding() {
       {draft.step === 0 && (
         <>
           <Title>Let’s find who you want to be.</Title>
+          <Body style={{ fontSize: 13, color: C.muted }}>{AI_DISCLOSURE}</Body>
+          <View style={{ gap: 5 }}>
+            <Body style={{ fontSize: 12, fontFamily: F.strong, color: C.gold }}>
+              Chloe
+            </Body>
+            <Body>{CHLOE_INTRO}</Body>
+          </View>
           <Body>
             Your answers will change over time. You can skip any question except
             the priority picks.
@@ -549,6 +646,42 @@ function Onboarding() {
             }
             maxLength={100}
           />
+          {draft.step === 9 &&
+            draft.who.includes("with my kids") &&
+            !data.entries.some(
+              (e) =>
+                e.kind === "preferences" &&
+                e.title === "Kids ages" &&
+                e.meta.asked,
+            ) && (
+              <View style={{ gap: 10, paddingTop: 6 }}>
+                <Body
+                  style={{ color: C.gold, fontFamily: F.strong, fontSize: 12 }}
+                >
+                  Chloe
+                </Body>
+                <Body>How old are your kids?</Body>
+                <Body style={{ color: C.muted, fontSize: 13 }}>
+                  Optional. Pick all that apply.
+                </Body>
+                <View style={s.wrap}>
+                  {KIDS_AGES.map((age) => (
+                    <Chip
+                      key={age}
+                      label={age}
+                      selected={draft.kidsAges.includes(age)}
+                      onPress={() =>
+                        update({
+                          kidsAges: draft.kidsAges.includes(age)
+                            ? draft.kidsAges.filter((value) => value !== age)
+                            : [...draft.kidsAges, age],
+                        })
+                      }
+                    />
+                  ))}
+                </View>
+              </View>
+            )}
         </>
       )}
       {draft.step === 11 && (

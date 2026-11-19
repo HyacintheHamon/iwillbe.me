@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; frame-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'"
+    />
+    <title>Round 3 · Isolated QA</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #f1ece6;
+        color: #141414;
+        font:
+          15px system-ui,
+          -apple-system,
+          sans-serif;
+      }
+      main {
+        max-width: 1060px;
+        margin: 24px auto;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: minmax(240px, 1fr) 390px;
+        gap: 32px;
+        align-items: start;
+      }
+      h1 {
+        font-size: 30px;
+        letter-spacing: -1px;
+        margin: 0 0 12px;
+      }
+      h2 {
+        font-size: 16px;
+        margin: 24px 0 10px;
+      }
+      p {
+        line-height: 1.6;
+        color: #625c56;
+      }
+      strong {
+        color: #141414;
+      }
+      button {
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        min-height: 44px;
+        border: 1px solid #c8bfb4;
+        background: #fff;
+        border-radius: 12px;
+        padding: 12px 14px;
+      }
+      button:hover {
+        border-color: #c2410c;
+      }
+      button[aria-pressed="true"] {
+        background: #fff1e6;
+        border: 2px solid #c2410c;
+        color: #9a3412;
+        padding: 11px 13px;
+      }
+      .choices {
+        display: grid;
+        gap: 8px;
+      }
+      .views {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .views button {
+        font-size: 13px;
+      }
+      #phone {
+        width: 390px;
+        height: 844px;
+        border: 1px solid #d8cfc4;
+        border-radius: 24px;
+        background: #faf8f5;
+        box-shadow: 0 16px 50px #31291c22;
+      }
+      #status {
+        font-size: 12px;
+        word-break: break-word;
+      }
+      .badge {
+        display: inline-block;
+        padding: 6px 10px;
+        background: #141414;
+        color: #fff;
+        border-radius: 20px;
+        font-size: 12px;
+        margin-bottom: 16px;
+      }
+      .note {
+        background: #fff;
+        padding: 14px;
+        border-radius: 12px;
+        font-size: 13px;
+      }
+      a {
+        color: #9a3412;
+      }
+      @media (max-width: 760px) {
+        main {
+          grid-template-columns: 1fr;
+          justify-items: center;
+          margin: 16px auto;
+          padding: 0 8px;
+          gap: 20px;
+        }
+        .controls {
+          width: 100%;
+          max-width: 430px;
+        }
+        #phone {
+          max-width: 100%;
+          height: 844px;
+        }
+        .choices {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      :focus-visible {
+        outline: 3px solid #c2410c;
+        outline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="controls">
+        <div class="badge">Isolated QA · Fictional data</div>
+        <h1>Round 3</h1>
+        <p>
+          Choose a scenario to reset the app. Accounts, saved choices and
+          Chloe’s replies stay in this preview; no real Supabase or AI service
+          is called.
+        </p>
+        <h2>Scenarios</h2>
+        <div class="choices" id="scenarios">
+          <button data-scenario="morning">Morning · 9 am</button>
+          <button data-scenario="evening">Evening · 6 pm</button>
+          <button data-scenario="new">New account · onboarding</button>
+          <button data-scenario="offline-night">Offline night thought</button>
+          <button data-scenario="admin-denied">
+            Ordinary account · admin denied
+          </button>
+          <button data-scenario="admin-allowed">
+            Fixture administrator · report
+          </button>
+        </div>
+        <h2>Open a screen</h2>
+        <div class="views" id="views">
+          <button data-path="/">Today</button
+          ><button data-path="/galaxy">My map</button>
+          <button data-path="/telescope">Future me</button
+          ><button data-path="/settings">Me</button>
+          <button data-path="/reflect">Night</button
+          ><button data-path="/rhythms">Sunday review</button>
+          <button data-path="/rhythms?mode=monthly">Monthly</button
+          ><button data-path="/admin">Admin</button>
+        </div>
+        <p class="note" id="explanation"></p>
+        <button id="reset">Reset this scenario</button>
+        <p id="status" role="status" aria-live="polite">
+          Starting the local fixture…
+        </p>
+      </section>
+      <iframe
+        id="phone"
+        title="iwillbe.me isolated phone preview"
+        width="390"
+        height="844"
+      ></iframe>
+    </main>
+    <script>
+      (() => {
+        const settings = {
+          morning: {
+            path: "/",
+            text: "November 19, 2026, 9 am in New York. Choose kind + with my kids. Pick a step, answer When, then use Change focus. All kids are under 6.",
+          },
+          evening: {
+            path: "/",
+            text: "November 19, 2026, 6 pm in New York. Check in with Chloe comes first. Kind + with my kids offers an at-home evening idea; larger sizes stay in the same family.",
+          },
+          new: {
+            path: "/onboarding",
+            text: "A new signed-in fictional account. Meet Chloe, complete or skip the questions, and try selecting my kids to reveal the optional age choices.",
+          },
+          "offline-night": {
+            path: "/reflect",
+            text: "The night-thought API returns a local 503. Keep or skip your reflection to check that a saved reframe still closes the night. Other saves remain local and available.",
+          },
+          "admin-denied": {
+            path: "/admin",
+            text: "A regular fictional account has no report access. The local RPC also denies report requests independently of the screen.",
+          },
+          "admin-allowed": {
+            path: "/admin",
+            text: "A fictional administrator can view a weekly report and download its sample CSV. All names, emails and counts are invented test data.",
+          },
+        };
+        const query = new URLSearchParams(location.search);
+        let scenario = Object.hasOwn(settings, query.get("scenario"))
+          ? query.get("scenario")
+          : "morning";
+        let token = "";
+        const frame = document.getElementById("phone");
+        const status = document.getElementById("status");
+        function open(path) {
+          const url = new URL(path, location.origin);
+          url.searchParams.set("qaScenario", scenario);
+          url.searchParams.set("qaReset", token);
+          frame.src = url.pathname + url.search;
+        }
+        function select(name) {
+          scenario = name;
+          token =
+            String(Date.now()) + "-" + Math.random().toString(36).slice(2);
+          for (const button of document.querySelectorAll("[data-scenario]"))
+            button.setAttribute(
+              "aria-pressed",
+              String(button.dataset.scenario === scenario),
+            );
+          document.getElementById("explanation").textContent =
+            settings[scenario].text;
+          status.textContent = "Loading " + scenario + "…";
+          history.replaceState(
+            null,
+            "",
+            "/qa.html?scenario=" + encodeURIComponent(scenario),
+          );
+          open(settings[scenario].path);
+        }
+        document
+          .getElementById("scenarios")
+          .addEventListener("click", (event) => {
+            const button = event.target.closest("[data-scenario]");
+            if (button) select(button.dataset.scenario);
+          });
+        document.getElementById("views").addEventListener("click", (event) => {
+          const button = event.target.closest("[data-path]");
+          if (button) open(button.dataset.path);
+        });
+        document
+          .getElementById("reset")
+          .addEventListener("click", () => select(scenario));
+        window.addEventListener("message", (event) => {
+          if (
+            event.origin !== location.origin ||
+            event.source !== frame.contentWindow ||
+            event.data?.type !== "round3-qa-status"
+          )
+            return;
+          status.textContent =
+            "Local service calls handled: " +
+            event.data.handled +
+            " · External calls blocked: " +
+            event.data.blocked +
+            " · " +
+            event.data.clock;
+        });
+        select(scenario);
+      })();
+    </script>
+  </body>
+</html>

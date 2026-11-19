@@ -46,6 +46,13 @@ import {
   type PendingReflection,
 } from "../src/chloe-reflection";
 import type { WeeklyFocusProposal } from "../supabase/functions/chloe/proposals";
+import {
+  KidsAgesPrompt,
+  NightPreferences,
+  shouldAskKidsAges,
+} from "../src/round3-preferences";
+import { NightThought } from "../src/night-thought";
+import { supportLevel } from "../supabase/functions/_shared/safety";
 type Suggestion = {
   action: string;
   value: string;
@@ -69,6 +76,9 @@ function ChloeSession() {
   const [notice, setNotice] = useState("");
   const [startedAt, setStartedAt] = useState(() => new Date().toISOString());
   const [showHistory, setShowHistory] = useState(false);
+  const [support, setSupport] = useState(0);
+  const [nightClosing, setNightClosing] = useState<string | null>(null);
+  const [kidsPending, setKidsPending] = useState<string | null>(null);
   const [selectedQuestionDone, setSelectedQuestionDone] = useState(false);
   const [discovery, setDiscovery] = useState<{
     kind: EntryKind;
@@ -121,7 +131,7 @@ function ChloeSession() {
       ownerRef.current = undefined;
     };
   }, [session?.user.id]);
-  const send = async (message?: string) => {
+  const send = async (message?: string, agesHandled = false) => {
     const text = (message ?? input).trim();
     if (!text || busy) return;
     if (!session) {
@@ -130,6 +140,16 @@ function ChloeSession() {
       );
       return;
     }
+    if (
+      !agesHandled &&
+      support < 2 &&
+      supportLevel(text) < 2 &&
+      shouldAskKidsAges(data, text)
+    ) {
+      setKidsPending(text);
+      return;
+    }
+    setKidsPending(null);
     const owner = session.user.id;
     const assertOwner = () => {
       if (ownerRef.current !== owner)
@@ -183,6 +203,8 @@ function ChloeSession() {
         throw new Error(message);
       }
       await addMessages(reply.messages, owner);
+      setSupport(Number(reply.support_level) || 0);
+      setNightClosing(null);
       assertOwner();
       update({
         ...(message === undefined || message === input ? { input: "" } : {}),
@@ -264,10 +286,7 @@ function ChloeSession() {
             </Body>
           </View>
         ) : null}
-        <Button
-          label="Choose an intention"
-          onPress={() => router.push("/ritual")}
-        />
+        <Button label="Choose an intention" onPress={() => router.push("/")} />
         <View style={s.section}>
           <Title style={{ fontSize: 24, lineHeight: 30 }}>
             Talk it through with Chloe
@@ -328,7 +347,7 @@ function ChloeSession() {
             ["discovery", "Discover"],
             ["explore", "Explore"],
             ["sunday", "Sunday Explore"],
-            ["fullmoon", "Monthly"],
+            ["monthly", "Monthly"],
             ["why", "My why"],
           ] as const
         ).map(([id, label]) => (
@@ -347,6 +366,8 @@ function ChloeSession() {
               setDiscovery(null);
               setMemory(null);
               setWhyProposal(null);
+              setNightClosing(null);
+              setKidsPending(null);
             }}
           />
         ))}
@@ -418,7 +439,7 @@ function ChloeSession() {
             </Body>
             <TextButton
               label="Choose an intention on my own"
-              onPress={() => router.push("/ritual")}
+              onPress={() => router.push("/")}
             />
           </View>
         )}
@@ -478,12 +499,23 @@ function ChloeSession() {
             <Body style={{ fontSize: 12 }}>A little space to think…</Body>
           </View>
         )}
+        {!busy && support < 2 && kidsPending !== null ? (
+          <KidsAgesPrompt
+            context={kidsPending}
+            onDone={() => {
+              const message = kidsPending;
+              setKidsPending(null);
+              void send(message, true);
+            }}
+          />
+        ) : null}
         {draft.reflection && activeProposal === "reflection" ? (
           <ChloeReflection
             key={draft.reflection.intention_id}
             proposal={draft.reflection}
             onChange={(reflection) => update({ reflection })}
             onSaved={() => {
+              setNightClosing(draft.reflection?.reflection || "");
               update({ reflection: null });
               setQuestion(null);
               setNotice("Saved. Let the rest of the night be yours.");
@@ -542,7 +574,16 @@ function ChloeSession() {
             <Button
               label="Make it my intention"
               onPress={() =>
-                router.push({ pathname: "/ritual", params: suggestion })
+                router.push({
+                  pathname: "/",
+                  params: {
+                    focusText: suggestion.action,
+                    focusSource: "suggested",
+                    priority: suggestion.value,
+                    interest: suggestion.interest || "",
+                    place: suggestion.person || suggestion.with_person || "",
+                  },
+                })
               }
             />
           </View>
@@ -773,13 +814,45 @@ function ChloeSession() {
           </View>
         ) : null}
         <Notice text={notice} />
+        {mode === "night" && nightClosing !== null ? (
+          <NightThought reflection={nightClosing}>
+            <NightPreferences
+              context={nightClosing}
+              priority={
+                data.intentions.find((intention) => intention.day === today)
+                  ?.value
+              }
+            />
+          </NightThought>
+        ) : null}
         <TextButton
           label="Ask me something else"
           onPress={() => {
             void send("Ask me something else.");
           }}
         />
-        <TextButton label="Done for now" onPress={() => router.replace("/")} />
+        <TextButton
+          label={
+            mode === "night" && nightClosing === null
+              ? "Close tonight"
+              : "Done for now"
+          }
+          onPress={() => {
+            if (mode === "night" && nightClosing === null && support < 2) {
+              setNightClosing(
+                data.messages
+                  .filter(
+                    (message) =>
+                      message.role === "user" &&
+                      message.created_at >= startedAt,
+                  )
+                  .map((message) => message.content)
+                  .join("\n")
+                  .slice(-2000),
+              );
+            } else router.replace("/");
+          }}
+        />
       </ScrollView>
       <View
         style={{

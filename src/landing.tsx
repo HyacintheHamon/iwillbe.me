@@ -13,12 +13,13 @@ import { router } from "expo-router";
 import { ArrowLeftIcon } from "phosphor-react-native/src/icons/ArrowLeft";
 import { ArrowRightIcon } from "phosphor-react-native/src/icons/ArrowRight";
 import { Body, Button, C, Eyebrow, F, TextButton, Title } from "./ui";
+import { AI_DISCLOSURE, CHLOE_INTRO } from "./today-flow";
 
 const slides = [
   {
     label: "A LITTLE MORE YOU",
     title: "Show up for\nwhat matters.",
-    body: "A small daily practice to find your why and live it. Chloe helps you choose one thing that matters today, then gets you off the screen.",
+    body: CHLOE_INTRO,
   },
   {
     label: "CHOOSE, THEN GO LIVE",
@@ -33,7 +34,7 @@ const slides = [
   {
     label: "YOUR FIRST SMALL STEP",
     title: "I will be\nmore me.",
-    body: "You don’t need all the answers. Create your account, then meet Chloe for a gentle first session. At your pace.",
+    body: "You don’t need all the answers. Create your account, then start your map with Chloe. At your pace.",
   },
 ];
 
@@ -222,6 +223,9 @@ export function Landing() {
               >
                 {slide.title}
               </Title>
+              {index === 0 && (
+                <Body style={styles.caption}>{AI_DISCLOSURE}</Body>
+              )}
               <Body style={styles.description}>{slide.body}</Body>
             </View>
             <View style={wide ? { flex: 1, maxWidth: 410 } : undefined}>
@@ -285,7 +289,7 @@ export function Landing() {
             <Button label="Join the beta" onPress={join} />
           </View>
           <Body style={styles.ctaNote}>
-            Create your account first. Meet Chloe next.
+            Your practice starts with one small step.
           </Body>
           <TextButton label="Privacy" onPress={() => router.push("/privacy")} />
         </View>

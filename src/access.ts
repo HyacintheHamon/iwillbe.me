@@ -25,6 +25,7 @@ export const destinations = [
   "/explore",
   "/rhythms",
   "/telescope",
+  "/admin",
 ] as const;
 export function safeDestination(value?: string) {
   return destinations.find((path) => path === value) || "/";

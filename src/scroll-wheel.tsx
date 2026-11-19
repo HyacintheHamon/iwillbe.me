@@ -56,6 +56,7 @@ export function ScrollWheel({
         overflow: "hidden",
         borderWidth: 1,
         borderColor: C.line,
+        flexDirection: "row",
       }}
     >
       <View
@@ -65,7 +66,7 @@ export function ScrollWheel({
           top: ROW,
           height: ROW,
           left: 8,
-          right: 8,
+          right: 38,
           borderRadius: 12,
           backgroundColor: priority ? C.soft : "#F5F1EC",
         }}
@@ -87,6 +88,7 @@ export function ScrollWheel({
       )}
       <ScrollView
         ref={ref}
+        style={{ flex: 1 }}
         nestedScrollEnabled
         showsVerticalScrollIndicator={false}
         snapToInterval={ROW}
@@ -152,6 +154,11 @@ export function ScrollWheel({
           </Pressable>
         ))}
       </ScrollView>
+      <View
+        testID="wheel-page-scroll-margin"
+        pointerEvents="none"
+        style={{ width: 30, flexShrink: 0 }}
+      />
     </View>
   );
 }

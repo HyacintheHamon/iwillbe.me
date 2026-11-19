@@ -144,6 +144,18 @@ export async function round2Context(scoped: Client, userId: string) {
     interests,
     places,
     someday_items: someday,
+    this_year_items: someday.filter(
+      (item: any) => item.horizon === "this_year",
+    ),
+    kids_ages:
+      entries.find(
+        (e: any) => e.kind === "preferences" && e.title === "Kids ages",
+      )?.meta || null,
+    priority_themes: entries
+      .filter(
+        (e: any) => e.kind === "preferences" && e.title === "Priority theme",
+      )
+      .map((e: any) => e.meta),
     people_admired: entries.filter((e: any) => e.kind === "person"),
     meaning_to: entries.filter(
       (e: any) =>
@@ -172,7 +184,8 @@ export async function round2Context(scoped: Client, userId: string) {
         (e: any) => e.title === l.interest && e.state !== "on_pause",
       ),
     ),
-    future: entries.filter((e: any) => e.kind === "vision"),
+    future: someday,
+    archived_future_pictures: entries.filter((e: any) => e.kind === "vision"),
     monthly: entries.filter((e: any) => e.kind === "review"),
     annual_refresh_due:
       days >= 330 && day.slice(5, 7) === profile.joined_at.slice(5, 7),
@@ -509,20 +522,18 @@ export async function round2Action(
         item_id: opener.item_id || null,
         mission_id: opener.mission_id || null,
       };
-    const saved = await admin
-      .from("checkin_summaries")
-      .upsert(
-        {
-          user_id: userId,
-          day: today,
-          session_id: `night:${today}`,
-          hard_day: hardDayFlag,
-          summary: short(result.summary, 1000),
-          source_signature: signature,
-          opener_line: opener,
-        },
-        { onConflict: "user_id,day" },
-      );
+    const saved = await admin.from("checkin_summaries").upsert(
+      {
+        user_id: userId,
+        day: today,
+        session_id: `night:${today}`,
+        hard_day: hardDayFlag,
+        summary: short(result.summary, 1000),
+        source_signature: signature,
+        opener_line: opener,
+      },
+      { onConflict: "user_id,day" },
+    );
     if (saved.error) throw saved.error;
     return {
       summary: short(result.summary, 1000),

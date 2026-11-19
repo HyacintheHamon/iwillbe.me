@@ -16,6 +16,7 @@ import {
 import { validReminderTime, validTimeZone } from "../src/reminder-calendar";
 import { draftKey, useDraft } from "../src/drafts";
 import { exportPractice } from "../src/export-practice";
+import { BrandHeader } from "../src/brand-header";
 import {
   Body,
   Button,
@@ -27,7 +28,6 @@ import {
   Sheet,
   TextButton,
   Title,
-  TopBar,
   s,
 } from "../src/ui";
 type Section = "profile" | "reminders" | "memory" | "account" | "delete";
@@ -145,9 +145,9 @@ function Settings() {
       <ActivityIndicator accessibilityLabel="Restoring your preferences" />
     );
   return (
-    <Page header={<TopBar title="Make this space yours" />}>
+    <Page header={<BrandHeader />}>
+      <Title>Me</Title>
       <View style={s.wrap}>
-        <Chip label="My rhythms" onPress={() => router.push("/rhythms")} />
         <Chip
           label="My membership"
           onPress={() => router.push("/membership")}
@@ -465,6 +465,10 @@ function Settings() {
         <Title style={{ fontSize: 24, lineHeight: 30 }}>
           What Chloe remembers
         </Title>
+        <Body>
+          Chloe is your AI sidekick for choosing one thing a day and reflecting
+          on it, not a therapist.
+        </Body>
         <Body>
           Only notes you choose to keep. You can remove them anytime. Chloe also
           uses your saved priorities and recent reflections.

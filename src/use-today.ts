@@ -3,6 +3,24 @@ import { AppState } from "react-native";
 import { dayInZone } from "./journey";
 import { usePractice } from "./practice";
 
+// Mission eligibility changes within the day as well as at midnight. Keep
+// open suggestion sheets current, including when returning from background.
+export function useLocalNow() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const update = () => setNow(new Date());
+    const timer = setInterval(update, 60_000);
+    const listener = AppState.addEventListener("change", (state) => {
+      if (state === "active") update();
+    });
+    return () => {
+      clearInterval(timer);
+      listener.remove();
+    };
+  }, []);
+  return now;
+}
+
 export function useToday() {
   const { data } = usePractice();
   const timezone = data.profile.timezone;

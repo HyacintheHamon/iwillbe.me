@@ -1,5 +1,8 @@
 import { NightSummary } from "../src/night-summary";
 import { NightThought } from "../src/night-thought";
+import { NightPreferences } from "../src/round3-preferences";
+import { nightCompletionMarker } from "../src/night-completion";
+import { supportLevel } from "../supabase/functions/_shared/safety";
 import { withAccount } from "../src/access-gate";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
@@ -206,6 +209,8 @@ function QuietNight({ today }: { today: string }) {
         }),
       );
       if (question) await clear();
+      if (supportLevel(draft.note) < 2)
+        void putEntry(nightCompletionMarker(data, today)).catch(() => {});
       setDone(true);
       return true;
     } catch (e) {
@@ -261,18 +266,14 @@ function QuietNight({ today }: { today: string }) {
           {done && (
             <>
               <NightSummary reflection={draft.note} />
-              <NightThought reflection={draft.note} />
+              <NightThought reflection={draft.note}>
+                <NightPreferences context={draft.note} />
+              </NightThought>
             </>
           )}
           <Button
-            label="Done for tonight"
-            onPress={() =>
-              done
-                ? router.replace("/")
-                : void save(true).then((saved) => {
-                    if (saved) router.replace("/");
-                  })
-            }
+            label={done ? "Done for tonight" : "Close tonight"}
+            onPress={() => (done ? router.replace("/") : void save(true))}
           />
         </>
       ) : (
@@ -619,6 +620,10 @@ function ReflectionForm({
       await markSession(!!usefulInsight);
       setInsight(usefulInsight?.text || "");
       await clear();
+      if (supportLevel(note) < 2)
+        void putEntry(nightCompletionMarker(data, intention.day)).catch(
+          () => {},
+        );
       setDone(true);
     });
   const skip = () =>
@@ -767,7 +772,6 @@ function ReflectionForm({
         <>
           {insight ? <Body>{insight}</Body> : null}
           <NightSummary reflection={draft.note} />
-          <NightThought reflection={draft.note} />
           <TextButton
             label="Choose an action for tomorrow"
             onPress={() =>
@@ -786,6 +790,12 @@ function ReflectionForm({
                   ? "Go enjoy the rest of your evening."
                   : "Kept with today. Go enjoy the rest of your evening."}
           </Body>
+          <NightThought reflection={draft.note}>
+            <NightPreferences
+              context={`${intention.action} ${intention.place || ""} ${draft.note}`}
+              priority={intention.value}
+            />
+          </NightThought>
           <Button
             label="Done for tonight"
             onPress={() => router.replace("/")}

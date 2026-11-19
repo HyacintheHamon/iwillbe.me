@@ -6,6 +6,7 @@ await db.exec(
   `create schema auth; create role anon; create role authenticated; create role service_role bypassrls; create table auth.users(id uuid primary key,created_at timestamptz default now()); create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth,public to anon,authenticated,service_role;grant execute on function auth.uid() to anon,authenticated,service_role;`,
 );
 const dir = new URL("../supabase/migrations/", import.meta.url);
+let beforeRound3;
 for (const file of (await readdir(dir))
   .filter((f) => f.endsWith(".sql"))
   .sort()) {
@@ -13,7 +14,69 @@ for (const file of (await readdir(dir))
     await db.exec(
       `insert into auth.users(id) values('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'),('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');insert into profiles(id) select id from auth.users;insert into journey_entries(id,user_id,kind,entry) values('cccccccc-cccc-4ccc-8ccc-cccccccccccc','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','interest','{"title":"reading","state":"spark","meta":{}}'),('dddddddd-dddd-4ddd-8ddd-dddddddddddd','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','interest','{"title":"hiking","state":"want_to_try","meta":{}}');`,
     );
+  if (file.endsWith("_round3_mission_catalogue.sql")) {
+    await db.exec(`
+      insert into missions(id,user_id,mission_text,first_step,ladder_step,stage,size,minutes,cost)
+      values('test-private-round3','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','My own private step','Keep it personal',1,'Want to try','5-minute',5,'Free');
+      insert into intentions(id,user_id,day,action,value,mission_id,mission_step)
+      values('11111111-2222-4333-8444-555555555555','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','2026-11-14','A completed historical step','brave','BE-COU-1a',1);
+      insert into check_ins(intention_id,user_id,outcome,reflection)
+      values('11111111-2222-4333-8444-555555555555','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','yes','Keep this exact reflection');
+    `);
+    beforeRound3 = (
+      await db.query(`select
+      (select array_agg(id order by id) from missions where user_id is null and active) ids,
+      (select to_jsonb(m) from missions m where id='test-private-round3') private_mission,
+      (select to_jsonb(i) from intentions i where id='11111111-2222-4333-8444-555555555555') intention,
+      (select to_jsonb(c) from check_ins c where intention_id='11111111-2222-4333-8444-555555555555') checkin
+    `)
+    ).rows[0];
+  }
   await db.exec(await readFile(new URL(file, dir), "utf8"));
+  if (file.endsWith("_round3_mission_catalogue.sql")) {
+    const after = (
+      await db.query(`select
+      (select array_agg(id order by id) from missions where user_id is null and active) ids,
+      (select to_jsonb(m)-array['ages','family_id','theme'] from missions m where id='test-private-round3') private_mission,
+      (select to_jsonb(i) from intentions i where id='11111111-2222-4333-8444-555555555555') intention,
+      (select to_jsonb(c) from check_ins c where intention_id='11111111-2222-4333-8444-555555555555') checkin
+    `)
+    ).rows[0];
+    assert.ok(beforeRound3.ids.every((id) => after.ids.includes(id)));
+    assert.deepEqual(after.private_mission, beforeRound3.private_mission);
+    assert.deepEqual(after.intention, beforeRound3.intention);
+    assert.deepEqual(after.checkin, beforeRound3.checkin);
+    assert.deepEqual(
+      (await db.query("select ages from missions where id='CA-MEN-3b'")).rows[0]
+        .ages,
+      ["teens"],
+    );
+    assert.equal(
+      (
+        await db.query(
+          "select count(*)::int n from missions where id like 'KK-%'",
+        )
+      ).rows[0].n,
+      36,
+    );
+    assert.equal(
+      (
+        await db.query(
+          "select count(distinct family_id)::int n from missions where id like 'KK-%'",
+        )
+      ).rows[0].n,
+      12,
+    );
+    await assert.rejects(() =>
+      db.exec("update missions set ages=array['adult'] where id='KK-01a'"),
+    );
+    await db.exec(`delete from check_ins where intention_id='11111111-2222-4333-8444-555555555555';
+      delete from intentions where id='11111111-2222-4333-8444-555555555555';
+      delete from missions where id='test-private-round3';`);
+    console.log(
+      "PASS Round 3 keeps historical IDs, private missions, completed focuses and reflections intact",
+    );
+  }
   console.log("PASS migration", file);
 }
 const one = async (sql) => (await db.query(sql)).rows[0];
@@ -21,7 +84,7 @@ assert.deepEqual(
   await one(
     `select count(*)::int total,count(*) filter(where type='learn')::int learn,count(*) filter(where id like 'SD-%')::int someday from missions where active and user_id is null`,
   ),
-  { total: 1089, learn: 180, someday: 15 },
+  { total: 1152, learn: 180, someday: 15 },
 );
 assert.equal((await one("select count(*)::int n from learning_shelf")).n, 56);
 assert.equal((await one("select count(*)::int n from interest_links")).n, 44);

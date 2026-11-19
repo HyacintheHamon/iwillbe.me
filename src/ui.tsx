@@ -163,17 +163,21 @@ export function TextButton({
   label,
   onPress,
   color = C.ink,
+  disabled = false,
 }: {
   label: string;
   onPress: () => void;
   color?: string;
+  disabled?: boolean;
 }) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      style={s.textButton}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
+      style={[s.textButton, disabled && { opacity: 0.5 }]}
     >
       <Body style={{ color, textAlign: "center", fontFamily: F.medium }}>
         {label}

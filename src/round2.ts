@@ -1,14 +1,33 @@
 import type { Practice, Intention } from "./domain";
 import { interestState, valueState, weekPeriod } from "./journey";
 import { priorityName } from "./priorities";
-import catalogue from "../data/round2/missions.json";
-import links from "../data/round2/interest-links.json";
-import shelf from "../data/round2/learning-shelf.json";
+import catalogue from "../data/round3/missions.json";
+import links from "../data/round3/interest-links.json";
+import shelf from "../data/round3/learning-shelf.json";
+import { selectMission, somedaySelection } from "./mission-selection";
+export {
+  selectMission,
+  somedaySelection,
+  missionFamilyId,
+  missionTheme,
+  missionUnavailableReason,
+} from "./mission-selection";
+export type {
+  MissionSelection,
+  MissionSelectionOptions,
+} from "./mission-selection";
 
 export type Level = "easy" | "normal" | "stretch";
 export type FocusType = "do" | "learn";
-export type Round2Mission = (typeof catalogue)[number];
-export const MISSIONS = catalogue;
+export type Round2Mission = Omit<
+  (typeof catalogue)[number],
+  "ages" | "family_id" | "theme"
+> & {
+  ages?: string[];
+  family_id?: string;
+  theme?: string;
+};
+export const MISSIONS: Round2Mission[] = catalogue;
 export const INTEREST_LINKS = links;
 export const LEARNING_SHELF = shelf;
 export const LEVELS: Level[] = ["easy", "normal", "stretch"];
@@ -112,11 +131,13 @@ export function whereOptions(p: Practice, places: Place[]) {
       .map((e) => ({ id: e.id, label: e.title, kind: "interest" })),
   ];
 }
-export function similarInterests(p: Practice, limit = 3) {
+export function similarInterests(p: Practice, limit = 3, anchor?: string) {
   const known = new Set(
     p.entries.filter((e) => e.kind === "interest").map((e) => norm(e.title)),
   );
-  const ordered = whereOptions(p, []).filter((x) => x.kind === "interest");
+  const ordered = anchor
+    ? [{ label: anchor }]
+    : whereOptions(p, []).filter((x) => x.kind === "interest");
   const result: typeof links = [];
   for (const item of ordered)
     for (const link of links.filter(
@@ -158,86 +179,11 @@ export function pickMission(
   day = new Date().toISOString().slice(0, 10),
   pool = MISSIONS,
 ): Round2Mission | undefined {
-  const recentReleased = new Set(
-    p.entries
-      .filter(
-        (e) =>
-          e.kind === "event" &&
-          e.state === "let_go" &&
-          Date.parse(day) - Date.parse(e.created_at) < 14 * 86400000,
-      )
-      .flatMap((e) => e.source_ids),
-  );
-  const options = pool.filter(
-    (m) =>
-      m.level === level &&
-      m.type === type &&
-      !m.id.startsWith("SD-") &&
-      !recentReleased.has(m.id),
-  );
-  const hasPriority = (m: Round2Mission) =>
-    m.priorities.some((v) => priorityName(v) === priorityName(priority));
-  const hasWhere = (m: Round2Mission) =>
-    kind === "interest"
-      ? m.interests.some((v) => norm(v) === norm(where))
-      : kind === "place"
-        ? m.places.some((v) => norm(v) === norm(where))
-        : false;
-  const rank = (m: Round2Mission) =>
-    hasPriority(m) && hasWhere(m)
-      ? 0
-      : hasWhere(m)
-        ? 1
-        : hasPriority(m)
-          ? 2
-          : 3;
-  return options
-    .filter((m) => rank(m) < 3)
-    .sort(
-      (a, b) =>
-        rank(a) - rank(b) ||
-        Math.abs(a.ladder_step - nextLadderStep(p, a.ladder)) -
-          Math.abs(b.ladder_step - nextLadderStep(p, b.ladder)) ||
-        a.id.localeCompare(b.id),
-    )[0];
+  return selectMission(p, { priority, where, kind, level, type, day, pool })
+    .mission;
 }
 export function somedayMission(p: Practice, item: Someday, level: Level) {
-  if (item.interest || item.priority) {
-    const found = pickMission(
-      p,
-      item.priority || "",
-      item.interest || "anywhere",
-      item.interest ? "interest" : "anywhere",
-      level,
-    );
-    if (found) return found;
-  }
-  const text = norm(item.text);
-  const code = /\b(visit|travel|see|trip)\b|walk.*camino|northern lights/.test(
-    text,
-  )
-    ? "SEE"
-    : /\b(buy|own|house|save|have)\b/.test(text)
-      ? "HAV"
-      : /\b(give|volunteer|help|share)\b/.test(text)
-        ? "GIV"
-        : /^(be |become)/.test(text)
-          ? "BEC"
-          : "LRN";
-  const candidates = MISSIONS.filter(
-    (m) => m.id.startsWith("SD-") && m.level === level,
-  );
-  const found = candidates.find((m) => m.id.includes(code)) || candidates[0];
-  return found
-    ? {
-        ...found,
-        mission_text: found.mission_text.replaceAll(
-          "[your someday]",
-          item.text,
-        ),
-        first_step: found.first_step.replaceAll("[your someday]", item.text),
-      }
-    : undefined;
+  return somedaySelection(p, item, level).mission;
 }
 export function isHardDay(text: string) {
   return /\b(rough|hard|bad|awful|stressful|tough) (day|week)\b|\b(exhausted|overwhelmed|drained|burnt out)\b/i.test(
