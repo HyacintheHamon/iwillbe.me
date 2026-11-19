@@ -122,12 +122,27 @@ export function missionFitsSavedContext(
   return true;
 }
 
-export function matchingFamily(rows: PersonalMission[], moment: MissionMoment) {
+export function personalMissionFamily(mission: PersonalMission) {
+  return mission.family_id || mission.id.replace(/[abc]$/, "");
+}
+
+export function matchingFamily(
+  rows: PersonalMission[],
+  moment: MissionMoment,
+  excludedMissionIds: string[] = [],
+) {
+  const excludedFamilies = new Set(
+    rows
+      .filter((mission) => excludedMissionIds.includes(mission.id))
+      .map(personalMissionFamily),
+  );
   const families = new Map<string, PersonalMission[]>();
-  for (const row of rows.filter((mission) =>
-    missionFitsSavedContext(mission, moment),
+  for (const row of rows.filter(
+    (mission) =>
+      missionFitsSavedContext(mission, moment) &&
+      !excludedFamilies.has(personalMissionFamily(mission)),
   )) {
-    const family = row.family_id || row.id.replace(/[abc]$/, "");
+    const family = personalMissionFamily(row);
     families.set(family, [...(families.get(family) || []), row]);
   }
   return [...families.values()]

@@ -21,7 +21,13 @@ export function useFocusMission(
     key: string;
     rows: Round2Mission[];
   } | null>(null);
-  const [error, setError] = useState("");
+  const [failure, setFailure] = useState<{
+    key: string;
+    message: string;
+  } | null>(null);
+  const [passed, setPassed] = useState<{ key: string; ids: string[] } | null>(
+    null,
+  );
   const [retry, setRetry] = useState(0);
   const cache = useRef(new Map<string, Round2Mission[]>());
   const owner = session?.user.id;
@@ -30,7 +36,7 @@ export function useFocusMission(
   const where = context?.where || "";
   const kind = context?.kind || "interest";
   const moment = missionLocalMoment(data);
-  const key = [
+  const contextKey = JSON.stringify([
     owner,
     tag,
     priority,
@@ -39,7 +45,31 @@ export function useFocusMission(
     moment.day,
     moment.hour < 12 ? "morning" : moment.hour < 17 ? "afternoon" : "evening",
     savedKidsAges(data).join(","),
-  ].join(":");
+  ]);
+  // Recorded passes survive reopening Today; the local list also takes effect
+  // immediately after the feedback save while practice data is refreshing.
+  const excludedMissionIds = [
+    ...new Set([
+      ...data.entries
+        .filter(
+          (entry) =>
+            entry.kind === "event" &&
+            entry.title === "Mission feedback" &&
+            entry.meta.outcome === "passed" &&
+            (!entry.meta.priority || entry.meta.priority === priority) &&
+            Number.isFinite(Date.parse(entry.created_at)) &&
+            missionLocalMoment(data, new Date(entry.created_at)).day ===
+              moment.day,
+        )
+        .flatMap((entry) => [
+          ...entry.source_ids,
+          ...(entry.meta.mission_id ? [entry.meta.mission_id] : []),
+        ]),
+      ...(passed?.key === contextKey ? passed.ids : []),
+    ]),
+  ].sort();
+  const exclusionKey = JSON.stringify(excludedMissionIds);
+  const key = JSON.stringify([contextKey, exclusionKey]);
   useEffect(() => {
     let active = true;
     if (hasLibrary || !enabled || !tag.trim() || !owner) return;
@@ -48,7 +78,7 @@ export function useFocusMission(
       setGenerated({ key, rows: saved });
       return;
     }
-    setError("");
+    setFailure(null);
     void supabase.functions
       .invoke("chloe", {
         body: {
@@ -58,14 +88,17 @@ export function useFocusMission(
           priority,
           where,
           kind,
+          excluded_mission_ids: JSON.parse(exclusionKey),
         },
       })
       .then((r) => {
         if (!active) return;
         if (r.error || r.data?.error || !r.data?.missions?.length) {
-          setError(
-            "Ideas could not load. You can retry or write your own focus.",
-          );
+          setFailure({
+            key,
+            message:
+              "Ideas could not load. You can retry or write your own focus.",
+          });
           return;
         }
         const rows = r.data.missions as Round2Mission[];
@@ -73,12 +106,27 @@ export function useFocusMission(
         setGenerated({ key, rows });
       })
       .catch(() => {
-        if (active) setError("Ideas could not load. Please try again.");
+        if (active)
+          setFailure({
+            key,
+            message: "Ideas could not load. Please try again.",
+          });
       });
     return () => {
       active = false;
     };
-  }, [key, tag, hasLibrary, enabled, owner, retry, priority, where, kind]);
+  }, [
+    key,
+    tag,
+    hasLibrary,
+    enabled,
+    owner,
+    retry,
+    priority,
+    where,
+    kind,
+    exclusionKey,
+  ]);
   const rows = generated?.key === key ? generated.rows : [];
   const compatible = rows.filter(
     (item) => !missionUnavailableReason(item, data),
@@ -93,7 +141,21 @@ export function useFocusMission(
         .map((item) => [item.level, missionUnavailableReason(item, data)])
         .filter(([, reason]) => !!reason),
     ) as Partial<Record<Level, string>>,
-    error,
-    retry: () => setRetry((n) => n + 1),
+    error:
+      !hasLibrary && enabled && failure?.key === key ? failure.message : "",
+    exclude: (missionId: string) =>
+      setPassed((previous) => ({
+        key: contextKey,
+        ids: [
+          ...new Set([
+            ...(previous?.key === contextKey ? previous.ids : []),
+            missionId,
+          ]),
+        ],
+      })),
+    retry: () => {
+      cache.current.delete(key);
+      setRetry((n) => n + 1);
+    },
   };
 }
