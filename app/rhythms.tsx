@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View } from "react-native";
-import { router } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { withAccount } from "../src/access-gate";
 import { usePractice } from "../src/practice";
 import { useRound2 } from "../src/round2-store";
 import { useToday } from "../src/use-today";
 import { useAction } from "../src/use-action";
 import {
-  currentVision,
   entryInput,
   interestState,
   weekPeriod,
@@ -36,6 +35,7 @@ import {
   s,
 } from "../src/ui";
 import { supabase } from "../src/supabase";
+import { recordScreenVisit } from "../src/usage";
 type Review = {
   intro: string;
   pattern: string;
@@ -44,13 +44,12 @@ type Review = {
   question?: string;
   target_id?: string;
 };
-function Rhythms() {
-  const { data, putEntry } = usePractice();
+function ReviewRhythm({ mode }: { mode: "weekly" | "monthly" }) {
+  const { data, session, putEntry } = usePractice();
   const extra = useRound2();
   const today = useToday();
   const action = useAction();
-  const [mode, setMode] = useState<"weekly" | "monthly">("weekly"),
-    [step, setStep] = useState(0),
+  const [step, setStep] = useState(0),
     [review, setReview] = useState<Review | null>(null),
     [note, setNote] = useState(""),
     [focus, setFocus] = useState(""),
@@ -61,6 +60,20 @@ function Rhythms() {
     [backlog, setBacklog] = useState(""),
     [showTools, setShowTools] = useState(false),
     [reviewError, setReviewError] = useState("");
+  const live = useRef({ data, owner: session?.user.id });
+  useEffect(() => {
+    live.current = { data, owner: session?.user.id };
+  }, [data, session?.user.id]);
+  useFocusEffect(
+    useCallback(() => {
+      if (mode === "weekly")
+        recordScreenVisit(
+          live.current.data,
+          live.current.owner,
+          "sunday_review",
+        );
+    }, [mode]),
+  );
   const season = seasonalSunday(today);
   const lived = livedFocuses(data, today);
   const suggestions = similarInterests(data);
@@ -159,20 +172,14 @@ function Rhythms() {
     today.slice(5, 7) === data.profile.joined_at.slice(5, 7) &&
     Number(today.slice(0, 4)) > Number(data.profile.joined_at.slice(0, 4));
   return (
-    <Page header={<TopBar title="Your rhythms" />} contentStyle={{ gap: 18 }}>
-      <View style={s.wrap}>
-        {(["weekly", "monthly"] as const).map((m) => (
-          <Chip
-            key={m}
-            label={m === "weekly" ? "Sunday review" : "Monthly check-in"}
-            selected={mode === m}
-            onPress={() => {
-              setMode(m);
-              setStep(0);
-            }}
-          />
-        ))}
-      </View>
+    <Page
+      header={
+        <TopBar
+          title={mode === "weekly" ? "Sunday review" : "Monthly check-in"}
+        />
+      }
+      contentStyle={{ gap: 18 }}
+    >
       {step === 6 ? (
         <>
           <Title>
@@ -189,13 +196,10 @@ function Rhythms() {
         <>
           {step === 0 && (
             <>
-              <Title>
-                {season
-                  ? "What you planted this season"
-                  : "What you planted this week"}
-              </Title>
+              <Title>What I’ve planted</Title>
               <Body>
-                Here’s who you were {season ? "this season" : "this week"}.
+                {season ? "This season" : "This week"}, in your own words and
+                actions.
               </Body>
               {lived.length ? (
                 lived.map((i) => (
@@ -471,10 +475,30 @@ function Rhythms() {
           ) : (
             <>
               <Title>Is this still the life you want?</Title>
-              <Body>
-                {currentVision(data, "year")?.body ||
-                  "Your one year out picture is still taking shape."}
-              </Body>
+              <Body>Here’s what’s on your This year list.</Body>
+              {extra.someday.some(
+                (item) =>
+                  item.horizon === "this_year" && item.status !== "let_go",
+              ) ? (
+                extra.someday
+                  .filter(
+                    (item) =>
+                      item.horizon === "this_year" && item.status !== "let_go",
+                  )
+                  .map((item) => (
+                    <View key={item.id} style={s.card}>
+                      <Body>
+                        {item.status === "lived" ? "✓ " : ""}
+                        {item.text}
+                      </Body>
+                    </View>
+                  ))
+              ) : (
+                <Body>
+                  Your This year list is still taking shape. You can add
+                  something or leave room for later.
+                </Body>
+              )}
               <View style={s.wrap}>
                 <TextButton label="Still true" onPress={done} />
                 <TextButton
@@ -483,7 +507,7 @@ function Rhythms() {
                 />
                 <TextButton
                   label="Something's changed"
-                  onPress={() => router.push("/why")}
+                  onPress={() => router.push("/telescope")}
                 />
               </View>
               <TextButton
@@ -588,5 +612,10 @@ function Rhythms() {
       <Notice text={action.error || extra.error} tone="error" />
     </Page>
   );
+}
+function Rhythms() {
+  const params = useLocalSearchParams<{ mode?: string }>();
+  const mode = params.mode === "monthly" ? "monthly" : "weekly";
+  return <ReviewRhythm key={mode} mode={mode} />;
 }
 export default withAccount(Rhythms);

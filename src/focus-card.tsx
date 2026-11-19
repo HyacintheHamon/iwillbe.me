@@ -1,6 +1,6 @@
 import React from "react";
-import { View } from "react-native";
-import { Body, Button, C, F, TextButton } from "./ui";
+import { Pressable, View } from "react-native";
+import { Body, Button, C, F } from "./ui";
 import { LEVELS, type Level, type Round2Mission } from "./round2";
 export function FocusCard({
   mission,
@@ -11,6 +11,8 @@ export function FocusCard({
   label = "I'll do this",
   disabled = false,
   hideActions = false,
+  availableLevels = LEVELS,
+  unavailableReasons = {},
 }: {
   mission: Round2Mission | undefined;
   level: Level;
@@ -20,7 +22,25 @@ export function FocusCard({
   label?: string;
   disabled?: boolean;
   hideActions?: boolean;
+  availableLevels?: Level[];
+  unavailableReasons?: Partial<Record<Level, string>>;
 }) {
+  const harder = LEVELS.find(
+    (candidate) =>
+      LEVELS.indexOf(candidate) > LEVELS.indexOf(level) &&
+      availableLevels.includes(candidate),
+  );
+  const easier = LEVELS.find(
+    (candidate) =>
+      LEVELS.indexOf(candidate) < LEVELS.indexOf(level) &&
+      availableLevels.includes(candidate),
+  );
+  const next = harder || easier;
+  const unavailable =
+    unavailableReasons[level] ||
+    (!harder && level !== "stretch"
+      ? unavailableReasons.normal || unavailableReasons.stretch
+      : "");
   return (
     <View
       style={{
@@ -71,7 +91,9 @@ export function FocusCard({
           fontFamily: F.strong,
         }}
       >
-        {mission?.mission_text || "Finding a step that fits…"}
+        {mission?.mission_text ||
+          unavailable ||
+          "No step fits this size right now. Try an easier size or write your own focus."}
       </Body>
       {!!mission?.first_step && (
         <Body style={{ color: "#E4DED6", fontSize: 14, lineHeight: 21 }}>
@@ -81,6 +103,11 @@ export function FocusCard({
       {!!mission?.safety_note && (
         <Body style={{ color: "#E4DED6", fontSize: 13, lineHeight: 20 }}>
           {mission.safety_note}
+        </Body>
+      )}
+      {!!mission && !!unavailable && (
+        <Body style={{ color: "#E4DED6", fontSize: 13, lineHeight: 20 }}>
+          {unavailable}
         </Body>
       )}
       {!hideActions && (
@@ -93,11 +120,28 @@ export function FocusCard({
               onPress={onAccept}
             />
           </View>
-          <TextButton
-            label={level === "stretch" ? "Easier" : "Harder"}
-            color="#FFFFFF"
-            onPress={() => onLevel(LEVELS[(LEVELS.indexOf(level) + 1) % 3])}
-          />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={
+              harder ? "Harder" : easier ? "Easier" : "Harder"
+            }
+            accessibilityState={{ disabled: !next || loading }}
+            disabled={!next || loading}
+            onPress={() => {
+              if (next) onLevel(next);
+            }}
+            style={{
+              minHeight: 44,
+              minWidth: 60,
+              justifyContent: "center",
+              alignItems: "center",
+              opacity: next ? 1 : 0.45,
+            }}
+          >
+            <Body style={{ color: "#FFFFFF", fontFamily: F.medium }}>
+              {harder ? "Harder" : easier ? "Easier" : "Harder"}
+            </Body>
+          </Pressable>
         </View>
       )}
     </View>

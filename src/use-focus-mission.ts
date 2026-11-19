@@ -1,15 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "./supabase";
 import { usePractice } from "./practice";
-import type { Level, Round2Mission } from "./round2";
+import {
+  LEVELS,
+  missionUnavailableReason,
+  type Level,
+  type Round2Mission,
+} from "./round2";
+import { missionLocalMoment, savedKidsAges } from "./mission-selection";
 // The supplied catalogue always wins. AI is requested only for an uncovered choice.
 export function useFocusMission(
   library: Round2Mission | undefined,
   tag: string,
   level: Level,
   enabled = true,
+  context?: { priority?: string; where?: string; kind?: string },
 ) {
-  const { session } = usePractice();
+  const { session, data } = usePractice();
   const [generated, setGenerated] = useState<{
     key: string;
     rows: Round2Mission[];
@@ -19,7 +26,20 @@ export function useFocusMission(
   const cache = useRef(new Map<string, Round2Mission[]>());
   const owner = session?.user.id;
   const hasLibrary = !!library;
-  const key = `${owner}:${tag}`;
+  const priority = context?.priority || "";
+  const where = context?.where || "";
+  const kind = context?.kind || "interest";
+  const moment = missionLocalMoment(data);
+  const key = [
+    owner,
+    tag,
+    priority,
+    where,
+    kind,
+    moment.day,
+    moment.hour < 12 ? "morning" : moment.hour < 17 ? "afternoon" : "evening",
+    savedKidsAges(data).join(","),
+  ].join(":");
   useEffect(() => {
     let active = true;
     if (hasLibrary || !enabled || !tag.trim() || !owner) return;
@@ -31,7 +51,14 @@ export function useFocusMission(
     setError("");
     void supabase.functions
       .invoke("chloe", {
-        body: { action: "missions", interest: tag, ladder_step: 1 },
+        body: {
+          action: "missions",
+          interest: tag,
+          ladder_step: 1,
+          priority,
+          where,
+          kind,
+        },
       })
       .then((r) => {
         if (!active) return;
@@ -51,13 +78,21 @@ export function useFocusMission(
     return () => {
       active = false;
     };
-  }, [key, tag, hasLibrary, enabled, owner, retry]);
+  }, [key, tag, hasLibrary, enabled, owner, retry, priority, where, kind]);
+  const rows = generated?.key === key ? generated.rows : [];
+  const compatible = rows.filter(
+    (item) => !missionUnavailableReason(item, data),
+  );
   return {
-    mission:
-      library ||
-      (generated?.key === key
-        ? generated.rows.find((m) => m.level === level)
-        : undefined),
+    mission: library || compatible.find((m) => m.level === level),
+    availableLevels: LEVELS.filter((candidate) =>
+      compatible.some((m) => m.level === candidate),
+    ),
+    unavailableReasons: Object.fromEntries(
+      rows
+        .map((item) => [item.level, missionUnavailableReason(item, data)])
+        .filter(([, reason]) => !!reason),
+    ) as Partial<Record<Level, string>>,
     error,
     retry: () => setRetry((n) => n + 1),
   };

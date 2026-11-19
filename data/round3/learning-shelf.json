@@ -1,0 +1,630 @@
+[
+  {
+    "id": "book-01",
+    "title": "The Power of Kindness",
+    "author": "Piero Ferrucci",
+    "priorities": [
+      "kind"
+    ],
+    "interests": [],
+    "why_it_fits": "Why kindness is a strength, with small everyday ways to practice it."
+  },
+  {
+    "id": "book-02",
+    "title": "Wonder",
+    "author": "R. J. Palacio",
+    "priorities": [
+      "kind",
+      "brave"
+    ],
+    "interests": [],
+    "why_it_fits": "A short novel about choosing kindness, for readers who prefer stories."
+  },
+  {
+    "id": "book-03",
+    "title": "The 5 Love Languages",
+    "author": "Gary Chapman",
+    "priorities": [
+      "loving",
+      "there for family"
+    ],
+    "interests": [],
+    "why_it_fits": "Helps you show love in the way the people close to you actually feel it."
+  },
+  {
+    "id": "book-04",
+    "title": "Together",
+    "author": "Vivek H. Murthy",
+    "priorities": [
+      "a good friend",
+      "part of a community"
+    ],
+    "interests": [],
+    "why_it_fits": "On loneliness and why connection matters, with simple ways to build it."
+  },
+  {
+    "id": "book-05",
+    "title": "How to Win Friends and Influence People",
+    "author": "Dale Carnegie",
+    "priorities": [
+      "good with people",
+      "a good friend"
+    ],
+    "interests": [],
+    "why_it_fits": "Classic, practical habits for warmth and getting along."
+  },
+  {
+    "id": "book-06",
+    "title": "The Speed of Trust",
+    "author": "Stephen M. R. Covey",
+    "priorities": [
+      "loyal",
+      "honest"
+    ],
+    "interests": [],
+    "why_it_fits": "How trust is built and kept, at home and at work."
+  },
+  {
+    "id": "book-07",
+    "title": "Crucial Conversations",
+    "author": "Kerry Patterson, Joseph Grenny, Ron McMillan, Al Switzler",
+    "priorities": [
+      "respectful",
+      "honest",
+      "calm"
+    ],
+    "interests": [],
+    "why_it_fits": "How to talk about hard things with respect when emotions run high."
+  },
+  {
+    "id": "book-08",
+    "title": "Justice: What’s the Right Thing to Do?",
+    "author": "Michael J. Sandel",
+    "priorities": [
+      "fair",
+      "a clear thinker"
+    ],
+    "interests": [],
+    "why_it_fits": "Clear, lively thinking about fairness and hard choices."
+  },
+  {
+    "id": "book-09",
+    "title": "The Five Dysfunctions of a Team",
+    "author": "Patrick Lencioni",
+    "priorities": [
+      "a team player"
+    ],
+    "interests": [],
+    "why_it_fits": "A short story about what makes teams work."
+  },
+  {
+    "id": "book-10",
+    "title": "Leaders Eat Last",
+    "author": "Simon Sinek",
+    "priorities": [
+      "a leader",
+      "of service"
+    ],
+    "interests": [],
+    "why_it_fits": "Leadership as looking after the people around you."
+  },
+  {
+    "id": "book-11",
+    "title": "The Book of Forgiving",
+    "author": "Desmond Tutu and Mpho Tutu",
+    "priorities": [
+      "forgiving"
+    ],
+    "interests": [],
+    "why_it_fits": "A gentle, step-by-step path to forgiving others and yourself."
+  },
+  {
+    "id": "book-12",
+    "title": "Give and Take",
+    "author": "Adam Grant",
+    "priorities": [
+      "of service",
+      "a team player"
+    ],
+    "interests": [
+      "volunteering",
+      "mentoring someone"
+    ],
+    "why_it_fits": "Research on why generous people often do well, and how to give without burning out."
+  },
+  {
+    "id": "book-13",
+    "title": "When Things Fall Apart",
+    "author": "Pema Chödrön",
+    "priorities": [
+      "patient",
+      "calm",
+      "hopeful"
+    ],
+    "interests": [],
+    "why_it_fits": "Short chapters on patience and staying steady when life is hard."
+  },
+  {
+    "id": "book-14",
+    "title": "Radical Candor",
+    "author": "Kim Scott",
+    "priorities": [
+      "honest",
+      "a leader"
+    ],
+    "interests": [],
+    "why_it_fits": "How to be honest and caring at the same time."
+  },
+  {
+    "id": "book-15",
+    "title": "Daring Greatly",
+    "author": "Brené Brown",
+    "priorities": [
+      "brave"
+    ],
+    "interests": [],
+    "why_it_fits": "On courage, vulnerability and showing up when it feels risky."
+  },
+  {
+    "id": "book-16",
+    "title": "Grit",
+    "author": "Angela Duckworth",
+    "priorities": [
+      "persistent"
+    ],
+    "interests": [],
+    "why_it_fits": "Why sticking with something matters more than talent, and how to grow it."
+  },
+  {
+    "id": "book-17",
+    "title": "Atomic Habits",
+    "author": "James Clear",
+    "priorities": [
+      "disciplined",
+      "healthy"
+    ],
+    "interests": [],
+    "why_it_fits": "Small habits that add up, with practical ways to build them."
+  },
+  {
+    "id": "book-18",
+    "title": "Ego Is the Enemy",
+    "author": "Ryan Holiday",
+    "priorities": [
+      "humble"
+    ],
+    "interests": [],
+    "why_it_fits": "Short chapters on staying humble while working hard."
+  },
+  {
+    "id": "book-19",
+    "title": "Thanks!",
+    "author": "Robert A. Emmons",
+    "priorities": [
+      "grateful"
+    ],
+    "interests": [],
+    "why_it_fits": "The research on gratitude, with simple practices."
+  },
+  {
+    "id": "book-20",
+    "title": "Man’s Search for Meaning",
+    "author": "Viktor E. Frankl",
+    "priorities": [
+      "hopeful",
+      "wise"
+    ],
+    "interests": [],
+    "why_it_fits": "Frankl’s classic on finding meaning and responsibility in any situation."
+  },
+  {
+    "id": "book-21",
+    "title": "Option B",
+    "author": "Sheryl Sandberg and Adam Grant",
+    "priorities": [
+      "hopeful"
+    ],
+    "interests": [],
+    "why_it_fits": "On building resilience after loss and setbacks."
+  },
+  {
+    "id": "book-22",
+    "title": "Wherever You Go, There You Are",
+    "author": "Jon Kabat-Zinn",
+    "priorities": [
+      "calm"
+    ],
+    "interests": [
+      "meditating"
+    ],
+    "why_it_fits": "Short, plain chapters on mindfulness in everyday life."
+  },
+  {
+    "id": "book-23",
+    "title": "10% Happier",
+    "author": "Dan Harris",
+    "priorities": [
+      "calm"
+    ],
+    "interests": [
+      "meditating"
+    ],
+    "why_it_fits": "A skeptic’s funny, honest way into meditation."
+  },
+  {
+    "id": "book-24",
+    "title": "Curious",
+    "author": "Ian Leslie",
+    "priorities": [
+      "curious",
+      "always learning"
+    ],
+    "interests": [],
+    "why_it_fits": "Why curiosity matters and how to keep it alive."
+  },
+  {
+    "id": "book-25",
+    "title": "Big Magic",
+    "author": "Elizabeth Gilbert",
+    "priorities": [
+      "creative"
+    ],
+    "interests": [],
+    "why_it_fits": "Encouragement to make things without waiting for permission."
+  },
+  {
+    "id": "book-26",
+    "title": "The Artist’s Way",
+    "author": "Julia Cameron",
+    "priorities": [
+      "creative"
+    ],
+    "interests": [
+      "journaling",
+      "sketching"
+    ],
+    "why_it_fits": "A 12-week course for creative recovery, built on daily pages."
+  },
+  {
+    "id": "book-27",
+    "title": "Thinking, Fast and Slow",
+    "author": "Daniel Kahneman",
+    "priorities": [
+      "a clear thinker"
+    ],
+    "interests": [],
+    "why_it_fits": "How our minds take shortcuts, and when to slow down."
+  },
+  {
+    "id": "book-28",
+    "title": "Meditations",
+    "author": "Marcus Aurelius",
+    "priorities": [
+      "wise",
+      "calm"
+    ],
+    "interests": [],
+    "why_it_fits": "A Roman emperor’s private notes on living well."
+  },
+  {
+    "id": "book-29",
+    "title": "Mindset",
+    "author": "Carol S. Dweck",
+    "priorities": [
+      "always learning",
+      "persistent"
+    ],
+    "interests": [],
+    "why_it_fits": "Why believing you can grow helps you grow."
+  },
+  {
+    "id": "book-30",
+    "title": "Make It Stick",
+    "author": "Peter C. Brown, Henry L. Roediger III, Mark A. McDaniel",
+    "priorities": [
+      "always learning"
+    ],
+    "interests": [
+      "learning a language"
+    ],
+    "why_it_fits": "What the research says about learning things so they last."
+  },
+  {
+    "id": "book-31",
+    "title": "The 7 Habits of Highly Effective People",
+    "author": "Stephen R. Covey",
+    "priorities": [
+      "ambitious",
+      "disciplined"
+    ],
+    "interests": [],
+    "why_it_fits": "A classic framework for goals, priorities and character."
+  },
+  {
+    "id": "book-32",
+    "title": "Self-Reliance",
+    "author": "Ralph Waldo Emerson",
+    "priorities": [
+      "independent"
+    ],
+    "interests": [],
+    "why_it_fits": "A short essay on trusting yourself."
+  },
+  {
+    "id": "book-33",
+    "title": "Outlive",
+    "author": "Peter Attia",
+    "priorities": [
+      "healthy"
+    ],
+    "interests": [],
+    "why_it_fits": "A detailed guide to staying healthy for longer."
+  },
+  {
+    "id": "book-34",
+    "title": "Why We Sleep",
+    "author": "Matthew Walker",
+    "priorities": [
+      "healthy",
+      "energetic"
+    ],
+    "interests": [],
+    "why_it_fits": "Why sleep matters for energy, mood and health."
+  },
+  {
+    "id": "book-35",
+    "title": "Spark",
+    "author": "John J. Ratey",
+    "priorities": [
+      "energetic",
+      "healthy"
+    ],
+    "interests": [
+      "working out",
+      "running"
+    ],
+    "why_it_fits": "How exercise helps the brain as well as the body."
+  },
+  {
+    "id": "book-36",
+    "title": "Wild",
+    "author": "Cheryl Strayed",
+    "priorities": [
+      "adventurous",
+      "brave"
+    ],
+    "interests": [
+      "hiking"
+    ],
+    "why_it_fits": "A memoir of a long solo hike that changed a life."
+  },
+  {
+    "id": "book-37",
+    "title": "Yes, And",
+    "author": "Kelly Leonard and Tom Yorton",
+    "priorities": [
+      "funny",
+      "a team player"
+    ],
+    "interests": [],
+    "why_it_fits": "Lessons from improv comedy for work and life."
+  },
+  {
+    "id": "book-38",
+    "title": "Essentialism",
+    "author": "Greg McKeown",
+    "priorities": [
+      "free",
+      "disciplined"
+    ],
+    "interests": [],
+    "why_it_fits": "Doing less, but better: making room for what matters."
+  },
+  {
+    "id": "book-39",
+    "title": "The Psychology of Money",
+    "author": "Morgan Housel",
+    "priorities": [
+      "secure"
+    ],
+    "interests": [],
+    "why_it_fits": "Short stories about how people think about money and security."
+  },
+  {
+    "id": "book-40",
+    "title": "Braiding Sweetgrass",
+    "author": "Robin Wall Kimmerer",
+    "priorities": [
+      "close to nature",
+      "grateful"
+    ],
+    "interests": [
+      "gardening"
+    ],
+    "why_it_fits": "A botanist on gratitude and our relationship with the natural world."
+  },
+  {
+    "id": "book-41",
+    "title": "The Art of Noticing",
+    "author": "Rob Walker",
+    "priorities": [
+      "seeing beauty",
+      "curious"
+    ],
+    "interests": [
+      "taking photos",
+      "sketching"
+    ],
+    "why_it_fits": "Small exercises for paying attention to everyday life."
+  },
+  {
+    "id": "book-42",
+    "title": "Salt, Fat, Acid, Heat",
+    "author": "Samin Nosrat",
+    "priorities": [],
+    "interests": [
+      "cooking for friends"
+    ],
+    "why_it_fits": "Learn the four basics of good cooking instead of following recipes."
+  },
+  {
+    "id": "book-43",
+    "title": "Flour Water Salt Yeast",
+    "author": "Ken Forkish",
+    "priorities": [],
+    "interests": [
+      "baking"
+    ],
+    "why_it_fits": "A clear, hands-on guide to bread at home."
+  },
+  {
+    "id": "book-44",
+    "title": "The Vegetable Gardener’s Bible",
+    "author": "Edward C. Smith",
+    "priorities": [],
+    "interests": [
+      "gardening"
+    ],
+    "why_it_fits": "A practical guide to growing vegetables."
+  },
+  {
+    "id": "book-45",
+    "title": "A Walk in the Woods",
+    "author": "Bill Bryson",
+    "priorities": [
+      "adventurous",
+      "funny"
+    ],
+    "interests": [
+      "hiking",
+      "camping"
+    ],
+    "why_it_fits": "A funny story of hiking the Appalachian Trail."
+  },
+  {
+    "id": "book-46",
+    "title": "Born to Run",
+    "author": "Christopher McDougall",
+    "priorities": [],
+    "interests": [
+      "running"
+    ],
+    "why_it_fits": "The story that turned many people into runners."
+  },
+  {
+    "id": "book-47",
+    "title": "The Inner Game of Tennis",
+    "author": "W. Timothy Gallwey",
+    "priorities": [
+      "calm"
+    ],
+    "interests": [
+      "playing sports",
+      "pickleball"
+    ],
+    "why_it_fits": "The mental side of any sport: focus, calm and learning."
+  },
+  {
+    "id": "book-48",
+    "title": "This Is Your Brain on Music",
+    "author": "Daniel J. Levitin",
+    "priorities": [
+      "curious"
+    ],
+    "interests": [
+      "making music",
+      "singing"
+    ],
+    "why_it_fits": "Why music moves us, from a musician turned scientist."
+  },
+  {
+    "id": "book-49",
+    "title": "Understanding Exposure",
+    "author": "Bryan Peterson",
+    "priorities": [],
+    "interests": [
+      "taking photos"
+    ],
+    "why_it_fits": "The basics of taking better photos with any camera."
+  },
+  {
+    "id": "book-50",
+    "title": "Fluent Forever",
+    "author": "Gabriel Wyner",
+    "priorities": [
+      "always learning"
+    ],
+    "interests": [
+      "learning a language"
+    ],
+    "why_it_fits": "A practical method for learning any language."
+  },
+  {
+    "id": "book-51",
+    "title": "The Art of Travel",
+    "author": "Alain de Botton",
+    "priorities": [
+      "curious",
+      "seeing beauty"
+    ],
+    "interests": [
+      "exploring new places"
+    ],
+    "why_it_fits": "Short essays on why and how we travel."
+  },
+  {
+    "id": "book-52",
+    "title": "Shop Class as Soulcraft",
+    "author": "Matthew B. Crawford",
+    "priorities": [],
+    "interests": [
+      "building things"
+    ],
+    "why_it_fits": "On the value of working with your hands."
+  },
+  {
+    "id": "book-53",
+    "title": "Drawing on the Right Side of the Brain",
+    "author": "Betty Edwards",
+    "priorities": [
+      "creative"
+    ],
+    "interests": [
+      "sketching"
+    ],
+    "why_it_fits": "A classic course that teaches anyone to draw what they see."
+  },
+  {
+    "id": "book-54",
+    "title": "Light on Yoga",
+    "author": "B. K. S. Iyengar",
+    "priorities": [],
+    "interests": [
+      "yoga"
+    ],
+    "why_it_fits": "The classic reference on yoga poses and breathing."
+  },
+  {
+    "id": "book-55",
+    "title": "The Sibley Guide to Birds",
+    "author": "David Allen Sibley",
+    "priorities": [],
+    "interests": [
+      "birdwatching"
+    ],
+    "why_it_fits": "A trusted field guide for identifying birds."
+  },
+  {
+    "id": "book-56",
+    "title": "How to Read a Book",
+    "author": "Mortimer J. Adler and Charles Van Doren",
+    "priorities": [
+      "always learning"
+    ],
+    "interests": [
+      "reading",
+      "a book club"
+    ],
+    "why_it_fits": "How to read more deeply and get more from every book."
+  }
+]

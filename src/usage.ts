@@ -8,7 +8,10 @@ export function recordUsage(
     | "activation"
     | "intention_saved"
     | "reflection_saved"
-    | "review_saved",
+    | "review_saved"
+    | "my_map_opened"
+    | "future_me_opened"
+    | "sunday_review_opened",
 ) {
   if (
     !owner ||
@@ -26,4 +29,18 @@ export function recordUsage(
       () => {},
       () => {},
     );
+}
+
+// Screen names only; preserve the existing explicit analytics opt-in.
+export function recordScreenVisit(
+  practice: Practice,
+  owner: string | undefined,
+  screen: "my_map" | "future_me" | "sunday_review",
+) {
+  const events = {
+    my_map: "my_map_opened",
+    future_me: "future_me_opened",
+    sunday_review: "sunday_review_opened",
+  } as const;
+  recordUsage(practice, owner, events[screen]);
 }

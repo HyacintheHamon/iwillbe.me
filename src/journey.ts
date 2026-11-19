@@ -80,6 +80,22 @@ export type Entry = {
     carried_question_id?: string;
     carried_question_day?: string;
     last_stage_asked_day?: string;
+    ages?: ("under 6" | "6–12" | "teens")[];
+    asked?: boolean;
+    priority?: string;
+    theme?: string;
+    last_shown_day?: string;
+    thought_snapshot?: {
+      id: number;
+      format: string;
+      text: string;
+      credit: string;
+    };
+    intro_shown?: boolean;
+    screen?: string;
+    onboarding_step?: string;
+    mission_id?: string;
+    outcome?: "passed";
   };
 };
 export type EntryInput = Omit<Entry, "id" | "created_at" | "updated_at"> & {

@@ -6,6 +6,10 @@ import { useToday } from "./use-today";
 import { useAction } from "./use-action";
 import { interestState } from "./journey";
 import { Body, C, Chip, Notice, TextButton, s } from "./ui";
+import {
+  shouldAskKidsAges,
+  shouldAskPriorityTheme,
+} from "./round3-preference-rules";
 export function NightSummary({ reflection }: { reflection: string }) {
   const { data, putEntry } = usePractice();
   const today = useToday();
@@ -16,6 +20,9 @@ export function NightSummary({ reflection }: { reflection: string }) {
     [retry, setRetry] = useState(0);
   const focus = data.intentions.find((i) => i.day === today);
   const check = data.checkIns.find((c) => c.intention_id === focus?.id);
+  const preferenceQuestion =
+    shouldAskKidsAges(data, `${focus?.action || ""} ${reflection}`) ||
+    shouldAskPriorityTheme(data, focus?.value || "");
   const interest = data.entries.find(
     (e) =>
       e.kind === "interest" &&
@@ -65,6 +72,7 @@ export function NightSummary({ reflection }: { reflection: string }) {
       ) : null}
       {summary &&
         !hard &&
+        !preferenceQuestion &&
         check?.outcome === "yes" &&
         interest &&
         interestState(data, interest) === "Want to try" &&

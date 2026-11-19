@@ -256,7 +256,30 @@ Deno.serve(async (req: Request) => {
     }
     if (body.action === "night_thought") {
       if ((safety.data?.level || 0) >= 2)
-        return json({ thought: null, suppressed: true });
+        return json({
+          thought: null,
+          suppressed: true,
+          support_level: safety.data!.level,
+        });
+      // A nightly close must not depend on provider configuration or AI quota.
+      // The deterministic library/reframe fallback is saved through the same path.
+      let nightKey = Deno.env.get("ANTHROPIC_API_KEY") || "";
+      if (nightKey) {
+        const quota = await admin.rpc("reserve_chloe_request", {
+          p_user_id: user.id,
+        });
+        if (quota.error || !quota.data) nightKey = "";
+      }
+      return json(
+        await nightThought(
+          scoped,
+          admin,
+          user.id,
+          nightKey,
+          Deno.env.get("ANTHROPIC_MODEL") || "claude-sonnet-5-5",
+          typeof body.reflection === "string" ? body.reflection : "",
+        ),
+      );
     }
     if (body.action === "missions" && (safety.data?.level || 0) >= 2)
       return json({ missions: [], suppressed: true });
@@ -304,16 +327,6 @@ Deno.serve(async (req: Request) => {
             "Let’s leave some space to live. You can return to Chloe in a little while.",
         },
         429,
-      );
-    if (body.action === "night_thought")
-      return json(
-        await nightThought(
-          scoped,
-          admin,
-          user.id,
-          apiKey,
-          Deno.env.get("ANTHROPIC_MODEL") || "claude-sonnet-5-5",
-        ),
       );
     if (body.action === "missions")
       return json(

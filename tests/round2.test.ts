@@ -14,6 +14,7 @@ import {
   rareMomentAllowed,
   seasonalSunday,
   livedFocuses,
+  selectMission,
 } from "../src/round2";
 const entry = (
   title: string,
@@ -25,9 +26,9 @@ const entry = (
   created_at: "2026-11-01T12:00:00Z",
   updated_at: "2026-11-01T12:00:00Z",
 });
-test("Round 2 workbook is imported completely with stable IDs and required tags", () => {
-  assert.equal(MISSIONS.length, 1089);
-  assert.equal(new Set(MISSIONS.map((m) => m.id)).size, 1089);
+test("current workbook is imported completely with stable IDs and required tags", () => {
+  assert.equal(MISSIONS.length, 1152);
+  assert.equal(new Set(MISSIONS.map((m) => m.id)).size, 1152);
   assert.equal(MISSIONS.filter((m) => m.type === "learn").length, 180);
   assert.equal(MISSIONS.filter((m) => m.id.startsWith("SD-")).length, 15);
   assert.equal(LEARNING_SHELF.length, 56);
@@ -59,14 +60,20 @@ test("second wheel includes every active stage in order; more interests exclude 
     more.every((l) => !p.entries.some((e) => e.title === l.similar_interest)),
   );
 });
-test("mission matching respects both tags before where-only and priority-only, with ladder progression", () => {
+test("mission matching keeps priority when a who/where combination is unavailable", () => {
   const p = emptyPractice();
   const selected = pickMission(p, "patient", "with my kids", "place")!;
   assert.ok(selected.priorities.includes("patient"));
   assert.ok(selected.places.includes("with my kids"));
   assert.equal(selected.level, "easy");
-  const interest = pickMission(p, "patient", "hiking", "interest")!;
-  assert.ok(interest.interests.includes("hiking"));
+  const interest = selectMission(p, {
+    priority: "patient",
+    where: "hiking",
+    kind: "interest",
+    now: new Date("2026-11-16T09:00:00Z"),
+  });
+  assert.ok(interest.mission?.priorities.includes("patient"));
+  if (interest.whereCleared) assert.equal(interest.effectiveWhere, "anywhere");
   assert.equal(
     pickMission(p, "patient", "anywhere", "anywhere", "normal")?.level,
     "normal",
