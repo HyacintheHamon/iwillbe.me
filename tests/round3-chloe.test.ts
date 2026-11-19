@@ -359,6 +359,119 @@ test("server never assembles one easy idea with another family's larger sizes", 
     ),
     undefined,
   );
+  const alternative = trio.map((row) => ({
+    ...row,
+    id: `new-${row.id}`,
+    family_id: "other-idea",
+  }));
+  assert.deepEqual(
+    matchingFamily([...trio, ...alternative], moment, [trio[1].id]),
+    alternative,
+    "passing one size excludes all three sizes of that family",
+  );
+  assert.equal(matchingFamily(trio, moment, [trio[0].id]), undefined);
+});
+
+test("passing a personal idea generates a new family and retains the refused rows", async () => {
+  const sizes = ["5-minute", "Normal", "Stretch"] as const;
+  const stored = new Map<string, PersonalMission>();
+  let oldRows: PersonalMission[] = [];
+  let requests = 0;
+  const { client } = nightDatabase();
+  let savedRows: PersonalMission[] = [];
+  const scoped = {
+    ...client,
+    rpc: async () => ({ data: [...stored.values()], error: null }),
+  };
+  const admin = {
+    from: (table: string) => {
+      assert.equal(table, "missions");
+      return {
+        upsert: (rows: PersonalMission[]) => {
+          savedRows = rows;
+          for (const row of rows) stored.set(row.id, row);
+          return { select: async () => ({ data: rows, error: null }) };
+        },
+      };
+    },
+  };
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (_input, init) => {
+    const request = JSON.parse(String(init?.body));
+    const context = JSON.parse(request.messages[0].content);
+    requests++;
+    if (requests === 2)
+      assert.ok(context.passed_ideas.includes(oldRows[0].mission_text));
+    else assert.deepEqual(context.passed_ideas, []);
+    return Response.json({
+      content: [
+        {
+          type: "text",
+          text: JSON.stringify({
+            family_title: "Find a short melody by ear",
+            theme: "",
+            missions: sizes.map((size, index) => ({
+              size,
+              mission_text: (requests === 1
+                ? [
+                    "Practise one familiar chord",
+                    "Practise a sequence of familiar chords",
+                    "Play one song with familiar chords",
+                  ]
+                : [
+                    "Find three notes by ear",
+                    "Find the melody of one short song",
+                    "Learn and record one short melody",
+                  ])[index],
+              first_step: "Choose a familiar tune",
+              minutes: [5, 25, 45][index],
+              cost: "Free",
+              setting: "Home",
+              safety_note: "",
+              ages: [],
+            })),
+          }),
+        },
+      ],
+    });
+  };
+  try {
+    const initial = await personalMissions(
+      scoped as never,
+      admin as never,
+      "owner",
+      { interest: "playing ukulele", ladder_step: 1 },
+      "test-key",
+      "test-model",
+    );
+    oldRows = initial.missions;
+    const result = await personalMissions(
+      scoped as never,
+      admin as never,
+      "owner",
+      {
+        interest: "playing ukulele",
+        ladder_step: 1,
+        excluded_mission_ids: [oldRows[0].id],
+      },
+      "test-key",
+      "test-model",
+    );
+    assert.equal(result.missions.length, 3);
+    assert.equal(requests, 2);
+    assert.equal(new Set(savedRows.map((row) => row.family_id)).size, 1);
+    assert.ok(
+      savedRows.every(
+        (row) =>
+          row.family_id !== oldRows[0].family_id &&
+          !oldRows.some((old) => old.id === row.id),
+      ),
+    );
+    assert.equal(stored.size, 6);
+    assert.ok(oldRows.every((row) => stored.get(row.id) === row));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
 
 test("a custom interest keeps its exact tag when an older client sends an empty where", async () => {

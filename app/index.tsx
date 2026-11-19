@@ -526,11 +526,12 @@ function Today() {
           meta: {
             mission_id: mission.id,
             priority,
-            theme: selection.theme,
+            theme: mission.theme || selection.theme,
             outcome: "passed",
           },
         }),
       );
+      if (!selection.familyId) generated.exclude(mission.id);
       reset({ familyId: "" });
     });
   const pendingContext = draft.pending
