@@ -66,7 +66,7 @@
   {
     "id": 4,
     "format": "quote",
-    "text": "\"Hold every hour in your grasp. Lay hold of to-day's task, and you will not need to depend so much upon to- morrow's.\"",
+    "text": "\"Hold every hour in your grasp. Lay hold of to-day's task, and you will not need to depend so much upon to-morrow's.\"",
     "person": "Seneca",
     "source": "Moral Letters to Lucilius, Letter 1 (tr. Richard M. Gummere)",
     "credit": "Seneca, Moral Letters to Lucilius, Letter 1 (tr. Richard M. Gummere)",
@@ -574,8 +574,8 @@
     "format": "quote",
     "text": "\"Trust thyself: every heart vibrates to that iron string.\"",
     "person": "Ralph Waldo Emerson",
-    "source": "\"Self- Reliance\" (1841)",
-    "credit": "Ralph Waldo Emerson, \"Self- Reliance\" (1841)",
+    "source": "\"Self-Reliance\" (1841)",
+    "credit": "Ralph Waldo Emerson, \"Self-Reliance\" (1841)",
     "priorities": [
       "independent",
       "brave"
@@ -698,7 +698,7 @@
   {
     "id": 34,
     "format": "story",
-    "text": "Epictetus was born a slave and lived with a lasting disability. He became one of Rome's best- known teachers, and his lessons on what is in our power still travel.",
+    "text": "Epictetus was born a slave and lived with a lasting disability. He became one of Rome's best-known teachers, and his lessons on what is in our power still travel.",
     "person": "Epictetus",
     "source": "",
     "credit": "Epictetus",
@@ -762,10 +762,10 @@
   {
     "id": 37,
     "format": "story",
-    "text": "After a stroke in 1995 left him able to move only his left eyelid, Jean- Dominique Bauby wrote a whole book by blinking, one letter at a time.",
-    "person": "Jean- Dominique Bauby",
+    "text": "After a stroke in 1995 left him able to move only his left eyelid, Jean-Dominique Bauby wrote a whole book by blinking, one letter at a time.",
+    "person": "Jean-Dominique Bauby",
     "source": "The Diving Bell and the Butterfly",
-    "credit": "Jean- Dominique Bauby, The Diving Bell and the Butterfly",
+    "credit": "Jean-Dominique Bauby, The Diving Bell and the Butterfly",
     "priorities": [
       "persistent",
       "brave",
@@ -850,7 +850,7 @@
   {
     "id": 41,
     "format": "story",
-    "text": "On Robben Island, Nelson Mandela recited a Victorian poem about self- mastery to fellow prisoners. Years later, he gave South Africa's rugby captain Roosevelt's \"man in the arena\" passage.",
+    "text": "On Robben Island, Nelson Mandela recited a Victorian poem about self-mastery to fellow prisoners. Years later, he gave South Africa's rugby captain Roosevelt's \"man in the arena\" passage.",
     "person": "Nelson Mandela",
     "source": "",
     "credit": "Nelson Mandela",
@@ -1280,8 +1280,8 @@
     "format": "quote",
     "text": "\"A man is relieved and gay [happy] when he has put his heart into his work and done his best.\"",
     "person": "Ralph Waldo Emerson",
-    "source": "\"Self- Reliance\" (1841)",
-    "credit": "Ralph Waldo Emerson, \"Self- Reliance\" (1841)",
+    "source": "\"Self-Reliance\" (1841)",
+    "credit": "Ralph Waldo Emerson, \"Self-Reliance\" (1841)",
     "priorities": [
       "disciplined",
       "energetic"
@@ -1387,7 +1387,7 @@
   {
     "id": 66,
     "format": "quote",
-    "text": "\"I think that I cannot preserve my health and spirits, unless I spend four hours a day at least— and it is commonly more than that— sauntering through the woods and over the hills and fields, absolutely free from all worldly engagements.\"",
+    "text": "\"I think that I cannot preserve my health and spirits, unless I spend four hours a day at least—and it is commonly more than that—sauntering through the woods and over the hills and fields, absolutely free from all worldly engagements.\"",
     "person": "Henry David Thoreau",
     "source": "\"Walking\" (1862)",
     "credit": "Henry David Thoreau, \"Walking\" (1862)",
@@ -1640,7 +1640,7 @@
   {
     "id": 78,
     "format": "quote",
-    "text": "\"From Maximus I learned self- government, and not to be led aside by anything; and cheerfulness in all circumstances, as well as in illness.\"",
+    "text": "\"From Maximus I learned self-government, and not to be led aside by anything; and cheerfulness in all circumstances, as well as in illness.\"",
     "person": "Marcus Aurelius",
     "source": "Meditations, Book 1 (tr. George Long)",
     "credit": "Marcus Aurelius, Meditations, Book 1 (tr. George Long)",
@@ -1810,7 +1810,7 @@
   {
     "id": 86,
     "format": "quote",
-    "text": "\"When you know a thing, to hold that you know it; and when you do not know a thing, to allow that you do not know it — this is knowledge.\"",
+    "text": "\"When you know a thing, to hold that you know it; and when you do not know a thing, to allow that you do not know it —this is knowledge.\"",
     "person": "Confucius",
     "source": "Analects 2.17 (tr. James Legge)",
     "credit": "Confucius, Analects 2.17 (tr. James Legge)",
@@ -1863,7 +1863,7 @@
     "once_only": false,
     "status": "verified",
     "verification_note": "Verified",
-    "checked_against": "sacred- texts.com, Legge tr.",
+    "checked_against": "sacred-texts.com, Legge tr.",
     "source_urls": [
       "https://sacred-texts.com/cfu/conf1.htm"
     ]
@@ -1882,7 +1882,7 @@
     "once_only": false,
     "status": "verified",
     "verification_note": "Verified",
-    "checked_against": "sacred- texts.com, Legge tr.",
+    "checked_against": "sacred-texts.com, Legge tr.",
     "source_urls": [
       "https://sacred-texts.com/cfu/conf1.htm"
     ]
@@ -2509,7 +2509,7 @@
     "once_only": false,
     "status": "verified",
     "verification_note": "Verified",
-    "checked_against": "sacred- texts.com, Legge tr.",
+    "checked_against": "sacred-texts.com, Legge tr.",
     "source_urls": [
       "https://sacred-texts.com/cfu/conf1.htm"
     ]
@@ -2529,7 +2529,7 @@
     "once_only": false,
     "status": "verified",
     "verification_note": "Verified",
-    "checked_against": "sacred- texts.com, Legge tr.",
+    "checked_against": "sacred-texts.com, Legge tr.",
     "source_urls": [
       "https://sacred-texts.com/cfu/conf1.htm"
     ]
@@ -2694,7 +2694,7 @@
   {
     "id": 127,
     "format": "story",
-    "text": "In 1731, Benjamin Franklin persuaded the friends in his self- improvement club to pool their money for books none of them could afford alone. Fifty members each paid 40 shillings to start. Their Library Company of Philadelphia still runs on members' support today.",
+    "text": "In 1731, Benjamin Franklin persuaded the friends in his self-improvement club to pool their money for books none of them could afford alone. Fifty members each paid 40 shillings to start. Their Library Company of Philadelphia still runs on members' support today.",
     "person": "Benjamin Franklin",
     "source": "Library Company of Philadelphia",
     "credit": "Benjamin Franklin, Library Company of Philadelphia",
@@ -2771,7 +2771,7 @@
     "once_only": false,
     "status": "verified",
     "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
-    "checked_against": "Britannica, Hull- House",
+    "checked_against": "Britannica, Hull-House",
     "source_urls": [
       "https://www.britannica.com/topic/Hull-House"
     ]
@@ -2868,7 +2868,7 @@
   {
     "id": 135,
     "format": "quote",
-    "text": "\"I believe a leaf of grass is no less than the journey- work of the stars,\"",
+    "text": "\"I believe a leaf of grass is no less than the journey-work of the stars,\"",
     "person": "Walt Whitman",
     "source": "\"Song of Myself,\" section 31, Leaves of Grass",
     "credit": "Walt Whitman, \"Song of Myself,\" section 31, Leaves of Grass",
@@ -3217,7 +3217,7 @@
     "once_only": false,
     "status": "verified",
     "verification_note": "Verified: facts checked by Claude against the linked source, Nov 2, 2026",
-    "checked_against": "Wikipedia, Around the World in Seventy- Two Days",
+    "checked_against": "Wikipedia, Around the World in Seventy-Two Days",
     "source_urls": [
       "https://en.wikipedia.org/wiki/Around_the_World_in_Seventy-Two_Days"
     ]
@@ -3246,7 +3246,7 @@
   {
     "id": 152,
     "format": "quote",
-    "text": "\"Travel is fatal to prejudice, bigotry and narrow- mindedness\"",
+    "text": "\"Travel is fatal to prejudice, bigotry and narrow-mindedness\"",
     "person": "Mark Twain",
     "source": "The Innocents Abroad (1869), Conclusion",
     "credit": "Mark Twain, The Innocents Abroad (1869), Conclusion",
@@ -4149,7 +4149,7 @@
   {
     "id": 191,
     "format": "story",
-    "text": "Sikhs end their daily prayer, the Ardas, by asking for \"sarbat da bhala\": the well- being of everyone, Sikhs and non-Sikhs alike.",
+    "text": "Sikhs end their daily prayer, the Ardas, by asking for \"sarbat da bhala\": the well-being of everyone, Sikhs and non-Sikhs alike.",
     "person": "Sikh Ardas prayer",
     "source": "",
     "credit": "Sikh Ardas prayer",
@@ -4589,6 +4589,152 @@
     "source_urls": [
       "https://widetorah.com/genesis/45/5/",
       "https://mail.biblehub.com/parallel/genesis/45-4.htm"
+    ]
+  },
+  {
+    "id": 210,
+    "format": "quote",
+    "text": "\"For your race, in its poverty, has unquestionably one really effective weapon—laughter.\"",
+    "person": "Mark Twain",
+    "source": "The Mysterious Stranger, ch. 10 (1916, Paine–Duneka text)",
+    "credit": "Mark Twain, The Mysterious Stranger, ch. 10 (1916, Paine–Duneka text)",
+    "priorities": [
+      "funny",
+      "hopeful"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified with correction: the 1916 text was edited after Twain's death, and shorter popular versions are paraphrases. Use this wording only.",
+    "checked_against": "wist.info",
+    "source_urls": [
+      "https://wist.info/twain-mark/6368/"
+    ]
+  },
+  {
+    "id": 211,
+    "format": "quote",
+    "text": "\"Angels can fly because they can take themselves lightly.\"",
+    "person": "G. K. Chesterton",
+    "source": "Orthodoxy, ch. 7 \"The Eternal Revolution\" (1908)",
+    "credit": "G. K. Chesterton, Orthodoxy, ch. 7 \"The Eternal Revolution\" (1908)",
+    "priorities": [
+      "funny",
+      "humble",
+      "free"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified with correction: the popular \"Angels fly because they take themselves lightly\" drops both \"can\"s.",
+    "checked_against": "Society of G. K. Chesterton",
+    "source_urls": [
+      "https://chesterton.org/angels-fly"
+    ]
+  },
+  {
+    "id": 212,
+    "format": "quote",
+    "text": "\"I live in a constant endeavour to fence against the infirmities of ill health, and other evils of life, by mirth.\"",
+    "person": "Laurence Sterne",
+    "source": "Tristram Shandy, dedication to Mr. Pitt (1760)",
+    "credit": "Laurence Sterne, Tristram Shandy, dedication to Mr. Pitt (1760)",
+    "priorities": [
+      "funny",
+      "hopeful",
+      "healthy"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified with correction: an excerpt; the original clause begins \"where I live\" and ends with a semicolon.",
+    "checked_against": "Project Gutenberg text",
+    "source_urls": [
+      "https://www.gutenberg.org/files/1079/1079-0.txt"
+    ]
+  },
+  {
+    "id": 213,
+    "format": "quote",
+    "text": "\"The only reward of virtue is virtue; the only way to have a friend is to be one.\"",
+    "person": "Ralph Waldo Emerson",
+    "source": "\"Friendship,\" Essays: First Series (1841)",
+    "credit": "Ralph Waldo Emerson, \"Friendship,\" Essays: First Series (1841)",
+    "priorities": [
+      "a good friend",
+      "good with people",
+      "kind"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "Essays: First Series text",
+    "source_urls": [
+      "https://www.literaturepage.com/read/emersonessays1-106.html"
+    ]
+  },
+  {
+    "id": 214,
+    "format": "story",
+    "text": "When a new member of the Pennsylvania Assembly spoke against him, Benjamin Franklin didn't argue back. He asked to borrow a rare book from the man's library, returned it with a note of thanks, and the man became his friend for life. Franklin called it an old maxim: someone who has done you one kindness is readier to do you another.",
+    "person": "Benjamin Franklin",
+    "source": "Autobiography (written 1771–1790)",
+    "credit": "Benjamin Franklin, Autobiography (written 1771–1790)",
+    "priorities": [
+      "good with people",
+      "humble",
+      "wise"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: retold; the maxim is paraphrased, not quoted",
+    "checked_against": "Wikisource",
+    "source_urls": [
+      "https://kiwix.lema.org/wikisource_en_all_nopic_2023-08/A/The_Autobiography_of_Benjamin_Franklin/Section_Fourty_Two"
+    ]
+  },
+  {
+    "id": 215,
+    "format": "story",
+    "text": "In July 1863, after Gettysburg, Abraham Lincoln was distressed that General Meade had let Lee's army escape. He wrote Meade a sharp letter, then kept it and marked the envelope \"never sent, or signed.\" Writing out his frustration and setting it aside was one of his habits.",
+    "person": "Abraham Lincoln",
+    "source": "letter to George Meade, July 14, 1863",
+    "credit": "Abraham Lincoln, letter to George Meade, July 14, 1863",
+    "priorities": [
+      "respectful",
+      "calm",
+      "wise"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified",
+    "checked_against": "American Battlefield Trust",
+    "source_urls": [
+      "https://www.battlefields.org/learn/primary-sources/lincolns-unsent-letter-george-meade"
+    ]
+  },
+  {
+    "id": 216,
+    "format": "quote",
+    "text": "\"Is not reciprocity such a word? What you do not want done to yourself, do not do to others.\"",
+    "person": "Confucius",
+    "source": "Analects 15.23 (tr. James Legge)",
+    "credit": "Confucius, Analects 15.23 (tr. James Legge)",
+    "priorities": [
+      "respectful",
+      "fair",
+      "kind"
+    ],
+    "traditions": [],
+    "once_only": false,
+    "status": "verified",
+    "verification_note": "Verified: Legge's wording (he prints RECIPROCITY in capitals). The answer to Tsze-kung asking for one word to live by.",
+    "checked_against": "Hanover College",
+    "source_urls": [
+      "https://history.hanover.edu/courses/excerpts/261conf.html"
     ]
   }
 ]

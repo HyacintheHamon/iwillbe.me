@@ -24,6 +24,7 @@ import {
   emptyPractice,
   shiftDay,
   hasPractice,
+  checkInInput,
   type Practice,
   type Profile,
   type Intention,
@@ -707,6 +708,9 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
       ] as const) {
         if (
           title &&
+          // An inferred activity in a typed focus stays off My map until the
+          // person accepts the explicit invitation at Night.
+          !(kind === "interest" && intention.source === "typed") &&
           !current.current.entries.some(
             (e) => e.kind === kind && e.title === title,
           )
@@ -841,7 +845,7 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
         (c) => c.intention_id === input.intention_id,
       );
       const row = {
-        ...input,
+        ...checkInInput(input),
         created_at: prior?.created_at || new Date().toISOString(),
       };
       await write("check_ins", row, "intention_id");
@@ -907,6 +911,10 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
         created_at: existingValue?.created_at || now,
         updated_at: now,
         state: nextState,
+        meta: {
+          ...existingValue?.meta,
+          value_review_day: intention.day,
+        },
         source_ids: Array.from(
           new Set([...(existingValue?.source_ids || []), intention.id]),
         ),

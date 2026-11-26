@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; frame-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'"
+    />
+    <title>Round 4 · Isolated QA</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #f1ece6;
+        color: #191714;
+        font:
+          15px system-ui,
+          -apple-system,
+          sans-serif;
+      }
+      main {
+        --phone-width: 390px;
+        max-width: 1120px;
+        margin: 24px auto;
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: minmax(320px, 1fr) var(--phone-width);
+        gap: 32px;
+        align-items: start;
+      }
+      h1 {
+        margin: 8px 0;
+        font-size: 30px;
+        letter-spacing: -1px;
+      }
+      h2 {
+        margin: 22px 0 10px;
+        font-size: 16px;
+      }
+      p {
+        line-height: 1.5;
+        color: #615b55;
+      }
+      button,
+      a {
+        font: inherit;
+      }
+      button {
+        min-height: 42px;
+        padding: 10px 12px;
+        border: 1px solid #c9beb1;
+        border-radius: 10px;
+        background: #fff;
+        color: #191714;
+        cursor: pointer;
+        text-align: left;
+      }
+      button:hover {
+        border-color: #c2410c;
+      }
+      button[aria-pressed="true"] {
+        border-color: #c2410c;
+        background: #fff0e4;
+        color: #9a3412;
+        box-shadow: inset 0 0 0 1px #c2410c;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      :focus-visible {
+        outline: 3px solid #c2410c;
+        outline-offset: 3px;
+      }
+      a {
+        color: #9a3412;
+      }
+      .badge {
+        display: inline-block;
+        border-radius: 16px;
+        padding: 6px 10px;
+        font-size: 12px;
+        color: #fff;
+        background: #191714;
+      }
+      .choices {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .note {
+        padding: 12px;
+        border-radius: 10px;
+        background: #fff;
+        font-size: 13px;
+      }
+      .phone-wrap {
+        width: fit-content;
+      }
+      #phone {
+        box-sizing: content-box;
+        display: block;
+        width: 390px;
+        height: 844px;
+        border: 1px solid #d5cbbf;
+        border-radius: 20px;
+        background: #faf8f5;
+        box-shadow: 0 16px 48px #30291d22;
+      }
+      #viewport-label {
+        margin-top: 10px;
+        font-size: 12px;
+        text-align: center;
+      }
+      #status {
+        min-height: 42px;
+        font-size: 13px;
+      }
+      dl {
+        margin: 0;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 7px 16px;
+      }
+      dt {
+        color: #615b55;
+      }
+      dd {
+        margin: 0;
+        font-weight: 650;
+        font-variant-numeric: tabular-nums;
+      }
+      pre {
+        margin: 10px 0 0;
+        padding: 14px;
+        max-height: 350px;
+        overflow: auto;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        border-radius: 10px;
+        background: #fff;
+        font:
+          12px/1.5 ui-monospace,
+          monospace;
+      }
+      @media (max-width: 850px) {
+        main {
+          grid-template-columns: 1fr;
+          justify-items: center;
+          margin: 16px auto;
+          padding: 0 12px;
+        }
+        .controls {
+          width: 100%;
+          max-width: 600px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="layout">
+      <section class="controls" aria-label="QA controls">
+        <span class="badge">Isolated QA · Fictional data</span>
+        <h1>Round 4</h1>
+        <p>
+          Use these visible controls to test the app. Saved choices stay in this
+          preview. Live Supabase and AI calls are blocked.
+        </p>
+
+        <h2>Scenarios</h2>
+        <div id="scenarios" class="choices">
+          <button data-scenario="morning">Morning · 9 am</button>
+          <button data-scenario="evening">Evening · 6 pm</button>
+          <button data-scenario="next-day">Next day · reminder</button>
+          <button data-scenario="previous-obstacle">
+            Previous obstacle · quiet night
+          </button>
+        </div>
+        <p id="explanation" class="note"></p>
+
+        <h2>Phone viewport</h2>
+        <div id="sizes" class="row">
+          <button data-width="390" data-height="844" aria-pressed="true">
+            390 × 844
+          </button>
+          <button data-width="320" data-height="568" aria-pressed="false">
+            320 × 568
+          </button>
+        </div>
+
+        <h2>Open a screen</h2>
+        <div id="views" class="row">
+          <button data-path="/">Today</button>
+          <button data-path="/galaxy">My map</button>
+          <button data-path="/reflect">Night</button>
+          <button data-path="/telescope">Future me</button>
+        </div>
+
+        <h2>Move through the day</h2>
+        <div class="row">
+          <button id="evening" disabled>Evening · same day</button>
+          <button id="tomorrow" disabled>Advance to tomorrow morning</button>
+          <button id="reset">Reset this scenario</button>
+        </div>
+        <p>
+          <a id="direct" href="/" target="_blank" rel="noopener"
+            >Open this app view in a new tab</a
+          >
+        </p>
+
+        <h2>Saved fixture state</h2>
+        <p id="status" role="status" aria-live="polite">
+          Starting the local fixture…
+        </p>
+        <dl aria-label="Saved fixture counts">
+          <dt>Local service calls</dt>
+          <dd id="handled">0</dd>
+          <dt>External calls blocked</dt>
+          <dd id="blocked">0</dd>
+          <dt>Saved intentions</dt>
+          <dd id="intentions">0</dd>
+          <dt>Saved check-ins</dt>
+          <dd id="check-ins">0</dd>
+          <dt>Action reminders</dt>
+          <dd id="reminders">0</dd>
+          <dt>Tomorrow choices</dt>
+          <dd id="tomorrow-choices">0</dd>
+          <dt>Obstacle records</dt>
+          <dd id="obstacles">0</dd>
+        </dl>
+        <h2>Exact saved words and answers</h2>
+        <pre id="records" tabindex="0" aria-label="Exact saved fixture records">
+Waiting for the app…</pre>
+      </section>
+      <section class="phone-wrap" aria-label="Phone preview">
+        <iframe
+          id="phone"
+          title="iwillbe.me Round 4 phone preview"
+          width="390"
+          height="844"
+        ></iframe>
+        <p id="viewport-label">App viewport: 390 × 844 CSS pixels</p>
+      </section>
+    </main>
+    <script>
+      (() => {
+        "use strict";
+        const settings = {
+          morning: {
+            path: "/",
+            clock: "2026-11-26T14:00:00Z",
+            text: "November 26, 9 am in New York. Today starts empty. Try three ideas, More ideas, editable capitals and a custom time before saving.",
+          },
+          evening: {
+            path: "/reflect",
+            clock: "2026-11-26T23:00:00Z",
+            text: "November 26, 6 pm in New York. A priority-only focus is ready for Night. Save an outcome and energy, then keep the focus for tomorrow.",
+          },
+          "next-day": {
+            path: "/",
+            clock: "2026-11-27T14:00:00Z",
+            text: "November 27, 9 am in New York. The fictional reminder “Open the NASA checklist” should lead Today's idea cards without saving a focus automatically.",
+          },
+          "previous-obstacle": {
+            path: "/reflect",
+            clock: "2026-11-26T23:00:00Z",
+            text: "Yesterday's same-focus obstacle is already recorded. Choose A little or Not this time: tonight should not repeat the obstacle question.",
+          },
+        };
+        const query = new URLSearchParams(location.search);
+        let scenario = Object.hasOwn(settings, query.get("scenario"))
+          ? query.get("scenario")
+          : "morning";
+        let clock = settings[scenario].clock;
+        let token = "";
+        let currentPath = settings[scenario].path;
+        const frame = document.getElementById("phone");
+        const status = document.getElementById("status");
+        const fields = Object.fromEntries(
+          [
+            "handled",
+            "blocked",
+            "intentions",
+            "check-ins",
+            "reminders",
+            "tomorrow-choices",
+            "obstacles",
+            "records",
+          ].map((id) => [id, document.getElementById(id)]),
+        );
+        const clockButtons = [
+          document.getElementById("evening"),
+          document.getElementById("tomorrow"),
+        ];
+        function fixture() {
+          try {
+            return frame.contentWindow?.__ROUND4_QA__;
+          } catch {
+            return null;
+          }
+        }
+        function viewURL(path) {
+          const url = new URL(path, location.origin);
+          url.searchParams.set("qaScenario", scenario);
+          url.searchParams.set("qaReset", token);
+          url.searchParams.set("qaClock", clock);
+          return url;
+        }
+        function open(path) {
+          currentPath = path;
+          const url = viewURL(path);
+          for (const button of clockButtons) button.disabled = true;
+          frame.src = url.pathname + url.search;
+          document.getElementById("direct").href = url.href;
+          status.textContent = "Loading " + scenario + "…";
+        }
+        function select(name) {
+          scenario = name;
+          clock = settings[scenario].clock;
+          token =
+            String(Date.now()) + "-" + Math.random().toString(36).slice(2);
+          for (const button of document.querySelectorAll("[data-scenario]"))
+            button.setAttribute(
+              "aria-pressed",
+              String(button.dataset.scenario === scenario),
+            );
+          document.getElementById("explanation").textContent =
+            settings[scenario].text;
+          history.replaceState(
+            null,
+            "",
+            "/qa.html?scenario=" + encodeURIComponent(scenario),
+          );
+          open(settings[scenario].path);
+        }
+        function refresh() {
+          const qa = fixture();
+          if (!qa || qa.scenario !== scenario) return;
+          for (const button of clockButtons) button.disabled = false;
+          clock = qa.clock;
+          const db = qa.inspect();
+          const counters = qa.counters();
+          const entries = (db.journey_entries || []).map((row) => row.entry);
+          const reminders = entries.filter(
+            (entry) => entry.title === "Action reminder",
+          );
+          const tomorrow = entries.filter(
+            (entry) => entry.title === "Tomorrow focus",
+          );
+          const obstacles = entries.filter(
+            (entry) => entry.title === "Night obstacle",
+          );
+          const counts = {
+            handled: counters.handled,
+            blocked: counters.blocked,
+            intentions: db.intentions.length,
+            "check-ins": db.check_ins.length,
+            reminders: reminders.length,
+            "tomorrow-choices": tomorrow.length,
+            obstacles: obstacles.length,
+          };
+          for (const [id, value] of Object.entries(counts))
+            fields[id].textContent = String(value);
+          const time = new Intl.DateTimeFormat("en-US", {
+            dateStyle: "medium",
+            timeStyle: "short",
+            timeZone: "America/New_York",
+          }).format(new Date(clock));
+          status.textContent =
+            "Fixture clock: " + time + " · America/New_York · " + scenario;
+          const details = {
+            intentions: db.intentions.map(
+              ({ day, action, value, interest, when_context, source }) => ({
+                day,
+                action,
+                priority: value,
+                interest,
+                when: when_context,
+                source,
+              }),
+            ),
+            check_ins: db.check_ins.map(({ outcome, energy, reflection }) => ({
+              outcome,
+              energy,
+              note: reflection,
+            })),
+            reminders: reminders.map(({ body, meta }) => ({
+              action: body,
+              day: meta.reminder_day,
+              status: meta.status,
+              source: meta.created_from,
+            })),
+            tomorrow_choices: tomorrow.map(({ body, meta }) => ({
+              action: body,
+              ...meta,
+            })),
+            obstacles: obstacles.map(({ meta }) => ({
+              day: meta.focus_day,
+              asked: meta.asked,
+              reason: meta.obstacle_reason || null,
+              choice: meta.obstacle_choice || null,
+            })),
+          };
+          fields.records.textContent = JSON.stringify(details, null, 2);
+          try {
+            currentPath = frame.contentWindow.location.pathname;
+          } catch {}
+          document.getElementById("direct").href = viewURL(currentPath).href;
+        }
+        function moveClock(tomorrow) {
+          const qa = fixture();
+          if (!qa) return;
+          const date = new Date(qa.clock);
+          if (tomorrow) date.setUTCDate(date.getUTCDate() + 1);
+          date.setUTCHours(tomorrow ? 14 : 23, 0, 0, 0);
+          clock = date.toISOString();
+          qa.advanceTo(clock);
+          open(tomorrow ? "/" : "/reflect");
+        }
+        document
+          .getElementById("scenarios")
+          .addEventListener("click", (event) => {
+            const button = event.target.closest("[data-scenario]");
+            if (button) select(button.dataset.scenario);
+          });
+        document.getElementById("views").addEventListener("click", (event) => {
+          const button = event.target.closest("[data-path]");
+          if (button) open(button.dataset.path);
+        });
+        document.getElementById("sizes").addEventListener("click", (event) => {
+          const button = event.target.closest("[data-width]");
+          if (!button) return;
+          const { width, height } = button.dataset;
+          frame.width = width;
+          frame.height = height;
+          frame.style.width = width + "px";
+          frame.style.height = height + "px";
+          document
+            .getElementById("layout")
+            .style.setProperty("--phone-width", width + "px");
+          document.getElementById("viewport-label").textContent =
+            "App viewport: " + width + " × " + height + " CSS pixels";
+          for (const candidate of document.querySelectorAll("[data-width]"))
+            candidate.setAttribute(
+              "aria-pressed",
+              String(candidate === button),
+            );
+        });
+        document
+          .getElementById("reset")
+          .addEventListener("click", () => select(scenario));
+        document
+          .getElementById("evening")
+          .addEventListener("click", () => moveClock(false));
+        document
+          .getElementById("tomorrow")
+          .addEventListener("click", () => moveClock(true));
+        window.addEventListener("message", (event) => {
+          if (
+            event.origin === location.origin &&
+            event.source === frame.contentWindow &&
+            event.data?.type === "round4-qa-status"
+          )
+            refresh();
+        });
+        frame.addEventListener("load", refresh);
+        setInterval(refresh, 1000);
+        select(scenario);
+      })();
+    </script>
+  </body>
+</html>

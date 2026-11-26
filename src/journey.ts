@@ -96,6 +96,24 @@ export type Entry = {
     onboarding_step?: string;
     mission_id?: string;
     outcome?: "passed";
+    reminder_day?: string;
+    interest?: string;
+    place?: string;
+    level?: "easy" | "normal" | "stretch";
+    status?: "open" | "used" | "released";
+    created_from?: "build_action" | "night_obstacle" | "goodnight";
+    mission_snapshot?: import("./round2").Round2Mission;
+    prefill?: boolean;
+    focus_key?: string;
+    focus_day?: string;
+    intention_id?: string;
+    night_outcome?: "yes" | "partly" | "not_yet";
+    night_energy?: Energy | null;
+    obstacle_reason?:
+      "time" | "start" | "big" | "motivation" | "unexpected" | "unsure";
+    suggested_action?: string;
+    obstacle_choice?: "keep" | "release";
+    value_review_day?: string;
   };
 };
 export type EntryInput = Omit<Entry, "id" | "created_at" | "updated_at"> & {
@@ -200,7 +218,7 @@ export function valueState(
     : "Working on";
 }
 export const REVIEW_QUESTIONS = [
-  "How much did this month feel like your life, not one you were just going along with?",
+  "How much did this month feel like it was heading where you want to go?",
   "How much did your days feel like they mattered this month?",
   "How connected did you feel to the people around you?",
 ];

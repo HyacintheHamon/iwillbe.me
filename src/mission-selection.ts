@@ -1,7 +1,7 @@
 import type { Practice } from "./domain";
 import type { FocusType, Level, Round2Mission, Someday } from "./round2";
 import { priorityName } from "./priorities";
-import catalogue from "../data/round3/missions.json";
+import catalogue from "../data/round4/missions.json";
 
 const LEVELS: Level[] = ["easy", "normal", "stretch"];
 const normalise = (value: string) => value.trim().toLowerCase();
@@ -25,6 +25,10 @@ export type MissionSelectionOptions = {
   now?: Date;
   day?: string;
   familyId?: string;
+  /** Independent Round 4 wheels. Explicit choices are never silently cleared. */
+  interest?: string;
+  place?: string;
+  excludedFamilyIds?: readonly string[];
   pool?: readonly Round2Mission[];
 };
 export type MissionSelection = {
@@ -46,6 +50,8 @@ export function missionFamilyId(
   const id = typeof mission === "string" ? mission : mission.id;
   if (typeof mission !== "string" && mission.family_id)
     return mission.family_id;
+  if (id.startsWith("personal-"))
+    return id.replace(/-(?:5-minute|Normal|Stretch)$/, "");
   const match = /^(.*?)[abc](\d*)$/.exec(id);
   return match ? match[1] + (match[2] ? `#${match[2]}` : "") : id;
 }
@@ -348,7 +354,10 @@ function chooseFamily(
     return reasons.get(mission.id);
   };
   const priority = priorityName(options.priority);
-  const hasWhere = options.kind === "place" || options.kind === "interest";
+  const strict = options.interest !== undefined || options.place !== undefined;
+  const hasWhere = strict
+    ? !!(options.interest || options.place)
+    : options.kind === "place" || options.kind === "interest";
   if (!priority && !hasWhere && !unscoped) return emptySelection(options);
   const released = new Set(
     practice.entries
@@ -391,18 +400,27 @@ function chooseFamily(
     (m) =>
       m.active !== false &&
       m.type === (options.type || "do") &&
+      !options.excludedFamilyIds?.includes(missionFamilyId(m)) &&
       !released.has(m.id) &&
       (!priority || m.priorities.some((p) => priorityName(p) === priority)),
   );
   const whereMatches = (m: Round2Mission) =>
-    options.kind === "interest"
-      ? m.interests.some((i) => normalise(i) === normalise(options.where))
-      : options.kind === "place"
-        ? m.places.some((p) => normalise(p) === normalise(options.where))
-        : true;
+    strict
+      ? (!options.interest ||
+          m.interests.some(
+            (i) => normalise(i) === normalise(options.interest!),
+          )) &&
+        (!options.place ||
+          normalise(options.place) === "anywhere" ||
+          m.places.some((p) => normalise(p) === normalise(options.place!)))
+      : options.kind === "interest"
+        ? m.interests.some((i) => normalise(i) === normalise(options.where))
+        : options.kind === "place"
+          ? m.places.some((p) => normalise(p) === normalise(options.where))
+          : true;
   const available = (m: Round2Mission) => !reasonFor(m);
   const exact = hasWhere ? base.filter(whereMatches) : base;
-  const cleared = hasWhere && !exact.some(available) && !!priority;
+  const cleared = !strict && hasWhere && !exact.some(available) && !!priority;
   const candidates = cleared ? base : exact;
   const result = emptySelection(options, cleared);
   const groups = new Map<string, Round2Mission[]>();

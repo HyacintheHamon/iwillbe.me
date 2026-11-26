@@ -18,9 +18,9 @@ import {
 } from "./ui";
 
 const energyLabels = {
-  lit: "It lit me up",
+  lit: "Gave me energy",
   neutral: "Neutral",
-  drained: "It drained me",
+  drained: "Drained me",
 };
 const valueLabels = {
   yes: "Keep it",
@@ -118,10 +118,7 @@ export function ChloeReflection({
         intention_id: intention.id,
         outcome: proposal.outcome,
         reflection: proposal.reflection.trim(),
-        energy:
-          proposal.outcome !== "not_yet" && intention.interest
-            ? proposal.energy
-            : null,
+        energy: proposal.energy,
         value_choice:
           proposal.outcome !== "not_yet" && intention.value
             ? proposal.value_choice
@@ -174,19 +171,15 @@ export function ChloeReflection({
             }
             onPress={() => setStep("outcome")}
           />
-          {intention.interest && proposal.outcome !== "not_yet" ? (
-            <>
-              <Body>
-                {proposal.energy
-                  ? energyLabels[proposal.energy]
-                  : "Energy: left open"}
-              </Body>
-              <TextButton
-                label="Change the energy answer"
-                onPress={() => setStep("energy")}
-              />
-            </>
-          ) : null}
+          <Body>
+            {proposal.energy
+              ? energyLabels[proposal.energy]
+              : "Energy: left open"}
+          </Body>
+          <TextButton
+            label="Change the energy answer"
+            onPress={() => setStep("energy")}
+          />
           {intention.value && proposal.outcome !== "not_yet" ? (
             <>
               <Body>
@@ -238,7 +231,6 @@ export function ChloeReflection({
                   outcome,
                   ...(outcome === "not_yet"
                     ? {
-                        energy: null,
                         value_choice: null,
                         replacement_value: null,
                       }

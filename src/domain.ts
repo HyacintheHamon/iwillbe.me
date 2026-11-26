@@ -48,6 +48,16 @@ export type CheckIn = {
   value_choice?: ValueChoice | null;
   created_at: string;
 };
+// An explicit energy answer is independent of completion and focus category.
+// Omitted answers remain unknown; never turn a skipped answer into Neutral.
+export function checkInInput(input: Omit<CheckIn, "created_at">) {
+  if (
+    input.energy != null &&
+    !["lit", "neutral", "drained"].includes(input.energy)
+  )
+    throw new Error("Please choose an energy answer, or leave it open.");
+  return { ...input, energy: input.energy ?? null };
+}
 export type Memory = {
   revision?: number;
   id: string;

@@ -557,7 +557,10 @@ function Onboarding() {
       )}
       {draft.step === 7 && (
         <>
-          <Body>What could you love?</Body>
+          <Body>Is this for you, now or someday?</Body>
+          <Body style={{ color: C.muted, fontSize: 13 }}>
+            Tap how it feels. You can change it anytime.
+          </Body>
           <View
             style={{
               minHeight: 170,

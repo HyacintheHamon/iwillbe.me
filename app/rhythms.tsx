@@ -15,7 +15,6 @@ import {
 import {
   livedFocuses,
   seasonalSunday,
-  similarInterests,
   priorityOptions,
   isHardDay,
   pickMission,
@@ -36,6 +35,7 @@ import {
 } from "../src/ui";
 import { supabase } from "../src/supabase";
 import { recordScreenVisit } from "../src/usage";
+import { InterestDiscovery } from "../src/interest-discovery";
 type Review = {
   intro: string;
   pattern: string;
@@ -76,7 +76,6 @@ function ReviewRhythm({ mode }: { mode: "weekly" | "monthly" }) {
   );
   const season = seasonalSunday(today);
   const lived = livedFocuses(data, today);
-  const suggestions = similarInterests(data);
   const priorities = priorityOptions(data);
   const period =
     mode === "weekly" ? weekPeriod(today) : `moon:${today.slice(0, 7)}`;
@@ -155,17 +154,6 @@ function ReviewRhythm({ mode }: { mode: "weekly" | "monthly" }) {
           ),
         );
       setStep(moment === "narrowing" ? 3 : 4);
-    });
-  const addInterest = (name: string, tryNow: boolean) =>
-    action.run(async () => {
-      if (!data.entries.some((e) => e.kind === "interest" && e.title === name))
-        await putEntry(
-          entryInput("interest", name, {
-            state: "want_to_try",
-            source: "Sunday · close to what you love",
-          }),
-        );
-      if (tryNow) setExplore(name);
     });
   const annual =
     !!data.profile.joined_at &&
@@ -362,24 +350,8 @@ function ReviewRhythm({ mode }: { mode: "weekly" | "monthly" }) {
           )}
           {(step === 4 || (step === 3 && moment !== "narrowing")) && (
             <>
-              <Title>Close to what you love</Title>
-              {suggestions.map((l) => (
-                <View key={l.similar_interest} style={s.card}>
-                  <Title style={{ fontSize: 21 }}>{l.similar_interest}</Title>
-                  <Body>
-                    Similar to {l.interest}: {l.reason}
-                  </Body>
-                  <Button
-                    secondary
-                    label={`Try ${l.similar_interest} this week`}
-                    onPress={() => addInterest(l.similar_interest, true)}
-                  />
-                  <TextButton
-                    label={`Save ${l.similar_interest} for later`}
-                    onPress={() => addInterest(l.similar_interest, false)}
-                  />
-                </View>
-              ))}
+              <Title>Something new to explore</Title>
+              <InterestDiscovery onAdded={setExplore} />
               {(moment === "worst_case" || moment === "cost_of_waiting") && (
                 <View style={s.card}>
                   <Body>{target?.title}</Body>

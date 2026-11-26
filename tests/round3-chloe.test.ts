@@ -520,8 +520,8 @@ test("a custom interest keeps its exact tag when an older client sends an empty 
   );
 });
 
-test("Round 3 prompt uses the when question and This year list, with once-only preferences", () => {
-  assert.equal(PROMPT_VERSION, "chloe-2026-11-18-round3");
+test("current prompt preserves the when question, This year list and once-only preferences", () => {
+  assert.equal(PROMPT_VERSION, "chloe-2026-11-25-round4");
   assert.match(MODES.morning, /When will you do it\?/);
   assert.match(MODES.monthly, /this_year_items/);
   const prompt = systemPrompt("monthly", {});

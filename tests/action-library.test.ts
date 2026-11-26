@@ -130,8 +130,13 @@ test("beneficiaries preserve recent named people and only auto-pick an explicit 
 });
 
 test("night library retains all supplied records while withholding caveated entries", () => {
-  assert.equal(catalogue.length, 209);
-  assert.equal(catalogue.filter((t) => t.status === "verified").length, 200);
+  assert.equal(catalogue.length, 216);
+  assert.equal(catalogue.filter((t) => t.status === "verified").length, 207);
+  assert.deepEqual(
+    catalogue.filter((t) => t.status !== "verified").map((t) => t.id),
+    [50, 69, 73, 90, 96, 97, 105, 114, 142],
+    "the Status column takes precedence over the introduction's one-caveat claim",
+  );
   assert.equal(catalogue.find((t) => t.id === 142)?.status, "needs_check");
   assert.ok(
     catalogue.every((t) =>

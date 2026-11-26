@@ -1,0 +1,20 @@
+{
+  "filename": "iwillbe-me-developer-pack-round4.pdf",
+  "sha256": "2d94f6a995a5f725de4e7d32267ecff4b9da8f3e97229d265d71ca0304faac1c",
+  "prompt_pages": "12–26 (Current prompt only)",
+  "library_pages": "37–97",
+  "entries": 216,
+  "verified": 207,
+  "withheld_ids": [
+    50,
+    69,
+    73,
+    90,
+    96,
+    97,
+    105,
+    114,
+    142
+  ],
+  "note": "The introduction mentions one caveat, but nine Status cells carry a caveat. All nine remain excluded."
+}

@@ -26,15 +26,15 @@ import { ChatCircleIcon } from "phosphor-react-native/src/icons/ChatCircle";
 import { XIcon as X } from "phosphor-react-native/src/icons/X";
 import { router } from "expo-router";
 export const C = {
-  soft: "#FFF1E6",
-  paper: "#FAF8F5",
+  soft: "#FDEEE4",
+  paper: "#F8F6F2",
   navy: "#141414",
   ink: "#141414",
-  gold: "#C2410C",
-  goldDecorative: "#C2410C",
-  goldLight: "#C2410C",
-  line: "#E2DED5",
-  muted: "#77716A",
+  gold: "#C4410E",
+  goldDecorative: "#C4410E",
+  goldLight: "#C4410E",
+  line: "#E6E0D8",
+  muted: "#6B6560",
   white: "#FFFFFF",
   blue: "#436578",
   clay: "#946451",
@@ -89,7 +89,7 @@ export function Button({
   secondary = false,
   loading = false,
   disabled = false,
-  icon = true,
+  icon = false,
   commitPulse = false,
 }: {
   label: string;
@@ -472,7 +472,7 @@ export const s = StyleSheet.create({
   secondary: {
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: C.line,
+    borderColor: C.ink,
   },
   buttonText: {
     fontFamily: F.medium,

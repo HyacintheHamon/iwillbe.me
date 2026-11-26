@@ -258,13 +258,13 @@ function energyMeaning(quote: string, context: string) {
   if (!trustworthyChoiceContext(c) || uncertain.test(c) || negated.test(c))
     return null;
   const mixed = [
-    /\b(?:lit me up|energized|energised|energizing|energising|enjoyed|loved|alive)\b/,
+    /\b(?:lit me up|gave me energy|energized|energised|energizing|energising|enjoyed|loved|alive)\b/,
     /\bneutral\b/,
     /\b(?:drained|exhausted|depleted)\b/,
   ].filter((meaning) => meaning.test(c));
   if (mixed.length > 1) return null;
   if (
-    /\b(?:lit me up|energized me|energised me|i felt (?:energized|energised|alive)|i (?:really )?(?:enjoyed|loved) (?:it|that|the|cooking|painting)|(?:it|that) (?:was|felt) energizing|(?:it|that) (?:was|felt) energising)\b/.test(
+    /\b(?:lit me up|gave me energy|energized me|energised me|i felt (?:energized|energised|alive)|i (?:really )?(?:enjoyed|loved) (?:it|that|the|cooking|painting)|(?:it|that) (?:was|felt) energizing|(?:it|that) (?:was|felt) energising)\b/.test(
       q,
     )
   )
@@ -430,8 +430,6 @@ export function validateReflectionProposal(
       ? (raw.outcome as ReflectionProposal["outcome"])
       : null;
   const energy =
-    outcome !== "not_yet" &&
-    !!intention.interest &&
     supported("energy") &&
     ["lit", "neutral", "drained"].includes(String(raw.energy))
       ? (raw.energy as ReflectionProposal["energy"])

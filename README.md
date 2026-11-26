@@ -2,26 +2,21 @@
 
 An Expo app for finding and living a personal why through small, concrete commitments. Chloe helps a person notice what matters, choose how to show up, then get off the screen. React Native serves iOS/Android and Expo web, with Supabase accounts and an Anthropic-powered guide.
 
-The implementation follows the Chloe brief supplied on **26 October 2026**: purpose develops through service, responsibility and lived experience; values matter more than mood; there are no streaks, guilt or pep talks.
+The current implementation follows the supplied **25 November 2026 Round 4 developer pack** and mission workbook. Purpose develops through service, responsibility and lived experience; values matter more than mood; there are no streaks, guilt or pep talks.
 
-The [26 October follow-through release note](docs/releases/2026-10-26-followthrough.md) records the original implementation checkpoint. See the [29 October release update](docs/releases/2026-10-29-beta-entry.md) for the applied revision migration and current verification scope. Chloe v8 is active in Supabase.
+## 26 November — Round 4
 
+The [Round 4 release notes](docs/releases/2026-11-26-round4.md) record the current behavior, source hashes, validation checkpoint and rollout steps. This branch contains **1,257 missions, 57 books and 44 interest links**, plus **216 night thoughts, of which 207 are eligible**. All 1,152 previous mission records are retained unchanged. Nine night-library entries with source caveats remain excluded.
 
-## 15 November — Round 2
+Today now has an editable **I will** field, **Set my focus**, three idea cards and **More ideas** to add two. **Use idea** fills the field for review; a separate timing choice saves the focus. The wheels move to **Build an action** in My map, where three five-row wheels combine priority, interest and person/place. My map has six illustrated entries and two groups of interest-discovery suggestions.
 
-The [Round 2 release notes](docs/releases/2026-11-15-round2.md) describe the current implementation. The supplied developer pack and workbook replace the older area/category model with priorities, interests and places. Today has a typed focus and two scroll wheels; My map has five interest stages; Future me includes a four-horizon Someday list. The full catalogue contains 1,089 missions (180 Learn and 15 Someday starters), 44 interest links and 56 books.
+Night keeps outcome, energy and an optional note on one screen. Explicit energy is saved for every outcome, including priority-only focuses. Optional obstacle support can offer a smaller step for tomorrow. Goodnight can carry the same focus into tomorrow's editable field without creating a commitment automatically. New interests require an explicit choice before entering My map.
 
-Migration `20261115040953_round2_focus_and_library.sql` is applied to the connected Supabase project. Chloe v10 is active. The older release sections below are historical checkpoints, not current screen specifications.
+Local type, lint, unit and database checks have passed. **Round 4 browser checks remain to be executed, and no Round 4 production deployment is recorded here.** After merge, apply `20261126090001_round4_night_library.sql` and `20261126140000_round4_mission_catalogue.sql`, deploy the matching `chloe` function and publish the normal frontend export. Use the [isolated QA instructions](#isolated-round-4-browser-qa) below for preview testing; the release note distinguishes local checks from live activation.
 
-## 3 November beta update
+### Previous release checkpoints
 
-The current code adds action suggestions from My map, the Inter/orange design, 15 quick picks, 38 priorities and the updated Chloe/night-thought flow. [Implementation and release notes](docs/beta-feedback-2026-11.md) are authoritative for this update; the older release details below describe previous checkpoints.
-
-Migration `20261103153554_beta_action_library.sql` is applied to the connected iwillbe.me Supabase project and verified. All nine repository migration versions now match the remote history. Code is pushed directly to `main` as authorized by the owner. Deploy the matching `chloe` function and frontend before treating the new experience as published; SMTP setup and the full 692-mission spreadsheet remain outstanding.
-
-## October 29 entry update
-
-The [neutral beta entry release note](docs/releases/2026-10-29-beta-entry.md) describes the four-panel introduction and required sign-in before personal questions. Existing guest data remains available for explicit account import. The revision migration is applied and its transactional live checks pass; real email/callback verification remains outstanding before external beta testing.
+The [Round 3 notes](docs/releases/2026-11-19-round3.md) record the 19 November catalogue, administrator report and backend activation. [Round 2](docs/releases/2026-11-15-round2.md), the [3 November beta update](docs/beta-feedback-2026-11.md), the [29 October entry update](docs/releases/2026-10-29-beta-entry.md) and the [26 October follow-through release](docs/releases/2026-10-26-followthrough.md) retain earlier implementation and deployment history. Their old screen layouts and version numbers are historical checkpoints.
 
 ## Run locally
 
@@ -63,29 +58,29 @@ Morning and night anchors describe what happens just before each check-in and ar
 
 ### Daily check-ins
 
-- **Where to today?** offers Be, People, Causes, Passions, Grow and Surprise me. Focus settings are **Focus on one area / Rotate areas / Let Chloe choose**. Future pictures and accepted weekly direction inform the selection.
-- Morning screens ask one question at a time. A clear commitment continues without unnecessary confirmation; reworded commitments are checked briefly. Several ideas can be narrowed to one, with the others saved to Meaning To by choice. “For me” is a complete answer.
-- Recent lived experiences can supply a short carry-forward line. Accepted source links let the why shape an area or prompt without interpreting unrelated words as a purpose. A person can explicitly mark a commitment as expressing their why and, occasionally, carry an eligible Open Question into the day without answering it immediately.
-- Night recalls today's commitment and its planned context. Completion, energy and value choices stay separate. Values offer **Keep it / Still deciding / Let it go / Another value matters more**. Choosing another value releases the first without judgment and introduces the replacement as Trying it on.
-- All in practice asks what was practiced and learned. A night check-in is also possible without a morning commitment. Returning after time away starts fresh without resurfacing old commitments or Meaning To.
-- Skipped questions remain in **Open Questions**. The same eligibility rules cover ordinary reflections, nights without a commitment and All in questions. Deferred or stopped questions are not reintroduced as paraphrases. A carried question takes precedence over another optional discovery question. Daily exchanges stay short, with at most one discovery topic.
-- A new possibility noticed at night is named and kept explicitly. Occasional night insights connect actual earlier and current choices; when there is no supported connection, the closing stays brief.
-- Ritual dates use the profile timezone. A missing energy or value answer stays unknown. Explicit value decisions, including edited reflections and choosing a released value again, update the value without inventing an answer.
+- Today asks **Who will you be today, and for whom?** Typed words and capitals stay intact. Selecting an idea only fills the editable field. **Set my focus** opens **When will you do it?**, and the chosen time saves with the focus.
+- Three initial idea cards can expand by two. Due action reminders lead the list on their local day; Meaning To and other grounded suggestions remain optional. A reminder or Goodnight prefill does not create an intention until the person confirms it.
+- **Build an action** in My map combines three explicit wheel selections. **Harder** changes the size within one action family; **Another idea** selects a different family. The result can become today's focus or a next-day reminder.
+- Night recalls today's focus and displays completion, energy and the optional note together. Outcome and energy are independent: **Not this time** can still have **Gave me energy**, **Neutral** or **Drained me**. Missing answers remain unknown. Priority review is occasional; no value decision is inferred from completion.
+- Partial or uncompleted focuses can invite an optional obstacle answer and a smaller next step. A hard day, a skipped night and the previous night's obstacle prompt suppress that coaching. Repeated stalls can draw on the new skill ladders, without displaying private reason history or counts as judgments.
+- Goodnight offers **Same focus tomorrow?** and a credited thought or fallback. Keeping the focus prepares an editable field for the next local day. Choosing in the morning leaves it open.
+- A newly noticed interest needs explicit consent before it is added to My map. Accepted why, priorities, saved discoveries and Open Questions remain grounded in the person's own choices. Deferred or stopped questions are not reintroduced as paraphrases.
+- Ritual dates use the profile timezone. Existing revisions, owner isolation, explicit value changes, saved history and nights without a morning focus remain supported.
 
-### My Possibilities
+### My map
 
-**Your why, and strengths** contains the why, strengths and values the person keeps choosing. The other parts remain distinct:
+Six illustrated entries lead to **My why**, **Who I'm becoming**, **What I'm growing**, **Who I show up for**, **Try something new** and **Future me**. **Build an action** brings the three wheels together. The stored parts remain distinct:
 
-| Part                 | Plain names and behavior                                                                                                                                                             |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Possibilities        | **Maybe → Tried it → Into it**, with **On pause** retained as part of the person's story. **All in** is an explicit choice to practice more deeply, limited to one or two interests. |
-| Values               | **Trying it on / Mine / Let go**. Worthwhile repeated choices support Mine; completion alone never proves conviction.                                                                |
-| People I admire      | The person and the specific quality admired, alongside the why rather than merged into it.                                                                                           |
-| Practices and habits | Regular actions that support the why and daily ritual.                                                                                                                               |
-| Open Questions       | Questions to let sit, answer later, or stop asking.                                                                                                                                  |
-| Meaning To           | Things postponed until done or released. Older items or repeated passes invite a decision without guilt.                                                                             |
+| Part                 | Plain names and behavior                                                                                                                                                                            |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Interests            | **Want to try / From time to time / Into it**, with **On pause** retained as part of the person's story. **All in** is an explicit choice to practice more deeply, limited to one or two interests. |
+| Priorities           | Who the person is working on becoming and what matters to them. Worthwhile repeated choices can support an explicit review; completion alone never proves conviction.                               |
+| People I admire      | The person and the specific quality admired, alongside the why rather than merged into it.                                                                                                          |
+| Practices and habits | Regular actions that support the why and daily ritual.                                                                                                                                              |
+| Open Questions       | Questions to let sit, answer later, or stop asking.                                                                                                                                                 |
+| Meaning To           | Things postponed until done or released. Older items or repeated passes invite a decision without guilt.                                                                                            |
 
-Possibilities use an accessible card list with distinct borders and surfaces for their stages. A completed experience can establish Tried it; it does not establish enjoyment. Energy comes from explicit reflection. All in becomes eligible based on time actually spent Into it, not the age of an old Maybe. Practical exploration gives a small real-world try-on, with generic time/cost/access information rather than invented local availability or bookings.
+What I'm growing leads with Into it, then From time to time and Want to try; All in and On pause remain available. A completed experience does not establish enjoyment. Energy comes from explicit reflection. All in eligibility uses time actually spent Into it. Interest discovery offers **Close to what you love** and **Something different**, excludes interests already on the map and avoids repeats when refreshed. Passed ideas have a seven-day cooldown; adding one requires confirmation. Practical exploration gives a small real-world try-on without inventing local availability or bookings.
 
 ### Weekly and future views
 
@@ -117,18 +112,20 @@ All new entities have stable UUIDs and provenance. Intentions link to interest/v
 
 ## Backend
 
-Connected project: `mvhqovdznrzoduntyryh`. All eight repository migrations match the applied history checked on 29 October 2026. Chloe v8 and connections v3 are active; this release does not change their deployed source. Authenticated AI behavior and real email delivery remain separate live checks.
+Configured Supabase project: `mvhqovdznrzoduntyryh`. The [Round 3 release note](docs/releases/2026-11-19-round3.md#backend-activation) records the previous backend activation. Round 4 adds two pending catalogue migrations and changes the Chloe function. Local validation applies all 15 repository migrations to PostgreSQL/PGlite; it does not establish that the remote history contains the new versions.
 
-For subsequent backend changes, confirm the linked project and applied history before publishing:
+After merge and release verification, confirm the linked project and applied history, then apply the Round 4 migrations and matching function:
 
 ```sh
 supabase link --project-ref YOUR_PROJECT_REF
+supabase migration list
 supabase db push
 supabase functions deploy chloe --use-api
-supabase functions deploy connections --use-api
 ```
 
-Chloe uses `ANTHROPIC_API_KEY` and `ANTHROPIC_MODEL` in Supabase secrets. The supplied 26 October 2026 Chloe brief is implemented by the versioned prompt in `supabase/functions/chloe/prompt.ts`. It covers discovery, morning, night, exploration, Sunday, monthly and why conversations.
+The new migrations are `20261126090001_round4_night_library.sql` and `20261126140000_round4_mission_catalogue.sql`. They retain stable IDs and user history. No `connections` source change is part of Round 4. Deploy the normal frontend export after the matching backend is available, and record live results in the release notes.
+
+Chloe uses `ANTHROPIC_API_KEY` and `ANTHROPIC_MODEL` in Supabase secrets. The supplied Round 4 current prompt is in `supabase/functions/chloe/master-prompt.ts`, with screen rules and compatibility contracts in `prompt.ts`; its version is `chloe-2026-11-25-round4`. It covers discovery, morning, night, exploration, Sunday, monthly and why conversations.
 
 Replies are validated structured proposals. The server builds context from the accepted why, dated commitments and reflections, saved discoveries, future pictures, focus preferences, anchors and question status. It uses a longer evidence window for a three-month why revisit and separates old conversation evidence from the active exchange. Exact-question recovery keeps a real question skippable when the model omits its question field; it does not invent a question or combine several. Repeat guards supplement the instructions for deferred and stopped questions.
 
@@ -169,14 +166,54 @@ Signed builds, Face ID, timezone travel behavior, reminder delivery and native c
 
 ## Verification
 
-Run static and domain checks, then build the web export:
+Run static and domain checks, the isolated database suite, then build the web export:
 
 ```sh
 npm run check
+npm run test:database
 npm run build
 ```
 
-Serve that export with `npm run preview` in another terminal, then run the browser checks against it:
+The Round 4 checkpoint has passed type checking, lint, all 204 unit tests, the local database suite and the production web export. Browser checks remain to be executed; the [dated release note](docs/releases/2026-11-26-round4.md#verification-checkpoint) records the precise scope. Local database tests use PostgreSQL/PGlite and do not mutate the connected Supabase project.
+
+### Regenerate the Round 4 source data
+
+The checked-in JSON and SQL are sufficient for normal builds. To regenerate them from the supplied attachments:
+
+```sh
+python scripts/extract-round4.py '/path/to/iwillbe-mission-library(2).xlsx'
+node scripts/build-round4-seed.mjs
+python scripts/extract-round4-night-library.py '/path/to/iwillbe-me-developer-pack-round4.pdf'
+```
+
+The workbook importer uses the Python standard library and validates the 1,257 missions, 57 books and 44 links while preserving historical records. The PDF importer requires `pdfplumber` and `pdftotext`; it writes the current master prompt, the 216-entry night library, source metadata and the night-library migration. Review generated changes before committing. Neither importer sends data to production.
+
+### Isolated Round 4 browser QA
+
+Build the product, copy it into the isolated fixture and start its local server:
+
+```sh
+npm run build
+node scripts/build-round4-fixture.mjs
+node scripts/serve-round4-fixture.mjs
+# http://localhost:4184
+```
+
+Open **http://localhost:4184/qa.html** for the visible controller. It switches between the four scenarios and 390 × 844 / 320 × 568 viewports, opens app screens, resets fictional data and advances to the same evening or the following morning. Its saved-state panel displays service counters, intention/check-in/reminder counts and the exact saved words, time, outcome and energy. Advancing the clock keeps the scenario's saved data; choosing or resetting a scenario starts fresh.
+
+In another terminal, run the targeted suite with an available Playwright Chromium installation:
+
+```sh
+UI_BASE_URL=http://localhost:4184 node scripts/verify-round4.mjs
+```
+
+`PLAYWRIGHT_EXECUTABLE_PATH` or `PLAYWRIGHT_CHANNEL` can select an existing browser. The fixture lives in `test-results/round4-preview`; it leaves production `dist` untouched and refuses `VERCEL_ENV=production`. Fictional local responses and a restrictive content security policy block live Supabase/AI calls. This fixture must not be published as the production app.
+
+Use `/?qaScenario=morning&qaReset=1`, `/reflect?qaScenario=evening&qaReset=2`, `/?qaScenario=next-day&qaReset=3` or `/reflect?qaScenario=previous-obstacle&qaReset=4`. Change `qaReset` to reset fictional data. The suite targets 390 × 844 and 320 × 568, with screenshots in `test-results/round4-ui`. It checks editable ideas and exact wording, timing, My map, five-row wheels, reminders, inline Night, explicit energy, Goodnight prefill and obstacle cooldown. Fixture syntax and mock-transport checks have passed; those checks do not substitute for browser execution.
+
+### Earlier browser and live database checks
+
+The earlier browser scripts remain available for their original flows. Serve the normal export with `npm run preview` in another terminal, then run them against it:
 
 ```sh
 UI_BASE_URL=http://localhost:4173 npm run test:browser
@@ -201,10 +238,10 @@ supabase db advisors --linked --type security --level warn
 
 The domain and prompt tests cover timezone boundaries, import conflicts, plain possibility/value states, explicit value retries, accepted why selection, focus preferences, weekly scheduling, calendar-quarter evidence, fresh returns and deferred/stopped question handling. Guidance tests cover source-grounded continuity, current-week custom interests, confirmed future area proposals and All in eligibility. Onboarding tests cover uncertain answers, correcting session-owned picks, resumed drafts, supported proposals and one contextual follow-up. Additional unit tests validate reflection/focus contracts, revision retry comparisons, draft write ordering and calendar output. SQL tests cover ownership, immutable reflected intentions, imports, anonymous denial and server-only functions. The revision checks passed against the live project on 29 October, with all fixtures rolled back.
 
-The browser checks exercise the guest journey through picture picks, one-question stories, growth, why, anchors, a concrete commitment and evening reflection. They also cover multiple ideas, explicit value replacement, returning after time away, Meaning To decisions, exploration, why/future versioning, weekly/monthly flows, focus settings, 320-pixel screens, keyboard interaction, contextual authentication and retained drafts. Targeted Chloe checks cover pending proposals, save failures, partial-save retries, confirmed focus and calendar download with intercepted services. Auth tests mock email and failure cases. Screenshots and results are written locally in `test-results/`; set `UI_BASE_URL` and `UI_ARTIFACT_DIR` to target a specific export or deployment. The dated release note records which checks have passed and which remain pending.
+Earlier browser suites were written for the guest journey through picture picks, one-question stories, growth, why, anchors, a concrete commitment and evening reflection. They also cover multiple ideas, explicit value replacement, returning after time away, Meaning To decisions, exploration, why/future versioning, weekly/monthly flows, focus settings, 320-pixel screens, keyboard interaction, contextual authentication and retained drafts. Targeted Chloe checks cover pending proposals, save failures, partial-save retries, confirmed focus and calendar download with intercepted services. Auth tests mock email and failure cases. Their historical results do not establish coverage of the new Round 4 screen layouts. Screenshots and results are written locally in `test-results/`; set `UI_BASE_URL` and `UI_ARTIFACT_DIR` to target a specific export or deployment. The dated release note records which checks have passed and which remain pending.
 
 The dedicated synchronization suite passed eight checks using two simulated devices and strict revision-aware responses: foreground refresh preserves unfinished edits, stale saves show both versions, another edit during review requires a new review, an approved retry uses the reviewed revision, and sign-out/deletion remove only the account's local data. It also verifies failed deletion preserves data and a late Chloe reply cannot recreate account drafts or enter guest practice. Its generated [local report](test-results/sync/report.json) and the final [auth/import report](test-results/followthrough-auth/auth-results.json) record the runs; those local artifacts are not committed to Git.
 
 These checks do not replace live verification of the exact deployed commit, real AI responses, email delivery or signed native builds. Deployment and live-service results should be recorded separately for each release. Historical checks from the earlier MVP are not evidence that this revision has been deployed or verified live.
 
-`docs/plans/2026-10-19-refonte/requirements.json`, its adjacent `implementation.json`, and `design-qa.md` retain the earlier concept and visual review history. The current Chloe behavior is defined by the supplied 26 October brief and its implementation in the application and versioned prompt. Raw research PDF copies and local audit exports remain outside Git.
+`docs/plans/2026-10-19-refonte/requirements.json`, its adjacent `implementation.json`, and `design-qa.md` retain the earlier concept and visual review history. The current Chloe behavior is defined by the supplied Round 4 pack, its screen-specific rules and the versioned prompt. Raw source PDFs, workbooks and local audit exports remain outside Git.
