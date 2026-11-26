@@ -6,13 +6,13 @@ The current implementation follows the supplied **25 November 2026 Round 4 devel
 
 ## 26 November — Round 4
 
-The [Round 4 release notes](docs/releases/2026-11-26-round4.md) record the current behavior, source hashes, validation checkpoint and rollout steps. This branch contains **1,257 missions, 57 books and 44 interest links**, plus **216 night thoughts, of which 207 are eligible**. All 1,152 previous mission records are retained unchanged. Nine night-library entries with source caveats remain excluded.
+The [Round 4 release notes](docs/releases/2026-11-26-round4.md) and [PR #9](https://github.com/HyacintheHamon/iwillbe.me/pull/9) record the current behavior, source hashes, validation checkpoint and rollout steps. This branch contains **1,257 missions, 57 books and 44 interest links**, plus **216 night thoughts, of which 207 are eligible**. All 1,152 previous mission records are retained unchanged. Nine night-library entries with source caveats remain excluded.
 
 Today now has an editable **I will** field, **Set my focus**, three idea cards and **More ideas** to add two. **Use idea** fills the field for review; a separate timing choice saves the focus. The wheels move to **Build an action** in My map, where three five-row wheels combine priority, interest and person/place. My map has six illustrated entries and two groups of interest-discovery suggestions.
 
 Night keeps outcome, energy and an optional note on one screen. Explicit energy is saved for every outcome, including priority-only focuses. Optional obstacle support can offer a smaller step for tomorrow. Goodnight can carry the same focus into tomorrow's editable field without creating a commitment automatically. New interests require an explicit choice before entering My map.
 
-Local type, lint, unit and database checks have passed. **Round 4 browser checks remain to be executed, and no Round 4 production deployment is recorded here.** After merge, apply `20261126090001_round4_night_library.sql` and `20261126140000_round4_mission_catalogue.sql`, deploy the matching `chloe` function and publish the normal frontend export. Use the [isolated QA instructions](#isolated-round-4-browser-qa) below for preview testing; the release note distinguishes local checks from live activation.
+Local type, lint, unit and database checks have passed. Manual checks in connected Chrome have also exercised the [isolated Vercel QA preview](https://iwillbe-df80segue-snag-live.vercel.app/qa.html) at 390 × 844 and 320 × 568 using fictional data. The [manual review record](docs/releases/2026-11-26-round4.md#manual-chrome-review) lists the observed results and follow-up corrections. The Playwright CLI suite is authored but has not been executed, and no Round 4 production deployment is recorded here. After merge, apply `20261126090001_round4_night_library.sql` and `20261126140000_round4_mission_catalogue.sql`, deploy the matching `chloe` function and publish the normal frontend export. Use the [isolated QA instructions](#isolated-round-4-browser-qa) below for preview testing; the release note distinguishes local checks, manual preview review and live activation.
 
 ### Previous release checkpoints
 
@@ -174,7 +174,7 @@ npm run test:database
 npm run build
 ```
 
-The Round 4 checkpoint has passed type checking, lint, all 204 unit tests, the local database suite and the production web export. Browser checks remain to be executed; the [dated release note](docs/releases/2026-11-26-round4.md#verification-checkpoint) records the precise scope. Local database tests use PostgreSQL/PGlite and do not mutate the connected Supabase project.
+The recorded Round 4 local checkpoint passed type checking, lint, 205 unit tests, the local database suite and the production web export. Manual connected-Chrome checks on the hosted fictional fixture covered Today, My map, action reminders, discovery, Night energy and obstacles, Goodnight and the next-day prefill. The [dated release note](docs/releases/2026-11-26-round4.md#verification-checkpoint) ties these observations to the inspected preview commit and records the follow-up work. The Playwright CLI suite remains unexecuted. Local database tests use PostgreSQL/PGlite and do not mutate the connected Supabase project.
 
 ### Regenerate the Round 4 source data
 
@@ -190,6 +190,8 @@ The workbook importer uses the Python standard library and validates the 1,257 m
 
 ### Isolated Round 4 browser QA
 
+The hosted [Round 4 QA controller](https://iwillbe-df80segue-snag-live.vercel.app/qa.html) was reviewed manually in connected Chrome on 26 November. That preview contains QA commit `95ce03e003c61692a689a95cd1335178f5a84ae0`, based on feature commit `ea1ee580cd48744d59d838cce78299ce7c9f65d8`. It uses fictional local records; the review observed no live external service calls and a blocked-call counter of zero. Its results do not establish that later fixes have been reviewed or that a live provider/database integration has passed.
+
 Build the product, copy it into the isolated fixture and start its local server:
 
 ```sh
@@ -201,7 +203,7 @@ node scripts/serve-round4-fixture.mjs
 
 Open **http://localhost:4184/qa.html** for the visible controller. It switches between the four scenarios and 390 × 844 / 320 × 568 viewports, opens app screens, resets fictional data and advances to the same evening or the following morning. Its saved-state panel displays service counters, intention/check-in/reminder counts and the exact saved words, time, outcome and energy. Advancing the clock keeps the scenario's saved data; choosing or resetting a scenario starts fresh.
 
-In another terminal, run the targeted suite with an available Playwright Chromium installation:
+The separate Playwright CLI suite has been authored but was not executed in this workspace, where a usable CLI Chromium executable was unavailable. To run it with an available Playwright Chromium installation, use another terminal:
 
 ```sh
 UI_BASE_URL=http://localhost:4184 node scripts/verify-round4.mjs
@@ -209,7 +211,7 @@ UI_BASE_URL=http://localhost:4184 node scripts/verify-round4.mjs
 
 `PLAYWRIGHT_EXECUTABLE_PATH` or `PLAYWRIGHT_CHANNEL` can select an existing browser. The fixture lives in `test-results/round4-preview`; it leaves production `dist` untouched and refuses `VERCEL_ENV=production`. Fictional local responses and a restrictive content security policy block live Supabase/AI calls. This fixture must not be published as the production app.
 
-Use `/?qaScenario=morning&qaReset=1`, `/reflect?qaScenario=evening&qaReset=2`, `/?qaScenario=next-day&qaReset=3` or `/reflect?qaScenario=previous-obstacle&qaReset=4`. Change `qaReset` to reset fictional data. The suite targets 390 × 844 and 320 × 568, with screenshots in `test-results/round4-ui`. It checks editable ideas and exact wording, timing, My map, five-row wheels, reminders, inline Night, explicit energy, Goodnight prefill and obstacle cooldown. Fixture syntax and mock-transport checks have passed; those checks do not substitute for browser execution.
+Use `/?qaScenario=morning&qaReset=1`, `/reflect?qaScenario=evening&qaReset=2`, `/?qaScenario=next-day&qaReset=3` or `/reflect?qaScenario=previous-obstacle&qaReset=4`. Change `qaReset` to reset fictional data. The authored suite targets 390 × 844 and 320 × 568, with screenshots configured for `test-results/round4-ui`. Its intended assertions cover editable ideas and exact wording, timing, My map, five-row wheels, reminders, inline Night, explicit energy, Goodnight prefill and obstacle cooldown. Fixture syntax and mock-transport checks have passed. Completed manual browser observations and outstanding retests are recorded separately in the release note.
 
 ### Earlier browser and live database checks
 

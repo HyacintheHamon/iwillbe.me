@@ -450,9 +450,7 @@ function Today() {
         editing: false,
         sourceEntryId: "",
       });
-      setNotice(
-        "Perfect. That's your focus for today. I'll ask how it went tonight.",
-      );
+      setNotice("");
       if (pending.source === "typed")
         void supabase.functions
           .invoke("chloe", { body: { action: "round2_tag_focus", day: today } })

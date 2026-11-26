@@ -409,6 +409,7 @@ function NightForm({
     return <ActivityIndicator accessibilityLabel="Restoring your reflection" />;
   return (
     <Page
+      key={done ? "goodnight" : "night"}
       header={<TopBar title={done ? "Goodnight" : "Night"} />}
       contentStyle={{ gap: 22, paddingBottom: 40 }}
     >
