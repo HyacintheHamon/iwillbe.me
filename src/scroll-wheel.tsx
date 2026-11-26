@@ -4,7 +4,7 @@ import { C, F } from "./ui";
 
 type Item = { id: string; label: string; isNew?: boolean };
 
-/** Five quiet words, with a separate unhandled strip for scrolling the page. */
+/** A cyclic five-word picker, with a separate strip for scrolling the page. */
 export function ScrollWheel({
   items,
   value,
@@ -25,36 +25,59 @@ export function ScrollWheel({
     0,
     items.findIndex((item) => item.id === value),
   );
-  const positionKey = `${value}:${items.length}`;
+  const count = items.length;
+  // Keep two full cycles on either side. Even a one-item wheel has five
+  // populated rows; settling always returns to the visually identical middle.
+  const middle = count * 2;
+  const centre = middle + selected;
+  const copies = Array.from({ length: count * 5 }, (_, index) => ({
+    item: items[index % count],
+    index,
+    original: index >= middle && index < middle + count,
+  }));
+  const positionKey = `${value}:${items.map((item) => item.id).join("|")}`;
   const [scrollPosition, setScrollPosition] = useState({
     key: positionKey,
-    index: selected,
+    index: centre,
   });
   const visible =
-    scrollPosition.key === positionKey ? scrollPosition.index : selected;
+    scrollPosition.key === positionKey ? scrollPosition.index : centre;
   const live = useRef({ items, onChange });
   useEffect(() => {
     live.current = { items, onChange };
   }, [items, onChange]);
   useEffect(() => {
-    ref.current?.scrollTo({ y: selected * row, animated: true });
-  }, [selected, row]);
+    if (timer.current) clearTimeout(timer.current);
+    ref.current?.scrollTo({
+      y: Math.max(0, centre - 2) * row,
+      animated: false,
+    });
+  }, [centre, row, positionKey]);
   useEffect(
     () => () => {
       if (timer.current) clearTimeout(timer.current);
     },
     [],
   );
-  const settle = (y: number) => {
-    const index = Math.max(
-      0,
-      Math.min(live.current.items.length - 1, Math.round(y / row)),
-    );
-    const item = live.current.items[index];
+  const choose = (index: number) => {
+    const length = live.current.items.length;
+    if (!length) return;
+    if (timer.current) clearTimeout(timer.current);
+    const logicalIndex = ((index % length) + length) % length;
+    const item = live.current.items[logicalIndex];
     if (!item) return;
-    ref.current?.scrollTo({ y: index * row, animated: true });
-    setScrollPosition({ key: positionKey, index });
+    const centredIndex = length * 2 + logicalIndex;
+    ref.current?.scrollTo({ y: (centredIndex - 2) * row, animated: false });
+    setScrollPosition({ key: positionKey, index: centredIndex });
     live.current.onChange(item.id);
+  };
+  const settle = (y: number) => {
+    if (!live.current.items.length) return;
+    const index = Math.max(
+      2,
+      Math.min(live.current.items.length * 5 - 3, Math.round(y / row) + 2),
+    );
+    choose(index);
   };
   const later = (y: number) => {
     if (timer.current) clearTimeout(timer.current);
@@ -84,6 +107,7 @@ export function ScrollWheel({
           snapToInterval={row}
           decelerationRate="fast"
           scrollEventThrottle={16}
+          contentOffset={{ x: 0, y: Math.max(0, centre - 2) * row }}
           onMomentumScrollBegin={() => {
             if (timer.current) clearTimeout(timer.current);
           }}
@@ -96,15 +120,14 @@ export function ScrollWheel({
             setScrollPosition({
               key: positionKey,
               index: Math.max(
-                0,
-                Math.min(items.length - 1, Math.round(y / row)),
+                2,
+                Math.min(count * 5 - 3, Math.round(y / row) + 2),
               ),
             });
             if (Platform.OS === "web") later(y);
           }}
-          contentContainerStyle={{ paddingVertical: row * 2 }}
         >
-          {items.map((item, index) => {
+          {copies.map(({ item, index, original }) => {
             const distance = Math.abs(index - visible);
             const size = priority
               ? distance === 0
@@ -119,11 +142,19 @@ export function ScrollWheel({
                   : 16;
             return (
               <Pressable
-                key={item.id}
+                key={`${item.id}:${index}`}
                 accessibilityRole="button"
                 accessibilityLabel={`${label}: ${item.label}`}
-                accessibilityState={{ selected: index === selected }}
-                onPress={() => settle(index * row)}
+                accessible={original}
+                accessibilityElementsHidden={!original}
+                importantForAccessibility={
+                  original ? "yes" : "no-hide-descendants"
+                }
+                {...(Platform.OS === "web"
+                  ? { "aria-hidden": !original, tabIndex: original ? 0 : -1 }
+                  : {})}
+                accessibilityState={{ selected: original && index === centre }}
+                onPress={() => choose(index)}
                 style={{
                   height: row,
                   justifyContent: "center",

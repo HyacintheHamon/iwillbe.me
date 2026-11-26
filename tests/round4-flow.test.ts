@@ -266,6 +266,23 @@ test("replacing a focus keeps its previous obstacle separate even if the daily I
   assert.equal(next.meta.focus_key, focusKey(replacement));
 });
 
+test("an early obstacle shrinks the chosen focus before offering an unrelated skill ladder", () => {
+  const practice = emptyPractice();
+  const current = focus({ action: "Call NASA about the API" });
+  const time = obstaclePlan(practice, current, "time", "", day);
+  assert.equal(time.mission, undefined);
+  assert.equal(
+    time.text,
+    "Spend five minutes on one small part of: Call NASA about the API",
+  );
+  const big = obstaclePlan(practice, current, "big", "", day);
+  assert.equal(big.mission, undefined);
+  assert.match(big.text, /ten minutes.*Call NASA about the API/);
+  const start = obstaclePlan(practice, current, "start", "", day);
+  assert.equal(start.mission, undefined);
+  assert.match(start.text, /first thing.*Call NASA about the API/);
+});
+
 test("third stall offers a skill ladder and hesitation never fabricates an action", () => {
   const practice = emptyPractice();
   practice.profile.timezone = "UTC";

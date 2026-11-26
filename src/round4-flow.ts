@@ -468,26 +468,35 @@ export function obstaclePlan(
         m.level === "easy" &&
         !missionUnavailableReason(m, practice, target, tomorrow),
     );
-  const mission =
-    stallCount >= 3 ||
-    otherPerson ||
-    reason === "unexpected" ||
+  const needsDifferentSkill =
+    stallCount >= 3 || otherPerson || reason === "unexpected";
+  const limit = reason === "big" ? 10 : 5;
+  const mission = needsDifferentSkill
+    ? replacement
+    : reason !== "start" && sameEasy && sameEasy.minutes <= limit
+      ? sameEasy
+      : undefined;
+  const original = focus.action.trim().replace(/^I\s+will\s+/i, "");
+  // Before repeated stalls, shrink the person's actual focus. A random skill
+  // ladder is not a five-minute version of their chosen action.
+  const smaller =
     reason === "start"
-      ? replacement
-      : sameEasy || replacement;
+      ? source?.first_step ||
+        `Choose the first thing you would touch to begin: ${original}`
+      : reason === "big"
+        ? `Spend ten minutes on one small piece of: ${original}`
+        : `Spend five minutes on one small part of: ${original}`;
   const text =
     reason === "unsure" || reason === "motivation"
       ? ""
-      : mission?.mission_text ||
-        (reason === "start" ? source?.first_step : "") ||
-        `Spend five minutes on one small part of: ${focus.action}`;
+      : mission?.mission_text || smaller;
   return {
     reply: descriptor.reply,
     stuck: stallCount >= 3,
     stuckLine:
       "This one keeps getting stuck. That usually means the step is the wrong size, not that anything's wrong with you.",
-    text,
-    mission,
+    text: text.length > 500 ? `${text.slice(0, 499)}…` : text,
+    mission: text ? mission : undefined,
   };
 }
 
