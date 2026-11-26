@@ -7,6 +7,16 @@ await db.exec(
 );
 const dir = new URL("../supabase/migrations/", import.meta.url);
 let beforeRound3;
+let beforeRound4;
+const round4Snapshot = async () =>
+  (
+    await db.query(`select
+      (select jsonb_object_agg(id,to_jsonb(m)) from missions m) missions,
+      (select jsonb_agg(to_jsonb(i) order by id) from intentions i) intentions,
+      (select jsonb_agg(to_jsonb(c) order by intention_id) from check_ins c) checkins,
+      (select jsonb_object_agg(id,to_jsonb(b)) from learning_shelf b) books
+    `)
+  ).rows[0];
 for (const file of (await readdir(dir))
   .filter((f) => f.endsWith(".sql"))
   .sort()) {
@@ -32,7 +42,64 @@ for (const file of (await readdir(dir))
     `)
     ).rows[0];
   }
-  await db.exec(await readFile(new URL(file, dir), "utf8"));
+  const migration = await readFile(new URL(file, dir), "utf8");
+  if (file.endsWith("_round4_mission_catalogue.sql")) {
+    // The catalogue must reject a private-ID collision atomically, never overwrite it.
+    await db.exec(`insert into missions(id,user_id,mission_text,first_step,ladder_step,stage,size,minutes,cost)
+      values('GR-UNS-1a','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','Private collision','Keep private',1,'Want to try','5-minute',5,'Free');`);
+    const collision = await round4Snapshot();
+    await assert.rejects(
+      () => db.exec(migration),
+      /conflicts with a private mission/,
+    );
+    await db.exec("rollback;");
+    assert.deepEqual(await round4Snapshot(), collision);
+    await db.exec(`delete from missions where id='GR-UNS-1a';
+      insert into missions(id,user_id,mission_text,first_step,ladder_step,stage,size,minutes,cost)
+      values('test-private-round4','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','A private step','Keep private',1,'Want to try','5-minute',5,'Free');
+      insert into intentions(id,user_id,day,action,value,mission_id,mission_step)
+      values('11111111-2222-4333-8444-666666666666','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','2026-11-24','A completed historical step','brave','BE-COU-1a',1);
+      insert into check_ins(intention_id,user_id,outcome,reflection)
+      values('11111111-2222-4333-8444-666666666666','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','yes','Preserve my exact reflection');`);
+    beforeRound4 = await round4Snapshot();
+  }
+  await db.exec(migration);
+  if (file.endsWith("_round4_mission_catalogue.sql")) {
+    const after = await round4Snapshot();
+    for (const [id, mission] of Object.entries(beforeRound4.missions))
+      assert.deepEqual(
+        after.missions[id],
+        mission,
+        `Historical mission changed: ${id}`,
+      );
+    assert.deepEqual(after.intentions, beforeRound4.intentions);
+    assert.deepEqual(after.checkins, beforeRound4.checkins);
+    for (const [id, book] of Object.entries(beforeRound4.books))
+      assert.deepEqual(
+        after.books[id],
+        book,
+        `Historical shelf entry changed: ${id}`,
+      );
+    assert.equal(
+      Object.keys(after.missions).length -
+        Object.keys(beforeRound4.missions).length,
+      105,
+    );
+    assert.equal(after.books["book-57"].title, "Changeable");
+    assert.equal(after.books["book-57"].author, "J. Stuart Ablon");
+    await db.exec(migration);
+    assert.deepEqual(
+      await round4Snapshot(),
+      after,
+      "Repeated import must be idempotent",
+    );
+    await db.exec(`delete from check_ins where intention_id='11111111-2222-4333-8444-666666666666';
+      delete from intentions where id='11111111-2222-4333-8444-666666666666';
+      delete from missions where id='test-private-round4';`);
+    console.log(
+      "PASS Round 4 adds 105 missions and one book, preserves exact historical/private data, rejects collisions and is idempotent",
+    );
+  }
   if (file.endsWith("_round3_mission_catalogue.sql")) {
     const after = (
       await db.query(`select
@@ -84,9 +151,9 @@ assert.deepEqual(
   await one(
     `select count(*)::int total,count(*) filter(where type='learn')::int learn,count(*) filter(where id like 'SD-%')::int someday from missions where active and user_id is null`,
   ),
-  { total: 1152, learn: 180, someday: 15 },
+  { total: 1257, learn: 180, someday: 15 },
 );
-assert.equal((await one("select count(*)::int n from learning_shelf")).n, 56);
+assert.equal((await one("select count(*)::int n from learning_shelf")).n, 57);
 assert.equal((await one("select count(*)::int n from interest_links")).n, 44);
 assert.deepEqual(
   (
@@ -163,5 +230,14 @@ await db.exec(
 );
 console.log(
   "PASS final onboarding save, ten priorities, skipped answers and owner isolation",
+);
+await db.exec(
+  await readFile(
+    new URL("../tests/round4-energy.sql", import.meta.url),
+    "utf8",
+  ),
+);
+console.log(
+  "PASS explicit energy for priority-only focuses and every outcome, nullable guest import, revision conflicts and owner isolation",
 );
 await db.close();

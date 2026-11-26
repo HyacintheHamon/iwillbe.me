@@ -78,7 +78,7 @@ test("past intentions, other modes, assistant/old sources and absent commitments
     null,
   );
 });
-test("not doing a commitment clears energy/value decisions, and activities without values stay separate", () => {
+test("not doing a commitment retains explicit energy but clears value decisions", () => {
   const missed = raw();
   missed.outcome = "not_yet";
   missed.evidence[0].quote = "I did not do it.";
@@ -88,7 +88,7 @@ test("not doing a commitment clears energy/value decisions, and activities witho
     intention,
     new Map([["me", `${words} I did not do it.`]]),
   )!;
-  assert.equal(skipped.energy, null);
+  assert.equal(skipped.energy, "lit");
   assert.equal(skipped.value_choice, null);
   assert.equal(skipped.replacement_value, null);
   const activity = validateReflectionProposal(
@@ -99,6 +99,41 @@ test("not doing a commitment clears energy/value decisions, and activities witho
   )!;
   assert.equal(activity.value_choice, null);
   assert.equal(activity.replacement_value, null);
+});
+
+test("priority-only focuses retain explicit energy for every outcome without inferring completion", () => {
+  for (const [outcome, completion] of [
+    ["yes", "I did it."],
+    ["partly", "I made a small step."],
+    ["not_yet", "I did not do it."],
+  ] as const) {
+    for (const [energy, feeling] of [
+      ["lit", "Gave me energy."],
+      ["neutral", "Neutral."],
+      ["drained", "Drained me."],
+    ] as const) {
+      const result = validateReflectionProposal(
+        {
+          ...raw(),
+          outcome,
+          energy,
+          evidence: [
+            { field: "outcome", source_id: "completion", quote: completion },
+            { field: "energy", source_id: "feeling", quote: feeling },
+          ],
+        },
+        "night",
+        { ...intention, interest: "" },
+        new Map([
+          ["completion", completion],
+          ["feeling", feeling],
+        ]),
+      )!;
+      assert.equal(result.outcome, outcome);
+      assert.equal(result.energy, energy);
+      assert.equal(result.value_choice, null);
+    }
+  }
 });
 
 test("exact words cannot be relabeled as a completion or have their negation removed", () => {

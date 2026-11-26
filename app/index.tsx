@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
-import { AppState, View, Text, Pressable, TextInput } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { View, TextInput, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Landing } from "../src/landing";
 import { usePractice } from "../src/practice";
-import { useToday } from "../src/use-today";
+import { useToday, useLocalNow } from "../src/use-today";
 import { useRound2 } from "../src/round2-store";
 import { useAction } from "../src/use-action";
 import { draftKey, useDraft } from "../src/drafts";
-import { entryInput, returningToPractice, rhythmDue } from "../src/journey";
+import { entryInput, rhythmDue } from "../src/journey";
 import { shiftDay } from "../src/domain";
 import {
   Body,
@@ -23,28 +23,35 @@ import {
   s,
 } from "../src/ui";
 import { BrandHeader } from "../src/brand-header";
-import { ScrollWheel } from "../src/scroll-wheel";
-import { useFocusMission } from "../src/use-focus-mission";
-import { FocusCard } from "../src/focus-card";
 import { KidsAgesPrompt, shouldAskKidsAges } from "../src/round3-preferences";
 import {
-  priorityOptions,
-  whereOptions,
-  similarInterests,
-  selectMission,
-  rareMomentAllowed,
-  missionUnavailableReason,
   MISSIONS,
-  LEARNING_SHELF,
-  type Level,
+  LEVELS,
+  selectMission,
+  missionFamilyId,
+  missionUnavailableReason,
+  rareMomentAllowed,
 } from "../src/round2";
 import {
-  FIRST_TODAY_OPENER,
   localHour,
   planChoices,
   pendingFromMission,
   type PendingFocus,
 } from "../src/today-flow";
+import {
+  focusSentence,
+  pendingFromEntry,
+  todayIdeas,
+  tomorrowPrefill,
+  type TodayIdea,
+} from "../src/round4-flow";
+import { useFocusMission } from "../src/use-focus-mission";
+import { contextForMission, distinctEasyMission } from "../src/focus-variants";
+import {
+  useSavedMissionFamily,
+  requestAlternativeMissionFamily,
+} from "../src/private-missions";
+import { missionLocalMoment } from "../src/mission-selection";
 import { supabase } from "../src/supabase";
 
 export default function Home() {
@@ -52,25 +59,90 @@ export default function Home() {
   return session ? <Today /> : <Landing />;
 }
 
-function ChloeLine({
-  children,
-  inverse = false,
+function IdeaCard({
+  idea,
+  onPick,
+  onRelease,
 }: {
-  children: React.ReactNode;
-  inverse?: boolean;
+  idea: TodayIdea;
+  onPick: (idea: TodayIdea) => void;
+  onRelease: (idea: TodayIdea) => void;
 }) {
+  const generated = useFocusMission(
+    undefined,
+    idea.suggestedInterest || "",
+    "easy",
+    !!idea.suggestedInterest,
+    { where: idea.suggestedInterest, kind: "interest" },
+  );
+  const resolved =
+    idea.suggestedInterest && generated.mission
+      ? {
+          ...idea,
+          text: generated.mission.mission_text,
+          minutes: generated.mission.minutes,
+          pending: pendingFromMission(generated.mission, {
+            interest: idea.suggestedInterest,
+          }),
+        }
+      : idea;
+  const loading = !!idea.suggestedInterest && !generated.mission;
   return (
-    <View style={{ gap: 5 }}>
-      <Body
-        style={{
-          color: inverse ? "#FED7AA" : C.gold,
-          fontFamily: F.strong,
-          fontSize: 12,
-        }}
+    <View
+      style={[
+        s.card,
+        {
+          padding: 18,
+          borderRadius: 22,
+          gap: 6,
+          backgroundColor: idea.kind === "reminder" ? C.soft : C.white,
+        },
+      ]}
+    >
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Use idea: ${resolved.text}`}
+        accessibilityState={{ disabled: loading }}
+        disabled={loading}
+        onPress={() => onPick(resolved)}
+        style={{ gap: 8, minHeight: 72 }}
       >
-        Chloe
-      </Body>
-      <Body style={inverse ? { color: "#FFFFFF" } : undefined}>{children}</Body>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
+          <View
+            style={{
+              width: 7,
+              height: 7,
+              borderRadius: 4,
+              backgroundColor: idea.kind === "interest" ? C.ink : C.gold,
+            }}
+          />
+          <Body
+            style={{ color: C.muted, fontSize: 13, lineHeight: 19, flex: 1 }}
+          >
+            {idea.label} · {idea.stage}
+          </Body>
+        </View>
+        <Body style={{ fontFamily: F.strong, fontSize: 17, lineHeight: 25 }}>
+          {resolved.text}
+        </Body>
+        <Body style={{ color: C.muted, fontSize: 13 }}>
+          {resolved.minutes
+            ? `${resolved.minutes} min`
+            : loading
+              ? "Chloe is finding a first step…"
+              : "At your own pace"}
+        </Body>
+      </Pressable>
+      {loading && generated.error ? (
+        <>
+          <Notice text={generated.error} />
+          <TextButton label="Retry this idea" onPress={generated.retry} />
+        </>
+      ) : null}
+      {(idea.kind === "reminder" || idea.kind === "meaning_to") &&
+      idea.entryId ? (
+        <TextButton label="Let it go" onPress={() => onRelease(idea)} />
+      ) : null}
     </View>
   );
 }
@@ -85,6 +157,7 @@ function Today() {
     error: practiceError,
   } = usePractice();
   const today = useToday();
+  const now = useLocalNow();
   const extra = useRound2();
   const action = useAction();
   const params = useLocalSearchParams<{
@@ -94,152 +167,112 @@ function Today() {
     interest?: string;
     place?: string;
     somedayId?: string;
-    missionLevel?: string;
-    missionType?: string;
-    missionStep?: string;
     focusText?: string;
     focusSource?: string;
   }>();
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => {
-    const tick = () => setNow(new Date());
-    const timer = setInterval(tick, 60_000);
-    const resume = AppState.addEventListener("change", (state) => {
-      if (state === "active") tick();
-    });
-    return () => {
-      clearInterval(timer);
-      resume.remove();
-    };
-  }, []);
-  const hour = localHour(data.profile.timezone, now);
-  const evening = hour >= 17;
-  const priorities = priorityOptions(data);
-  const base = whereOptions(data, extra.places);
-  const similar = similarInterests(data);
   const { draft, update, ready, draftError } = useDraft(
-    draftKey("today.round3." + today, session?.user.id),
+    draftKey(`today.round4.${today}`, session?.user.id),
     {
       text: "",
       plan: "",
-      more: false,
-      priority: "",
-      where: "anywhere",
+      visible: 3,
       editing: false,
-      dismissed: false,
-      learning: false,
-      familyId: "",
+      selected: null as PendingFocus | null,
       pending: null as PendingFocus | null,
+      sourceEntryId: "",
+      prefilledId: "",
+      learning: false,
     },
   );
-  const [level, setLevel] = useState<Level>("easy");
   const [notice, setNotice] = useState("");
-  const [selectionNotice, setSelectionNotice] = useState("");
   const [routeError, setRouteError] = useState("");
-  const [showIntro, setShowIntro] = useState(false);
-  const introOwner = useRef<string | null>(null);
-  const priority = priorities.includes(draft.priority)
-    ? draft.priority
-    : priorities[0] || "";
-  const options = [
-    ...base,
-    ...(draft.more
-      ? similar.map((l) => ({
-          id: "new:" + l.similar_interest,
-          label: l.similar_interest,
-          kind: "interest",
-          isNew: true,
-        }))
-      : []),
-  ];
-  const requestedWhere =
-    options.find((x) => x.id === draft.where) || options[0];
-  const selection = selectMission(data, {
-    priority,
-    where: requestedWhere.label,
-    kind: requestedWhere.kind,
-    level,
-    type: draft.learning ? "learn" : "do",
-    day: today,
-    now,
-    familyId: draft.familyId || undefined,
-  });
-  const where = selection.whereCleared ? options[0] : requestedWhere;
-  const fitNotice = selection.whereCleared
-    ? "No step fits " +
-      priority +
-      " with " +
-      requestedWhere.label +
-      " right now. Here is an idea for " +
-      priority +
-      "."
-    : selectionNotice;
+  const handled = useRef("");
+  const owner = useRef(session?.user.id);
+  useEffect(() => {
+    owner.current = session?.user.id;
+  }, [session?.user.id]);
+  const hour = localHour(data.profile.timezone, now);
+  const evening = hour >= 17;
   const current = data.intentions.find((i) => i.day === today);
+  const savedFamily = useSavedMissionFamily(current?.mission_id);
   const check = data.checkIns.find((c) => c.intention_id === current?.id);
   const choosing = (!current || draft.editing) && !draft.pending;
-  const generated = useFocusMission(
-    selection.mission,
-    priority,
-    level,
-    ready &&
-      extra.ready &&
-      data.profile.onboarded &&
-      choosing &&
-      where.kind === "anywhere" &&
-      !selection.familyId,
-    { priority, where: where.label, kind: where.kind },
+  const previous = extra.summaries.find(
+    (summary) => summary.day === shiftDay(today, -1),
   );
-  const mission = selection.mission || generated.mission;
-  const availableLevels = selection.familyId
-    ? selection.availableLevels
-    : generated.availableLevels;
-  const previousSummary = extra.summaries.find(
-    (x) => x.day === shiftDay(today, -1),
+  const ideas = useMemo(
+    () => todayIdeas(data, extra.places, today, now, previous, draft.learning),
+    [data, extra.places, today, now, previous, draft.learning],
   );
-  const opener =
-    !draft.dismissed &&
-    !returningToPractice(data, today) &&
-    !previousSummary?.hard_day
-      ? previousSummary?.opener_line
-      : null;
+  const prefill = tomorrowPrefill(data, today);
   const due = rhythmDue(data, now);
-  const pendingLearning = useRef(false);
-  const routeHandled = useRef("");
-  const routeLive = useRef(true);
-  useEffect(
-    () => () => {
-      routeLive.current = false;
-    },
-    [],
-  );
-  useEffect(() => {
-    pendingLearning.current = false;
-  }, [today]);
 
   useEffect(() => {
     if (
+      ready &&
+      prefill &&
+      !current &&
+      !draft.text &&
+      !draft.pending &&
+      draft.prefilledId !== prefill.id
+    ) {
+      update({
+        text: prefill.body,
+        selected: pendingFromEntry(prefill),
+        sourceEntryId: prefill.id,
+        prefilledId: prefill.id,
+      });
+    }
+  }, [
+    ready,
+    prefill,
+    current,
+    draft.text,
+    draft.pending,
+    draft.prefilledId,
+    update,
+  ]);
+
+  const learningAttempt = useRef("");
+  useEffect(() => {
+    if (
       !ready ||
-      !data.profile.onboarded ||
-      !session?.user.id ||
-      introOwner.current === session.user.id
+      !extra.ready ||
+      !choosing ||
+      draft.learning ||
+      learningAttempt.current === today ||
+      !data.profile.joined_at
     )
       return;
-    introOwner.current = session.user.id;
-    const introduction = data.entries.find(
-      (e) => e.kind === "preferences" && e.title === "Chloe introduction",
-    );
-    if (introduction?.meta.intro_shown) return;
-    void putEntry(
-      entryInput("preferences", "Chloe introduction", {
-        id: introduction?.id,
-        revision: introduction?.revision,
-        meta: { ...introduction?.meta, intro_shown: true },
-        source: "First Today introduction",
-      }),
+    const age =
+      (Date.parse(today) - Date.parse(data.profile.joined_at)) / 86400000;
+    if (
+      age < 6 ||
+      !rareMomentAllowed(
+        extra.moments,
+        "learning",
+        `morning:${today}`,
+        !!previous?.hard_day,
+      )
     )
-      .then(() => setShowIntro(true))
-      .catch(() => setShowIntro(true));
-  }, [ready, data, session?.user.id, putEntry]);
+      return;
+    learningAttempt.current = today;
+    void extra
+      .recordMoment("learning", `morning:${today}`)
+      .then((accepted) => {
+        if (accepted) update({ learning: true });
+      })
+      .catch(() => {});
+  }, [
+    ready,
+    extra,
+    choosing,
+    draft.learning,
+    today,
+    data.profile.joined_at,
+    previous?.hard_day,
+    update,
+  ]);
 
   useEffect(() => {
     if (
@@ -248,72 +281,53 @@ function Today() {
       (!params.missionId && !params.focusText)
     )
       return;
-    const key = [
-      params.missionId,
-      params.missionText,
-      params.somedayId,
-      params.focusText,
-    ].join(":");
-    if (routeHandled.current === key) return;
-    routeHandled.current = key;
+    const key = JSON.stringify(params);
+    if (handled.current === key) return;
+    handled.current = key;
+    const requestOwner = session?.user.id;
     const load = async () => {
-      if (params.focusText) {
-        update({
-          pending: {
-            text: params.focusText.trim().slice(0, 500),
-            source: params.focusSource === "suggested" ? "suggested" : "typed",
-            missionId: null,
-            missionStep: null,
-            level: null,
-            type: "do",
-            priority: params.priority || "",
-            interest: params.interest || "",
-            place: params.place || "",
-            somedayId: null,
-          },
-          plan: "",
-          editing: true,
-          dismissed: true,
-        });
-        setNotice("");
-        router.setParams({
-          focusText: undefined,
-          focusSource: undefined,
-          priority: undefined,
-          interest: undefined,
-          place: undefined,
-        });
-        return;
-      }
-      let candidate = MISSIONS.find((m) => m.id === params.missionId);
-      if (!candidate) {
-        const result = await supabase
-          .from("missions")
-          .select("*")
-          .eq("id", params.missionId!)
-          .maybeSingle();
-        if (result.error || !result.data)
-          throw new Error(
-            "That step could not load. Please choose it again from My map.",
-          );
-        candidate = result.data;
-      }
-      if (!routeLive.current || !candidate) return;
-      const unavailable = missionUnavailableReason(candidate, data, new Date());
-      if (unavailable)
-        throw new Error(unavailable + " Choose a step that fits now.");
-      update({
-        pending: pendingFromMission(candidate, {
-          text: (params.missionText || candidate.mission_text).slice(0, 500),
+      let pending: PendingFocus;
+      if (params.missionId) {
+        let mission = MISSIONS.find((item) => item.id === params.missionId);
+        if (!mission) {
+          const response = await supabase
+            .from("missions")
+            .select("*")
+            .eq("id", params.missionId)
+            .maybeSingle();
+          if (response.error || !response.data)
+            throw new Error(
+              "That step could not load. Please choose it again from My map.",
+            );
+          mission = response.data;
+        }
+        if (!mission) return;
+        const reason = missionUnavailableReason(mission, data, new Date());
+        if (reason) throw new Error(reason + " Choose a step that fits now.");
+        pending = pendingFromMission(mission, {
+          text: (params.missionText || mission.mission_text).slice(0, 500),
           priority: params.priority || "",
           interest: params.interest || "",
           place: params.place || "",
           somedayId: params.somedayId || null,
-        }),
-        plan: "",
-        editing: true,
-        dismissed: true,
-      });
+        });
+      } else {
+        pending = {
+          text: (params.focusText || "").trim().slice(0, 500),
+          source: params.focusSource === "suggested" ? "suggested" : "typed",
+          priority: params.priority || "",
+          interest: params.interest || "",
+          place: params.place || "",
+          missionId: null,
+          missionStep: null,
+          level: null,
+          type: "do",
+          somedayId: null,
+        };
+      }
+      if (owner.current !== requestOwner) return;
+      update({ pending, plan: "", editing: true, sourceEntryId: "" });
+      setRouteError("");
       setNotice("");
       router.setParams({
         missionId: undefined,
@@ -322,152 +336,74 @@ function Today() {
         interest: undefined,
         place: undefined,
         somedayId: undefined,
-        missionLevel: undefined,
-        missionType: undefined,
-        missionStep: undefined,
+        focusText: undefined,
+        focusSource: undefined,
       });
     };
-    void load().catch((e) => {
-      if (routeLive.current) setRouteError((e as Error).message);
+    void load().catch((error) => {
+      if (owner.current === requestOwner)
+        setRouteError((error as Error).message);
     });
-  }, [ready, data, params, update]);
+  }, [ready, data, params, session?.user.id, update]);
 
-  useEffect(() => {
-    if (
-      !ready ||
-      !extra.ready ||
-      !choosing ||
-      pendingLearning.current ||
-      draft.learning ||
-      !priority ||
-      !data.profile.joined_at
-    )
-      return;
-    const age =
-      (Date.parse(today) - Date.parse(data.profile.joined_at)) / 86400000;
-    const offset = (session?.user.id.charCodeAt(0) || 0) % 3;
-    const learn = selectMission(data, {
-      priority,
-      where: where.label,
-      kind: where.kind,
-      type: "learn",
-      day: today,
-      now,
-    });
-    if (
-      age < 5 + offset ||
-      !rareMomentAllowed(
-        extra.moments,
-        "learning",
-        "morning:" + today,
-        !!previousSummary?.hard_day,
-      ) ||
-      !learn.mission
-    )
-      return;
-    pendingLearning.current = true;
-    void extra
-      .recordMoment("learning", "morning:" + today)
-      .then((accepted) => {
-        if (accepted) {
-          update({ learning: true, familyId: "" });
-          setLevel("easy");
-        }
-      })
-      .catch(() => {});
-  }, [
-    ready,
-    extra,
-    choosing,
-    draft.learning,
-    priority,
-    data,
-    today,
-    now,
-    where.label,
-    where.kind,
-    session?.user.id,
-    previousSummary?.hard_day,
-    update,
-  ]);
-
-  if (!ready) return null;
-  const reset = (change: Partial<typeof draft>) => {
-    const nextWhere =
-      options.find((item) => item.id === (change.where || where.id)) ||
-      options[0];
-    const nextPriority = change.priority || priority;
-    const nextSelection = selectMission(data, {
-      priority: nextPriority,
-      where: nextWhere.label,
-      kind: nextWhere.kind,
-      now,
-      day: today,
-      type: (change.learning ?? draft.learning) ? "learn" : "do",
-    });
+  const pick = (idea: TodayIdea) => {
+    const text =
+      idea.pending.source === "suggested"
+        ? idea.text
+            .replace(/^I will\s+/i, "")
+            .replace(/^[A-Z](?!\b)/, (letter) => letter.toLowerCase())
+        : idea.text;
     update({
-      ...change,
-      where: nextSelection.whereCleared ? "anywhere" : nextWhere.id,
-      familyId: "",
-    });
-    setLevel("easy");
-    setNotice("");
-    setSelectionNotice(
-      nextSelection.whereCleared
-        ? "No step fits " +
-            nextPriority +
-            " with " +
-            nextWhere.label +
-            " right now. Here is an idea for " +
-            nextPriority +
-            "."
-        : "",
-    );
-  };
-  const pickSuggested = () => {
-    if (!mission) return;
-    update({
-      pending: pendingFromMission(mission, {
-        priority,
-        place: where.kind === "place" ? where.label : "",
-        interest: where.kind === "interest" ? where.label : "",
-      }),
-      plan: "",
+      text,
+      selected: { ...idea.pending, text },
+      sourceEntryId: idea.entryId || "",
     });
     setNotice("");
   };
-  const sendTyped = () => {
+  const release = (idea: TodayIdea) =>
+    action.run(async () => {
+      const entry = data.entries.find((e) => e.id === idea.entryId);
+      if (entry)
+        await putEntry({
+          ...entry,
+          state: "released",
+          meta: { ...entry.meta, status: "released" },
+        });
+    });
+  const setFocus = () => {
     if (!draft.text.trim()) return;
     update({
-      pending: {
-        text: draft.text.trim(),
-        source: "typed",
-        missionId: null,
-        missionStep: null,
-        level: null,
-        type: "do",
-        priority: "",
-        interest: "",
-        place: "",
-        somedayId: null,
-      },
+      pending: draft.selected
+        ? { ...draft.selected, text: draft.text.trim() }
+        : {
+            text: draft.text.trim(),
+            source: "typed",
+            priority: "",
+            interest: "",
+            place: "",
+            missionId: null,
+            missionStep: null,
+            level: null,
+            type: "do",
+            somedayId: null,
+          },
       plan: "",
     });
     setNotice("");
   };
   const savePlannedFocus = (plan: string) =>
     action.run(async () => {
-      const focus = draft.pending;
-      if (!focus || !plan.trim()) return;
-      if (focus.missionId) {
+      const pending = draft.pending;
+      if (!pending || !plan.trim()) return;
+      if (pending.missionId) {
         let candidate =
-          MISSIONS.find((item) => item.id === focus.missionId) ||
-          focus.missionSnapshot;
+          MISSIONS.find((mission) => mission.id === pending.missionId) ||
+          pending.missionSnapshot;
         if (!candidate) {
           const response = await supabase
             .from("missions")
             .select("*")
-            .eq("id", focus.missionId)
+            .eq("id", pending.missionId)
             .maybeSingle();
           if (response.error || !response.data)
             throw new Error(
@@ -475,113 +411,251 @@ function Today() {
             );
           candidate = response.data;
         }
-        const unavailable =
+        const reason =
           candidate && missionUnavailableReason(candidate, data, new Date());
-        if (unavailable) {
-          update({ pending: null, editing: true, familyId: "" });
-          throw new Error(unavailable + " Choose a step that fits now.");
-        }
+        if (reason) throw new Error(reason + " Choose a step that fits now.");
       }
       await saveIntention(
-        focus.text,
-        focus.priority,
-        focus.place,
+        pending.text,
+        pending.priority,
+        pending.place,
         today,
-        focus.interest,
+        pending.interest,
         {
-          source: focus.source,
-          mission_id: focus.missionId,
-          mission_step: focus.missionStep,
-          level: focus.level,
-          type: focus.type,
-          place: focus.place,
+          source: pending.source,
+          mission_id: pending.missionId,
+          mission_step: pending.missionStep,
+          level: pending.level,
+          type: pending.type,
+          place: pending.place,
           when_context: plan.trim(),
-          someday_item_id: focus.somedayId,
-          for_me: focus.place === "for myself",
-          for_whom: focus.place.startsWith("with ") ? focus.place : "",
+          someday_item_id: pending.somedayId,
+          for_me: pending.place === "for myself",
+          for_whom: pending.place.startsWith("with ") ? pending.place : "",
         },
       );
-      update({ pending: null, text: "", plan: "", editing: false });
-      setShowIntro(false);
-      setNotice(
-        "Perfect. That's your focus for today. I'll ask how it went tonight.",
+      const entry = data.entries.find(
+        (item) => item.id === draft.sourceEntryId,
       );
-      if (focus.source === "typed") {
+      if (entry)
+        await putEntry({
+          ...entry,
+          meta: { ...entry.meta, status: "used", commitment_day: today },
+        });
+      update({
+        pending: null,
+        text: "",
+        selected: null,
+        plan: "",
+        editing: false,
+        sourceEntryId: "",
+      });
+      setNotice("");
+      if (pending.source === "typed")
         void supabase.functions
           .invoke("chloe", { body: { action: "round2_tag_focus", day: today } })
-          .then((r) => {
-            if (!r.error && r.data?.tagged) return refresh();
+          .then((reply) => {
+            if (!reply.error && reply.data?.tagged) return refresh();
           })
           .catch(() => {});
-      }
     });
-  const anotherIdea = () =>
-    action.run(async () => {
-      if (!mission) return;
-      await putEntry(
-        entryInput("event", "Mission feedback", {
-          state: "passed",
-          source_ids: [mission.id],
-          source: "Another idea on Today",
-          meta: {
-            mission_id: mission.id,
-            priority,
-            theme: mission.theme || selection.theme,
-            outcome: "passed",
-          },
-        }),
-      );
-      if (!selection.familyId) generated.exclude(mission.id);
-      reset({ familyId: "" });
-    });
-  const pendingContext = draft.pending
-    ? draft.pending.text + " " + draft.pending.place
-    : "";
-  const needsKids = !!draft.pending && shouldAskKidsAges(data, pendingContext);
-  const dayName = new Date(today + "T12:00:00").toLocaleDateString("en-US", {
-    weekday: "long",
-  });
-  const book =
-    mission?.type === "learn"
-      ? LEARNING_SHELF.find(
-          (b) =>
-            b.priorities.includes(priority) ||
-            b.interests.includes(where.label),
-        )
-      : null;
-  const nightButton = evening ? (
-    <Button
-      label="Check in with Chloe"
-      onPress={() => router.push("/reflect")}
-    />
-  ) : (
-    <TextButton
-      label={check ? "Revisit tonight’s reflection" : "Check in with Chloe"}
-      onPress={() => router.push("/reflect")}
-    />
-  );
 
+  const currentMission = savedFamily.mission;
+  const currentMissionContext =
+    currentMission && current
+      ? contextForMission(currentMission, {
+          priority: current.value,
+          interest: current.interest || "",
+          place: current.place || "",
+        })
+      : {
+          priority: current?.value || "",
+          interest: current?.interest || "",
+          place: current?.place || "",
+        };
+  const currentFamily =
+    currentMission && current
+      ? selectMission(data, {
+          ...currentMissionContext,
+          where: "anywhere",
+          kind: "anywhere",
+          familyId: missionFamilyId(currentMission),
+          day: today,
+          now,
+          type: current.type || "do",
+          pool: savedFamily.rows,
+        })
+      : null;
+  const nextLevel = LEVELS.find(
+    (level) =>
+      LEVELS.indexOf(level) > LEVELS.indexOf(current?.level || "easy") &&
+      currentFamily?.availableLevels.includes(level),
+  );
+  const harder = () =>
+    action.run(async () => {
+      const mission = nextLevel && currentFamily?.variants[nextLevel];
+      if (!current || !mission || check) return;
+      const context = contextForMission(mission, currentMissionContext);
+      await saveIntention(
+        mission.mission_text,
+        context.priority,
+        context.place,
+        today,
+        context.interest,
+        {
+          revision: current.revision,
+          mission_id: mission.id,
+          mission_step: mission.ladder_step,
+          level: nextLevel,
+          type: mission.type as "do" | "learn",
+          source: "suggested",
+          place: context.place,
+          for_whom: context.place.startsWith("with ") ? context.place : "",
+          for_me: context.place === "for myself",
+          when_context: current.when_context,
+          someday_item_id: current.someday_item_id,
+        },
+      );
+      setNotice("");
+    });
+  const another = () =>
+    action.run(async () => {
+      if (!current || check) return;
+      const requestOwner = session?.user.id;
+      if (!requestOwner) return;
+      const privateFocus =
+        !!current.mission_id &&
+        !MISSIONS.some((mission) => mission.id === current.mission_id);
+      if (privateFocus && !currentMission)
+        throw new Error(
+          savedFamily.error ||
+            "Your saved idea is still loading. Try again in a moment.",
+        );
+      const familyId = currentMission
+        ? missionFamilyId(currentMission)
+        : current.mission_id
+          ? missionFamilyId(current.mission_id)
+          : undefined;
+      let candidates = [] as typeof MISSIONS;
+      if (privateFocus && currentMission) {
+        const interest = currentMissionContext.interest;
+        const place = currentMissionContext.place;
+        candidates = await requestAlternativeMissionFamily({
+          ownerId: requestOwner,
+          tag:
+            interest || currentMission.ladder || currentMissionContext.priority,
+          priority: currentMissionContext.priority,
+          where: interest || place || "anywhere",
+          kind: interest ? "interest" : place ? "place" : "anywhere",
+          step: currentMission.ladder_step,
+          excludedMissionIds: [
+            ...savedFamily.rows.map((mission) => mission.id),
+            ...data.entries
+              .filter(
+                (entry) =>
+                  entry.kind === "event" &&
+                  entry.meta.outcome === "passed" &&
+                  Number.isFinite(Date.parse(entry.created_at)) &&
+                  missionLocalMoment(data, new Date(entry.created_at)).day ===
+                    today,
+              )
+              .flatMap((entry) => [
+                ...entry.source_ids,
+                ...(entry.meta.mission_id ? [entry.meta.mission_id] : []),
+              ]),
+          ],
+        });
+      } else {
+        const baseOptions = {
+          priority: currentMissionContext.priority,
+          level: "easy" as const,
+          type: current.type || "do",
+          day: today,
+          now: new Date(),
+          excludedFamilyIds: familyId ? [familyId] : [],
+        };
+        const exact = selectMission(data, {
+          ...baseOptions,
+          interest: currentMissionContext.interest,
+          place: currentMissionContext.place,
+          where: "anywhere",
+          kind: "anywhere",
+        });
+        const relaxed = exact.mission
+          ? exact
+          : selectMission(data, {
+              ...baseOptions,
+              where:
+                currentMissionContext.interest ||
+                currentMissionContext.place ||
+                "anywhere",
+              kind: currentMissionContext.interest
+                ? "interest"
+                : currentMissionContext.place
+                  ? "place"
+                  : "anywhere",
+            });
+        candidates = [
+          ...(relaxed.mission ? [relaxed.mission] : []),
+          ...ideas.flatMap((idea) =>
+            idea.pending.missionSnapshot ? [idea.pending.missionSnapshot] : [],
+          ),
+        ];
+      }
+      if (owner.current !== requestOwner) return;
+      const mission = distinctEasyMission(
+        candidates,
+        currentMission,
+        current.mission_id,
+        data,
+        new Date(),
+      );
+      if (!mission) {
+        if (privateFocus)
+          throw new Error(
+            "A different easy idea could not load. Please try again, or choose your own focus.",
+          );
+        update({
+          editing: true,
+          text: "",
+          selected: null,
+          pending: null,
+          plan: "",
+          sourceEntryId: "",
+        });
+        return;
+      }
+      if (current.mission_id)
+        await putEntry(
+          entryInput("event", "Mission feedback", {
+            state: "passed",
+            source: "Another idea on Today",
+            source_ids: [current.mission_id],
+            meta: {
+              mission_id: current.mission_id,
+              priority: current.value,
+              outcome: "passed",
+            },
+          }),
+        );
+      if (owner.current !== requestOwner) return;
+      update({
+        pending: pendingFromMission(
+          mission,
+          contextForMission(mission, currentMissionContext),
+        ),
+        plan: "",
+        editing: true,
+        sourceEntryId: "",
+      });
+      setNotice("");
+    });
+  const context = `${draft.pending?.text || ""} ${draft.pending?.place || ""}`;
+  if (!ready) return null;
   return (
     <Page
-      header={
-        <BrandHeader
-          right={
-            <Body
-              style={{
-                fontSize: 12,
-                color: C.muted,
-                backgroundColor: "#F1ECE6",
-                paddingHorizontal: 12,
-                paddingVertical: 6,
-                borderRadius: 20,
-              }}
-            >
-              {dayName} {evening ? "evening" : "morning"}
-            </Body>
-          }
-        />
-      }
-      contentStyle={{ gap: 16, paddingTop: 8 }}
+      header={<BrandHeader />}
+      contentStyle={{ gap: 20, paddingTop: 8, paddingBottom: 32 }}
     >
       {!data.profile.onboarded ? (
         <>
@@ -597,73 +671,146 @@ function Today() {
         </>
       ) : (
         <>
-          <Title>
-            Who will you be <Text style={{ color: C.gold }}>today</Text>, and
-            for whom?
-          </Title>
-          {showIntro && !current && !draft.pending && (
-            <View
-              style={{ backgroundColor: C.soft, padding: 14, borderRadius: 14 }}
-            >
-              <ChloeLine>{FIRST_TODAY_OPENER}</ChloeLine>
-            </View>
+          {(evening || !current || draft.editing || draft.pending) && (
+            <Title style={{ fontSize: 32, lineHeight: 38 }}>
+              {evening
+                ? "How did today go?"
+                : "Who will you be today, and for whom?"}
+            </Title>
           )}
-          {current && !draft.editing && !draft.pending && (
+          {current && !draft.editing && !draft.pending ? (
             <>
               <View
-                style={{
-                  backgroundColor: C.soft,
-                  padding: 18,
-                  borderRadius: 16,
-                  gap: 8,
-                }}
+                testID="today-focus-card"
+                style={[
+                  s.card,
+                  {
+                    backgroundColor: evening ? C.white : C.gold,
+                    borderColor: evening ? C.line : C.gold,
+                    borderRadius: 24,
+                    padding: 24,
+                    gap: 14,
+                  },
+                ]}
               >
-                <Body style={{ fontFamily: F.strong }}>
+                <Body
+                  style={{ fontSize: 13, color: evening ? C.muted : "#FDEEE4" }}
+                >
                   Your focus for today
                 </Body>
-                <Body style={{ fontSize: 20, lineHeight: 28 }}>
-                  {current.action}
-                </Body>
-                {!!current.when_context && (
-                  <Body style={{ color: C.muted }}>{current.when_context}</Body>
+                {!!current.value && (
+                  <Body
+                    style={{
+                      fontFamily: F.bold,
+                      fontSize: 28,
+                      lineHeight: 34,
+                      color: evening ? C.gold : C.white,
+                    }}
+                  >{`iwillbe.${current.value}`}</Body>
                 )}
-                <TextButton
-                  label="Change focus"
-                  color={C.gold}
-                  onPress={() => {
-                    reset({ editing: true, pending: null });
-                    setNotice("");
+                <Body
+                  style={{
+                    fontFamily: F.strong,
+                    fontSize: 20,
+                    lineHeight: 29,
+                    color: evening ? C.ink : C.white,
                   }}
-                />
+                >
+                  {focusSentence(current)}
+                </Body>
+                <View style={s.wrap}>
+                  {[current.when_context, current.place || current.for_whom]
+                    .filter(Boolean)
+                    .map((tag) => (
+                      <View
+                        key={tag}
+                        style={{
+                          paddingHorizontal: 12,
+                          paddingVertical: 6,
+                          borderRadius: 20,
+                          backgroundColor: evening ? C.paper : "#FFFFFF24",
+                        }}
+                      >
+                        <Body
+                          style={{
+                            color: evening ? C.muted : C.white,
+                            fontSize: 13,
+                          }}
+                        >
+                          {tag}
+                        </Body>
+                      </View>
+                    ))}
+                </View>
               </View>
-              {nightButton}
-            </>
-          )}
-          {evening &&
-            (!current || draft.editing || draft.pending) &&
-            nightButton}
-          {!!notice && (
-            <View
-              style={{ backgroundColor: C.navy, padding: 16, borderRadius: 14 }}
-            >
-              <ChloeLine inverse>{notice}</ChloeLine>
-            </View>
-          )}
-          {draft.pending && (
-            <View
-              style={{
-                backgroundColor: C.soft,
-                padding: 18,
-                borderRadius: 16,
-                gap: 14,
-              }}
-            >
-              <Body style={{ fontFamily: F.strong }}>{draft.pending.text}</Body>
-              {needsKids ? (
-                <KidsAgesPrompt context={pendingContext} />
+              {evening ? (
+                <Button
+                  label="Close the day with Chloe"
+                  onPress={() => router.push("/reflect")}
+                />
               ) : (
                 <>
-                  <ChloeLine>When will you do it?</ChloeLine>
+                  {!check && (
+                    <View style={{ flexDirection: "row", gap: 10 }}>
+                      <View style={{ flex: 1 }}>
+                        <Button
+                          secondary
+                          label="Harder"
+                          disabled={!nextLevel || action.busy}
+                          onPress={harder}
+                        />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Button
+                          secondary
+                          label="↻ Another idea"
+                          disabled={action.busy || savedFamily.loading}
+                          onPress={another}
+                        />
+                      </View>
+                    </View>
+                  )}
+                  <Body
+                    style={{
+                      textAlign: "center",
+                      color: C.muted,
+                      fontSize: 13,
+                    }}
+                  >
+                    Chloe checks in tonight. That&apos;s all for now.
+                  </Body>
+                </>
+              )}
+              <TextButton
+                label="Change focus"
+                onPress={() => {
+                  update({ editing: true, text: "", selected: null });
+                  setNotice("");
+                }}
+              />
+              {!!savedFamily.error && (
+                <TextButton
+                  label="Retry saved idea"
+                  onPress={savedFamily.retry}
+                />
+              )}
+            </>
+          ) : null}
+          {draft.pending ? (
+            <View
+              style={[
+                s.card,
+                { backgroundColor: C.soft, borderRadius: 24, gap: 16 },
+              ]}
+            >
+              <Body style={{ fontFamily: F.strong }}>{draft.pending.text}</Body>
+              {shouldAskKidsAges(data, context) ? (
+                <KidsAgesPrompt context={context} />
+              ) : (
+                <>
+                  <Body style={{ fontFamily: F.strong }}>
+                    When will you do it?
+                  </Body>
                   <View style={s.wrap}>
                     {planChoices(hour).map((plan) => (
                       <Chip
@@ -700,247 +847,126 @@ function Today() {
                 }
               />
             </View>
-          )}
-          {choosing && (
+          ) : null}
+          {choosing ? (
             <>
-              {opener && (
-                <View
-                  style={{
-                    backgroundColor: C.soft,
-                    padding: 14,
-                    borderRadius: 14,
-                    gap: 6,
-                  }}
-                >
-                  <ChloeLine>{opener.text}</ChloeLine>
-                  <View style={s.wrap}>
-                    {opener.kind === "stretch" ? (
-                      <>
-                        <TextButton
-                          label="Try the stretch"
-                          onPress={() => {
-                            setLevel("stretch");
-                            update({
-                              familyId: selection.familyId || "",
-                              dismissed: true,
-                            });
-                          }}
-                        />
-                        <TextButton
-                          label="Keep it easy"
-                          onPress={() => {
-                            setLevel("easy");
-                            update({ dismissed: true });
-                          }}
-                        />
-                      </>
-                    ) : (
-                      <TextButton
-                        label="Today"
-                        onPress={() =>
-                          update({
-                            text: opener.focus_text || "",
-                            pending: {
-                              text: opener.focus_text || "",
-                              source: "typed",
-                              missionId: null,
-                              missionStep: null,
-                              level: null,
-                              type: "do",
-                              priority: "",
-                              interest: "",
-                              place: "",
-                              somedayId: null,
-                            },
-                            dismissed: true,
-                          })
-                        }
-                      />
-                    )}
-                    {opener.kind === "meaning_to" && (
-                      <TextButton
-                        label="Let it go"
-                        onPress={() =>
-                          action.run(async () => {
-                            const item = data.entries.find(
-                              (e) => e.id === opener.item_id,
-                            );
-                            if (item)
-                              await putEntry({ ...item, state: "released" });
-                            update({ dismissed: true });
-                          })
-                        }
-                      />
-                    )}
-                    <TextButton
-                      label="Not today"
-                      onPress={() => update({ dismissed: true })}
-                    />
-                  </View>
-                </View>
-              )}
               <View
-                style={{
-                  backgroundColor: C.white,
-                  borderWidth: 1.5,
-                  borderColor: C.navy,
-                  borderRadius: 14,
-                  padding: 8,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 8,
-                }}
+                style={[s.card, { borderRadius: 24, padding: 18, gap: 12 }]}
               >
-                <Body style={{ fontFamily: F.strong, paddingLeft: 8 }}>
+                <Body
+                  style={{ color: C.gold, fontFamily: F.bold, fontSize: 13 }}
+                >
                   I will
                 </Body>
                 <TextInput
                   accessibilityLabel="My focus"
-                  placeholder="do my hardest task first when I get to work"
+                  placeholder="(your words)"
                   placeholderTextColor={C.muted}
+                  autoCapitalize="none"
+                  autoCorrect={false}
                   value={draft.text}
-                  onChangeText={(text) => update({ text })}
+                  onChangeText={(text) =>
+                    update({ text, selected: null, sourceEntryId: "" })
+                  }
                   maxLength={500}
-                  multiline
+                  returnKeyType="done"
+                  onSubmitEditing={setFocus}
                   style={{
-                    flex: 1,
-                    minWidth: 0,
+                    color: C.ink,
                     fontFamily: F.sans,
-                    fontSize: 16,
-                    color: C.navy,
-                    minHeight: 56,
+                    fontSize: 18,
+                    minHeight: 44,
+                    width: "100%",
                     paddingVertical: 8,
+                    borderBottomWidth: 1,
+                    borderColor: C.line,
                   }}
-                  onSubmitEditing={sendTyped}
                 />
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel="Send my focus"
+                  accessibilityLabel="Set my focus"
+                  accessibilityState={{ disabled: !draft.text.trim() }}
                   disabled={!draft.text.trim()}
-                  onPress={sendTyped}
+                  onPress={setFocus}
                   style={{
-                    backgroundColor: C.gold,
-                    borderRadius: 10,
-                    width: 44,
-                    height: 44,
-                    justifyContent: "center",
+                    minHeight: 48,
+                    borderRadius: 30,
+                    backgroundColor: draft.text.trim() ? C.gold : "#E6E0D8",
                     alignItems: "center",
-                    opacity: draft.text.trim() ? 1 : 0.5,
+                    justifyContent: "center",
                   }}
                 >
-                  <Body style={{ color: "#FFFFFF", fontSize: 22 }}>↑</Body>
+                  <Body
+                    style={{
+                      fontFamily: F.strong,
+                      color: draft.text.trim() ? C.white : C.muted,
+                    }}
+                  >
+                    Set my focus
+                  </Body>
                 </Pressable>
-              </View>
-              <View style={[s.row, { gap: 10 }]}>
-                <View style={{ flex: 1, height: 1, backgroundColor: C.line }} />
-                <Body style={{ fontSize: 13, color: C.muted }}>
-                  Not sure? Scroll for ideas
+                <Body
+                  style={{ color: C.muted, textAlign: "center", fontSize: 13 }}
+                >
+                  Or tap an idea below
                 </Body>
-                <View style={{ flex: 1, height: 1, backgroundColor: C.line }} />
               </View>
-              {priorities.length ? (
-                <>
-                  <ScrollWheel
-                    label="Priority"
-                    priority
-                    items={priorities.map((p) => ({ id: p, label: p }))}
-                    value={priority}
-                    onChange={(p) => {
-                      if (p !== priority)
-                        reset({ priority: p, learning: false });
-                    }}
-                  />
-                  <ScrollWheel
-                    label="Where and how"
-                    items={options}
-                    value={where.id}
-                    onChange={(id) => {
-                      if (id !== where.id) reset({ where: id });
-                    }}
-                  />
-                  {draft.more ? (
-                    <Body
-                      style={{
-                        textAlign: "center",
-                        fontSize: 13,
-                        color: C.muted,
-                      }}
-                    >
-                      Added interests similar to yours
-                    </Body>
-                  ) : (
-                    <TextButton
-                      label="+ More interests"
-                      color={C.gold}
-                      onPress={() =>
-                        similar.length
-                          ? update({ more: true })
-                          : setSelectionNotice(
-                              "Add an interest in My map to find something similar.",
-                            )
-                      }
-                    />
-                  )}
-                  {!!fitNotice && <Notice text={fitNotice} />}
-                  <FocusCard
-                    mission={mission}
-                    level={level}
-                    availableLevels={availableLevels}
-                    unavailableReasons={
-                      selection.familyId
-                        ? selection.unavailableReasons
-                        : generated.unavailableReasons
-                    }
-                    onLevel={(next) => {
-                      setLevel(next);
-                      update({ familyId: selection.familyId || "" });
-                    }}
-                    onAccept={pickSuggested}
-                    loading={action.busy}
-                  />
-                  {!!mission && (
-                    <TextButton label="Another idea" onPress={anotherIdea} />
-                  )}
-                  {where.id.startsWith("new:") && (
-                    <Body style={{ fontSize: 13, color: C.muted }}>
-                      Similar to{" "}
-                      {
-                        similar.find((l) => l.similar_interest === where.label)
-                          ?.interest
-                      }
-                      :{" "}
-                      {
-                        similar.find((l) => l.similar_interest === where.label)
-                          ?.reason
-                      }
-                    </Body>
-                  )}
-                  {book && (
-                    <Body style={{ fontSize: 14 }}>
-                      {book.title} — {book.author}. {book.why_it_fits}
-                    </Body>
-                  )}
-                </>
-              ) : (
-                <Button
-                  secondary
-                  label="Choose my priorities"
-                  onPress={() => router.push("/onboarding")}
+              <Body style={{ fontFamily: F.bold, fontSize: 18 }}>
+                Ideas from My map
+              </Body>
+              {ideas.slice(0, draft.visible).map((idea) => (
+                <IdeaCard
+                  key={idea.id}
+                  idea={idea}
+                  onPick={pick}
+                  onRelease={release}
                 />
-              )}
-              {generated.error && (
-                <>
-                  <Notice text={generated.error} />
-                  <TextButton label="Retry ideas" onPress={generated.retry} />
-                </>
+              ))}
+              {draft.visible < ideas.length ? (
+                <TextButton
+                  label="More ideas"
+                  color={C.gold}
+                  onPress={() => update({ visible: draft.visible + 2 })}
+                />
+              ) : (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Not seeing it? Build your own in My map"
+                  onPress={() =>
+                    router.push({ pathname: "/galaxy", params: { build: "1" } })
+                  }
+                  style={[
+                    s.card,
+                    {
+                      borderStyle: "dashed",
+                      borderColor: C.gold,
+                      borderRadius: 22,
+                      backgroundColor: "transparent",
+                      padding: 20,
+                    },
+                  ]}
+                >
+                  <Body
+                    style={{
+                      textAlign: "center",
+                      color: C.gold,
+                      fontFamily: F.strong,
+                    }}
+                  >
+                    Not seeing it? Build your own in My map →
+                  </Body>
+                </Pressable>
               )}
             </>
-          )}
-          {!evening &&
-            (!current || draft.editing) &&
-            !draft.pending &&
-            nightButton}
-          {due && (
+          ) : null}
+          {evening && (!current || draft.editing) && !draft.pending ? (
+            <Button
+              label="Close the day with Chloe"
+              onPress={() => router.push("/reflect")}
+            />
+          ) : null}
+          {!!notice && <Notice text={notice} />}
+          {due ? (
             <TextButton
               label={
                 due.kind === "monthly" ? "Monthly check-in" : "Sunday review"
@@ -954,7 +980,7 @@ function Today() {
                 })
               }
             />
-          )}
+          ) : null}
         </>
       )}
       <Notice
@@ -963,7 +989,8 @@ function Today() {
           routeError ||
           draftError ||
           extra.error ||
-          practiceError
+          practiceError ||
+          savedFamily.error
         }
         tone="error"
       />

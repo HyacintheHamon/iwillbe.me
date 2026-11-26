@@ -1,0 +1,52 @@
+{
+  "filename": "iwillbe-mission-library(2).xlsx",
+  "sha256": "49e5ddd928af3337125034d6eb8d70e17b28b3467bc8706c929a7801db496ae8",
+  "missions": 1257,
+  "previous_missions": 1152,
+  "added_missions": 105,
+  "changed_missions": 0,
+  "removed_missions": 0,
+  "learning_missions": 180,
+  "someday_starters": 15,
+  "age_tagged_missions": 40,
+  "interest_links": 44,
+  "books": 57,
+  "added_books": 1,
+  "new_ladders": [
+    {
+      "code": "GR-UNS",
+      "name": "Getting unstuck",
+      "missions": 15
+    },
+    {
+      "code": "GR-FLX",
+      "name": "Rolling with change",
+      "missions": 15
+    },
+    {
+      "code": "GR-TOG",
+      "name": "Solving it together",
+      "missions": 15
+    },
+    {
+      "code": "GR-MNY",
+      "name": "Money and what matters",
+      "missions": 15
+    },
+    {
+      "code": "PE-NEW",
+      "name": "New friends",
+      "missions": 15
+    },
+    {
+      "code": "GR-STA",
+      "name": "Starting now",
+      "missions": 15
+    },
+    {
+      "code": "GR-HUM",
+      "name": "Staying human",
+      "missions": 15
+    }
+  ]
+}

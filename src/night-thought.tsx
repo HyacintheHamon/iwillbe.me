@@ -168,7 +168,9 @@ export function NightThought({
           Chloe · Something to sleep on
         </Eyebrow>
         {!!thought.preface && <Body>{thought.preface}</Body>}
-        <Body>{thought.text}</Body>
+        <Body style={{ fontSize: 23, lineHeight: 34, color: C.ink }}>
+          {thought.text}
+        </Body>
         {!!thought.credit && (
           <Body style={{ fontSize: 13 }}>— {thought.credit}</Body>
         )}
