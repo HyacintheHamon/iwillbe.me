@@ -120,5 +120,5 @@ sql = (
     + ",\n".join(f"  {key}=excluded.{key}" for key in columns if key != "id")
     + ";\ncommit;\n"
 )
-(ROOT / "supabase/migrations/20261126090001_round4_night_library.sql").write_text(sql)
+(ROOT / "supabase/migrations/20261126153804_round4_night_library.sql").write_text(sql)
 print(f"Imported Current prompt and {len(entries)} thoughts ({len(entries) - len(withheld)} eligible; {len(withheld)} caveats withheld).")

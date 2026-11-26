@@ -12,7 +12,9 @@ Today now has an editable **I will** field, **Set my focus**, three idea cards a
 
 Night keeps outcome, energy and an optional note on one screen. Explicit energy is saved for every outcome, including priority-only focuses. Optional obstacle support can offer a smaller step for tomorrow. Goodnight can carry the same focus into tomorrow's editable field without creating a commitment automatically. New interests require an explicit choice before entering My map.
 
-Type checking, lint, 205 unit tests, the local database suite and the web build have passed on the final functional commit. Manual checks in connected Chrome have also exercised the [final isolated Vercel QA preview](https://iwillbe-jnfcd0fvs-snag-live.vercel.app/qa.html) at 390 × 844 and 320 × 568 using fictional data. The [manual review record](docs/releases/2026-11-26-round4.md#manual-chrome-review) includes successful final retests of the five-row wheels, focus-specific time-obstacle suggestion and Goodnight scroll position. The Playwright CLI suite is authored but has not been executed; native and live-service checks remain unverified. Production is unchanged. After merge, apply `20261126090001_round4_night_library.sql` and `20261126140000_round4_mission_catalogue.sql`, deploy the matching `chloe` function and publish the normal frontend export. Use the [isolated QA instructions](#isolated-round-4-browser-qa) below for preview testing; the release note distinguishes local checks, manual preview review and live activation.
+Type checking, lint, 205 unit tests, the local database suite and the web build have passed on the final functional commit. Manual checks in connected Chrome have also exercised the [final isolated Vercel QA preview](https://iwillbe-jnfcd0fvs-snag-live.vercel.app/qa.html) at 390 × 844 and 320 × 568 using fictional data. The [manual review record](docs/releases/2026-11-26-round4.md#manual-chrome-review) includes successful final retests of the five-row wheels, focus-specific time-obstacle suggestion and Goodnight scroll position. The Playwright CLI suite is authored but has not been executed; native behavior and live Chloe/email remain unverified.
+
+**PR #9 was merged and the Round 4 database migrations were applied and verified on 26 November.** [Database activation](docs/releases/2026-11-26-round4.md#database-activation--26-november) records the applied versions and preservation checks. The matching `chloe` function and production frontend deployments remain pending: merging the source did not deploy them. The existing production function/frontend and isolated QA fixture are unchanged. The remaining rollout is to deploy the matching function and publish the normal frontend export. Use the [isolated QA instructions](#isolated-round-4-browser-qa) below for preview testing; the release note distinguishes local checks, manual preview review and live database activation.
 
 ### Previous release checkpoints
 
@@ -112,18 +114,19 @@ All new entities have stable UUIDs and provenance. Intentions link to interest/v
 
 ## Backend
 
-Configured Supabase project: `mvhqovdznrzoduntyryh`. The [Round 3 release note](docs/releases/2026-11-19-round3.md#backend-activation) records the previous backend activation. Round 4 adds two pending catalogue migrations and changes the Chloe function. Local validation applies all 15 repository migrations to PostgreSQL/PGlite; it does not establish that the remote history contains the new versions.
+The [Round 3 release note](docs/releases/2026-11-19-round3.md#backend-activation) records the previous backend activation. The Round 4 database portion was applied to the live Supabase project on 26 November: `20261126153804_round4_night_library.sql` and `20261126153807_round4_mission_catalogue.sql`. The filenames follow the versions assigned by Supabase; their SQL content is unchanged. Live migration history now contains all 15 repository migrations, including the 13 prior versions.
 
-After merge and release verification, confirm the linked project and applied history, then apply the Round 4 migrations and matching function:
+Live checks found exact matches for all 1,257 expected catalogue missions and all 216 night thoughts, with 207 verified and nine `needs_check` thoughts, 57 books and 44 interest links. There were no missing or differing expected records, private mission ID collisions or broken night-history references. Before/after comparisons confirmed that historical missions and private records were preserved. All public tables retain RLS, and the security-advisor findings are unchanged from the existing baseline. See the [database activation record](docs/releases/2026-11-26-round4.md#database-activation--26-november) for scope and the existing findings.
+
+The Round 4 Chloe function and production frontend have not been deployed. Deployment checks after the source merge still found the Round 3 production frontend and active Chloe version 11 from 19 November. For the remaining function release, confirm the linked project, release commit and already-applied migration history, then deploy the matching function:
 
 ```sh
 supabase link --project-ref YOUR_PROJECT_REF
 supabase migration list
-supabase db push
 supabase functions deploy chloe --use-api
 ```
 
-The new migrations are `20261126090001_round4_night_library.sql` and `20261126140000_round4_mission_catalogue.sql`. They retain stable IDs and user history. No `connections` source change is part of Round 4. Deploy the normal frontend export after the matching backend is available, and record live results in the release notes.
+The Round 4 database migrations are already applied; no further application of those two migrations is pending. No `connections` source change is part of Round 4. Deploy the normal frontend export after the matching Chloe function is available, and record those deployment versions and live app results separately in the release notes.
 
 Chloe uses `ANTHROPIC_API_KEY` and `ANTHROPIC_MODEL` in Supabase secrets. The supplied Round 4 current prompt is in `supabase/functions/chloe/master-prompt.ts`, with screen rules and compatibility contracts in `prompt.ts`; its version is `chloe-2026-11-25-round4`. It covers discovery, morning, night, exploration, Sunday, monthly and why conversations.
 
@@ -190,7 +193,7 @@ The workbook importer uses the Python standard library and validates the 1,257 m
 
 ### Isolated Round 4 browser QA
 
-The final [Round 4 QA controller](https://iwillbe-jnfcd0fvs-snag-live.vercel.app/qa.html) was reviewed manually in connected Chrome on 26 November. It serves QA commit `f452248c232a435ac9d9aea03336010f1833b93c`, based on functional commit `185a94c8c2ac986ae2739928a5848b1b9c6a6792`, as the unpromoted Preview deployment `dpl_4nMe9GFERsoXvix2Mc49TVNe1cgn`. The final retest confirmed five visible cyclic words on each Build an action wheel, working difficulty/idea changes, the exact focus-specific five-minute reminder, and Goodnight opening at the top with a working closing button. On the following morning the reminder appeared first without creating a new intention. The fixture uses fictional local records; the review observed no live external service calls and a blocked-call counter of zero. This establishes no live provider/database or native verification, and production is unchanged.
+The final [Round 4 QA controller](https://iwillbe-jnfcd0fvs-snag-live.vercel.app/qa.html) was reviewed manually in connected Chrome on 26 November. It serves QA commit `f452248c232a435ac9d9aea03336010f1833b93c`, based on functional commit `185a94c8c2ac986ae2739928a5848b1b9c6a6792`, as the unpromoted Preview deployment `dpl_4nMe9GFERsoXvix2Mc49TVNe1cgn`. The final retest confirmed five visible cyclic words on each Build an action wheel, working difficulty/idea changes, the exact focus-specific five-minute reminder, and Goodnight opening at the top with a working closing button. On the following morning the reminder appeared first without creating a new intention. The fixture uses fictional local records; the review observed no live external service calls and a blocked-call counter of zero. The later live database activation was verified separately and did not change this QA fixture. These browser results do not verify live provider behavior or native builds; the Round 4 production frontend and Chloe deployments remain pending.
 
 Build the product, copy it into the isolated fixture and start its local server:
 
