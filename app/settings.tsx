@@ -14,6 +14,7 @@ import {
   phoneTimeZone,
 } from "../src/reminders";
 import { validReminderTime, validTimeZone } from "../src/reminder-calendar";
+import { ReminderTimePicker } from "../src/reminder-time-picker";
 import { draftKey, useDraft } from "../src/drafts";
 import { exportPractice } from "../src/export-practice";
 import { BrandHeader } from "../src/brand-header";
@@ -349,17 +350,15 @@ function Settings() {
               you when this page is closed, through your calendar’s
               notifications.
             </Body>
-            <Field
-              label="MORNING · HH:MM"
+            <ReminderTimePicker
+              label="Morning"
               value={morning}
-              onChangeText={setMorning}
-              maxLength={5}
+              onChange={setMorning}
             />
-            <Field
-              label="NIGHT · HH:MM"
+            <ReminderTimePicker
+              label="Night"
               value={evening}
-              onChangeText={setEvening}
-              maxLength={5}
+              onChange={setEvening}
             />
             <Field
               label="TIMEZONE"
@@ -415,11 +414,10 @@ function Settings() {
               including when you travel. We’ll ask permission when you turn
               reminders on.
             </Body>
-            <Field
-              label="MORNING · HH:MM"
+            <ReminderTimePicker
+              label="Morning"
               value={morning}
-              onChangeText={setMorning}
-              maxLength={5}
+              onChange={setMorning}
             />
             <Field
               label="EVENING · HH:MM"

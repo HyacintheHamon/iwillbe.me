@@ -44,7 +44,14 @@ export type Entry = {
     planet_notes?: Partial<Record<Planet, string>>;
     answers?: (number | null)[];
     period?: string;
-    version?: number;
+    version?: number | string;
+    completed_at?: string;
+    completed_day?: string;
+    followup_key?: string;
+    asked_day?: string;
+    followup_status?: "shown" | "answered" | "skipped";
+    target_id?: string;
+    promotion_asked?: boolean;
     horizon?: "year" | "life";
     scores_visible?: boolean;
     analytics?: boolean;
@@ -80,7 +87,7 @@ export type Entry = {
     carried_question_id?: string;
     carried_question_day?: string;
     last_stage_asked_day?: string;
-    ages?: ("under 6" | "6–12" | "teens")[];
+    ages?: ("under 6" | "6–12" | "teens" | "adults")[];
     asked?: boolean;
     priority?: string;
     theme?: string;
@@ -95,7 +102,8 @@ export type Entry = {
     screen?: string;
     onboarding_step?: string;
     mission_id?: string;
-    outcome?: "passed";
+    outcome?: "passed" | "shown" | "picked";
+    feedback_day?: string;
     reminder_day?: string;
     interest?: string;
     place?: string;
@@ -212,8 +220,9 @@ export function valueState(
   )
     return "Important to me";
   if (choices[0]?.value_choice === "not_mine") return "Let go";
-  return ["mine", "important"].includes(e.state) ||
-    choices.filter((c) => c.value_choice === "yes").length >= 2
+  // Repeated Keep it answers invite a separate question. Only an explicit
+  // confirmation (or an already saved choice) makes this Important to me.
+  return ["mine", "important"].includes(e.state)
     ? "Important to me"
     : "Working on";
 }

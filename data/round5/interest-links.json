@@ -1,0 +1,222 @@
+[
+  {
+    "interest": "cooking for friends",
+    "similar_interest": "baking",
+    "reason": "Slow, hands-on cooking you can share."
+  },
+  {
+    "interest": "cooking for friends",
+    "similar_interest": "hosting game night",
+    "reason": "Another easy reason to have people over."
+  },
+  {
+    "interest": "cooking for friends",
+    "similar_interest": "gardening",
+    "reason": "Grow what you cook."
+  },
+  {
+    "interest": "exploring new places",
+    "similar_interest": "hiking",
+    "reason": "New places on foot."
+  },
+  {
+    "interest": "exploring new places",
+    "similar_interest": "taking photos",
+    "reason": "See new places more closely."
+  },
+  {
+    "interest": "exploring new places",
+    "similar_interest": "camping",
+    "reason": "Stay the night somewhere new."
+  },
+  {
+    "interest": "hiking",
+    "similar_interest": "camping",
+    "reason": "A night outside after the hike."
+  },
+  {
+    "interest": "hiking",
+    "similar_interest": "birdwatching",
+    "reason": "Slow down and notice what lives there."
+  },
+  {
+    "interest": "hiking",
+    "similar_interest": "running",
+    "reason": "The same trails, a bit faster."
+  },
+  {
+    "interest": "reading",
+    "similar_interest": "a book club",
+    "reason": "Reading with company."
+  },
+  {
+    "interest": "reading",
+    "similar_interest": "journaling",
+    "reason": "From reading words to writing your own."
+  },
+  {
+    "interest": "reading",
+    "similar_interest": "learning a language",
+    "reason": "Read in a new language."
+  },
+  {
+    "interest": "volunteering",
+    "similar_interest": "mentoring someone",
+    "reason": "Giving time one-on-one."
+  },
+  {
+    "interest": "volunteering",
+    "similar_interest": "gardening",
+    "reason": "Help a community garden grow."
+  },
+  {
+    "interest": "volunteering",
+    "similar_interest": "cooking for friends",
+    "reason": "Cook for someone who needs it."
+  },
+  {
+    "interest": "building things",
+    "similar_interest": "sketching",
+    "reason": "Draw it before you build it."
+  },
+  {
+    "interest": "building things",
+    "similar_interest": "gardening",
+    "reason": "Build a planter, then fill it."
+  },
+  {
+    "interest": "playing sports",
+    "similar_interest": "pickleball",
+    "reason": "Quick, social rallies."
+  },
+  {
+    "interest": "playing sports",
+    "similar_interest": "running",
+    "reason": "Easy to start, anywhere."
+  },
+  {
+    "interest": "playing sports",
+    "similar_interest": "working out",
+    "reason": "Get stronger for the game."
+  },
+  {
+    "interest": "gardening",
+    "similar_interest": "birdwatching",
+    "reason": "Notice what visits your garden."
+  },
+  {
+    "interest": "gardening",
+    "similar_interest": "cooking for friends",
+    "reason": "Cook with what you grow."
+  },
+  {
+    "interest": "gardening",
+    "similar_interest": "hiking",
+    "reason": "More time outside with growing things."
+  },
+  {
+    "interest": "making music",
+    "similar_interest": "singing",
+    "reason": "Music with just your voice."
+  },
+  {
+    "interest": "making music",
+    "similar_interest": "hosting game night",
+    "reason": "Music nights with friends."
+  },
+  {
+    "interest": "making music",
+    "similar_interest": "learning a language",
+    "reason": "Learn songs in another language."
+  },
+  {
+    "interest": "working out",
+    "similar_interest": "yoga",
+    "reason": "Strength with breath."
+  },
+  {
+    "interest": "working out",
+    "similar_interest": "running",
+    "reason": "Cardio you can do anywhere."
+  },
+  {
+    "interest": "working out",
+    "similar_interest": "playing sports",
+    "reason": "Move with other people."
+  },
+  {
+    "interest": "meditating",
+    "similar_interest": "yoga",
+    "reason": "Meditation in motion."
+  },
+  {
+    "interest": "meditating",
+    "similar_interest": "journaling",
+    "reason": "Five quiet minutes on paper."
+  },
+  {
+    "interest": "meditating",
+    "similar_interest": "hiking",
+    "reason": "A walking meditation outdoors."
+  },
+  {
+    "interest": "learning a language",
+    "similar_interest": "exploring new places",
+    "reason": "Use it where it's spoken."
+  },
+  {
+    "interest": "learning a language",
+    "similar_interest": "reading",
+    "reason": "Short books in the new language."
+  },
+  {
+    "interest": "learning a language",
+    "similar_interest": "cooking for friends",
+    "reason": "Cook the cuisine that goes with it."
+  },
+  {
+    "interest": "mentoring someone",
+    "similar_interest": "volunteering",
+    "reason": "Give time to a cause."
+  },
+  {
+    "interest": "mentoring someone",
+    "similar_interest": "playing sports",
+    "reason": "Coach a kids' team."
+  },
+  {
+    "interest": "mentoring someone",
+    "similar_interest": "reading",
+    "reason": "Read with a young learner."
+  },
+  {
+    "interest": "hosting game night",
+    "similar_interest": "cooking for friends",
+    "reason": "Add food to the fun."
+  },
+  {
+    "interest": "hosting game night",
+    "similar_interest": "pickleball",
+    "reason": "Games, but outside."
+  },
+  {
+    "interest": "hosting game night",
+    "similar_interest": "a book club",
+    "reason": "A different reason to gather."
+  },
+  {
+    "interest": "taking photos",
+    "similar_interest": "sketching",
+    "reason": "Another way to capture a view."
+  },
+  {
+    "interest": "taking photos",
+    "similar_interest": "exploring new places",
+    "reason": "New things to photograph."
+  },
+  {
+    "interest": "taking photos",
+    "similar_interest": "birdwatching",
+    "reason": "Patient, careful looking."
+  }
+]

@@ -10,7 +10,13 @@ import {
   shouldAskKidsAges,
   shouldAskPriorityTheme,
 } from "./round3-preference-rules";
-export function NightSummary({ reflection }: { reflection: string }) {
+export function NightSummary({
+  reflection,
+  allowDiscovery = true,
+}: {
+  reflection: string;
+  allowDiscovery?: boolean;
+}) {
   const { data, putEntry } = usePractice();
   const today = useToday();
   const action = useAction();
@@ -71,6 +77,7 @@ export function NightSummary({ reflection }: { reflection: string }) {
         />
       ) : null}
       {summary &&
+        allowDiscovery &&
         !hard &&
         !preferenceQuestion &&
         check?.outcome === "yes" &&

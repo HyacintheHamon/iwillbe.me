@@ -162,7 +162,7 @@ export function emptyPractice(): Practice {
       onboarded: false,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
       morning_time: "08:00",
-      evening_time: "20:30",
+      evening_time: "21:00",
     },
     intentions: [],
     checkIns: [],

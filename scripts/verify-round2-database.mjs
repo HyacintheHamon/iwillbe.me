@@ -151,9 +151,9 @@ assert.deepEqual(
   await one(
     `select count(*)::int total,count(*) filter(where type='learn')::int learn,count(*) filter(where id like 'SD-%')::int someday from missions where active and user_id is null`,
   ),
-  { total: 1257, learn: 180, someday: 15 },
+  { total: 1284, learn: 183, someday: 15 },
 );
-assert.equal((await one("select count(*)::int n from learning_shelf")).n, 57);
+assert.equal((await one("select count(*)::int n from learning_shelf")).n, 59);
 assert.equal((await one("select count(*)::int n from interest_links")).n, 44);
 assert.deepEqual(
   (

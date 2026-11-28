@@ -11,6 +11,7 @@ import {
   safeDestination,
 } from "../src/auth-intent";
 import { usePractice } from "../src/practice";
+import { AI_DISCLOSURE } from "../src/today-flow";
 import {
   Body,
   Button,
@@ -66,7 +67,7 @@ export default function Account() {
   const destination = afterSignIn(intent.returnTo, data.profile.onboarded);
   const joining = intent.reason === "join";
   const continueLabel =
-    destination === "/onboarding" ? "Meet Chloe" : "Continue to my practice";
+    destination === "/onboarding" ? "Start my map" : "Continue to my practice";
   const returnToPractice = () => {
     if (intent.returnTo === "/chloe" && intent.question)
       router.replace({
@@ -104,7 +105,7 @@ export default function Account() {
         });
         if (error) throw error;
         setNotice(
-          `Check ${email.trim()} for your sign-in link. Open it to ${joining ? "finish creating your account and meet Chloe" : "return to your practice"}. Check your spam folder too.`,
+          `Check ${email.trim()} for your sign-in link. Open it to ${joining ? "finish creating your account and start your map" : "return to your practice"}. Check your spam folder too.`,
         );
         setRetryAt(Date.now() + 60000);
       }
@@ -162,7 +163,7 @@ export default function Account() {
             {intent.reason === "chloe"
               ? "Chloe needs an account to use your saved priorities and reflections. Messages are processed by our AI provider. We’ll bring you back to your conversation."
               : joining
-                ? "First, your own space. Then Chloe will guide you through interest picks and short stories. Your answers will save to your account."
+                ? "First, your own space. Then four quick steps to start your map. Your answers will save to your account."
                 : "Enter your email to return to your practice. New here? The same link can create your account."}
           </Body>
           <View style={s.card}>
@@ -172,6 +173,9 @@ export default function Account() {
               Chloe, Anthropic processes your messages and relevant saved
               context to write a reply. You can delete your practice from
               Settings.
+            </Body>
+            <Body style={{ fontSize: 13, lineHeight: 20 }}>
+              {AI_DISCLOSURE}
             </Body>
             <TextButton
               label="Read the privacy note"

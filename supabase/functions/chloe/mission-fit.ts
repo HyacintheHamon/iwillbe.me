@@ -19,7 +19,7 @@ export type MissionMoment = {
   where: string;
   kind: string;
 };
-export const KID_AGE_BANDS = ["under 6", "6–12", "teens"];
+export const KID_AGE_BANDS = ["under 6", "6–12", "teens", "adults"];
 export const HEALTH_THEME_NAMES = [
   "moving",
   "eating well",
@@ -76,6 +76,13 @@ export function missionFitsSavedContext(
     !mission.ages.some((age) => moment.ages.includes(age))
   )
     return false;
+  if (
+    moment.ages.length === 1 &&
+    moment.ages[0] === "adults" &&
+    !mission.ages?.length &&
+    mission.places?.some((place) => missionTag(place) === "with my kids")
+  )
+    return false;
   const text = `${mission.mission_text} ${mission.first_step}`.toLowerCase();
   const outing =
     ["Outdoors", "Out and about", "Work or school"].includes(mission.setting) ||
@@ -107,6 +114,7 @@ export function missionFitsSavedContext(
   if (
     moment.where === "with my kids" &&
     !moment.ages.includes("teens") &&
+    !moment.ages.includes("adults") &&
     /\b(résumé|resume|internship|college|teenager|teen|job application)\b/.test(
       text,
     )

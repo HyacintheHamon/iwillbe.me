@@ -24,9 +24,9 @@ const catalogue = JSON.parse(
 
 test("every onboarding interest and priority has a concrete starter trio", () => {
   assert.equal(QUICK_PICKS.length, 15);
-  assert.equal(PRIORITY_WORDS.length, 38);
-  assert.equal(STARTER_MISSIONS.length, 159);
-  assert.equal(new Set(STARTER_MISSIONS.map((m) => m.id)).size, 159);
+  assert.equal(PRIORITY_WORDS.length, 39);
+  assert.equal(STARTER_MISSIONS.length, 162);
+  assert.equal(new Set(STARTER_MISSIONS.map((m) => m.id)).size, 162);
   for (const tag of [
     ...QUICK_PICKS.map((p) => p.title),
     ...PRIORITY_WORDS.map((p) => p.name),
@@ -142,7 +142,7 @@ test("night library retains all supplied records while withholding caveated entr
     catalogue.every((t) =>
       t.priorities.every((p) => PRIORITY_WORDS.some((w) => w.name === p)),
     ),
-    "tags match the 38 priorities",
+    "tags match the 39 priorities",
   );
 });
 const thought = (

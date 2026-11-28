@@ -150,6 +150,7 @@ function nightDatabase() {
           return query;
         },
         in: () => query,
+        gte: () => query,
         order: () => query,
         limit: () => query,
         single: () => {
@@ -521,7 +522,7 @@ test("a custom interest keeps its exact tag when an older client sends an empty 
 });
 
 test("current prompt preserves the when question, This year list and once-only preferences", () => {
-  assert.equal(PROMPT_VERSION, "chloe-2026-11-25-round4");
+  assert.equal(PROMPT_VERSION, "chloe-2026-11-26-onboarding-v2");
   assert.match(MODES.morning, /When will you do it\?/);
   assert.match(MODES.monthly, /this_year_items/);
   const prompt = systemPrompt("monthly", {});

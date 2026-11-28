@@ -3,7 +3,8 @@ import test from "node:test";
 import previousMissions from "../data/round3/missions.json";
 import previousBooks from "../data/round3/learning-shelf.json";
 import source from "../data/round4/source.json";
-import { LEARNING_SHELF, MISSIONS } from "../src/round2";
+import MISSIONS from "../data/round4/missions.json";
+import LEARNING_SHELF from "../data/round4/learning-shelf.json";
 
 test("Round 4 retains every historical mission and book unchanged", () => {
   const current = new Map(MISSIONS.map((mission) => [mission.id, mission]));

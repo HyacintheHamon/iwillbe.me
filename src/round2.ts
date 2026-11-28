@@ -1,9 +1,9 @@
 import type { Practice, Intention } from "./domain";
 import { interestState, valueState, weekPeriod } from "./journey";
 import { priorityName } from "./priorities";
-import catalogue from "../data/round4/missions.json";
-import links from "../data/round4/interest-links.json";
-import shelf from "../data/round4/learning-shelf.json";
+import catalogue from "../data/round5/missions.json";
+import links from "../data/round5/interest-links.json";
+import shelf from "../data/round5/learning-shelf.json";
 import { selectMission, somedaySelection } from "./mission-selection";
 export {
   selectMission,

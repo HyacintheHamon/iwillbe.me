@@ -182,7 +182,10 @@ function Why() {
             body: picture.body,
             source: "Reaffirmed at your why revisit",
             source_ids: picture.source_ids,
-            meta: { ...picture.meta, version: (picture.meta.version || 1) + 1 },
+            meta: {
+              ...picture.meta,
+              version: (Number(picture.meta.version) || 1) + 1,
+            },
           }),
         );
       if (!reaffirm) {

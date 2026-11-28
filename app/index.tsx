@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { View, TextInput, Pressable } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { View, Text, TextInput, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Landing } from "../src/landing";
 import { usePractice } from "../src/practice";
@@ -53,6 +53,9 @@ import {
 } from "../src/private-missions";
 import { missionLocalMoment } from "../src/mission-selection";
 import { supabase } from "../src/supabase";
+import { FirstTodayIntro } from "../src/first-today-intro";
+import { onboardingSchedule } from "../src/onboarding-followups";
+import { missionFeedbackEntry } from "../src/mission-feedback";
 
 export default function Home() {
   const { session } = usePractice();
@@ -68,6 +71,9 @@ function IdeaCard({
   onPick: (idea: TodayIdea) => void;
   onRelease: (idea: TodayIdea) => void;
 }) {
+  const { data, session, putEntry } = usePractice();
+  const day = useToday();
+  const generatedSeen = useRef("");
   const generated = useFocusMission(
     undefined,
     idea.suggestedInterest || "",
@@ -75,6 +81,33 @@ function IdeaCard({
     !!idea.suggestedInterest,
     { where: idea.suggestedInterest, kind: "interest" },
   );
+  useEffect(() => {
+    if (!idea.suggestedInterest || !generated.mission || !session?.user.id)
+      return;
+    const observation = missionFeedbackEntry(
+      generated.mission,
+      "shown",
+      day,
+      "today",
+      session.user.id,
+    );
+    if (
+      generatedSeen.current === observation.id ||
+      data.entries.some((entry) => entry.id === observation.id)
+    )
+      return;
+    generatedSeen.current = observation.id!;
+    void putEntry(observation).catch(() => {
+      generatedSeen.current = "";
+    });
+  }, [
+    idea.suggestedInterest,
+    generated.mission,
+    session?.user.id,
+    day,
+    data.entries,
+    putEntry,
+  ]);
   const resolved =
     idea.suggestedInterest && generated.mission
       ? {
@@ -200,10 +233,83 @@ function Today() {
   const previous = extra.summaries.find(
     (summary) => summary.day === shiftDay(today, -1),
   );
-  const ideas = useMemo(
-    () => todayIdeas(data, extra.places, today, now, previous, draft.learning),
-    [data, extra.places, today, now, previous, draft.learning],
-  );
+  const [ideaSnapshot, setIdeaSnapshot] = useState<{
+    key: string;
+    items: TodayIdea[];
+  }>({ key: "", items: [] });
+  const ideaKey = JSON.stringify([
+    session?.user.id,
+    today,
+    draft.learning,
+    extra.ready,
+    extra.places.map((place) => [place.id, place.label]),
+    data.entries
+      .filter(
+        (entry) =>
+          ["value", "interest", "backlog"].includes(entry.kind) ||
+          ["Action reminder", "Tomorrow focus", "Kids ages"].includes(
+            entry.title,
+          ),
+      )
+      .map((entry) => [entry.id, entry.updated_at, entry.state]),
+    data.checkIns.map((check) => [
+      check.intention_id,
+      check.revision,
+      check.energy,
+    ]),
+  ]);
+  if (ready && extra.ready && ideaSnapshot.key !== ideaKey) {
+    // Impressions are saved immediately but must not replace a card while it
+    // is being read. A changed day or map produces the next eligible snapshot.
+    setIdeaSnapshot({
+      key: ideaKey,
+      items: todayIdeas(
+        data,
+        extra.places,
+        today,
+        now,
+        previous,
+        draft.learning,
+      ),
+    });
+  }
+  const ideas = ideaSnapshot.items;
+  const observed = useRef(new Set<string>());
+  useEffect(() => {
+    if (!choosing || !ready || !session?.user.id) return;
+    const ownerId = session.user.id;
+    for (const idea of ideas.slice(0, draft.visible)) {
+      const mission =
+        MISSIONS.find((item) => item.id === idea.pending.missionId) ||
+        idea.pending.missionSnapshot;
+      if (!mission) continue;
+      const observation = missionFeedbackEntry(
+        mission,
+        "shown",
+        today,
+        "today",
+        ownerId,
+      );
+      if (
+        observed.current.has(observation.id!) ||
+        data.entries.some((entry) => entry.id === observation.id)
+      )
+        continue;
+      observed.current.add(observation.id!);
+      void putEntry(observation).catch(() =>
+        observed.current.delete(observation.id!),
+      );
+    }
+  }, [
+    choosing,
+    ready,
+    session?.user.id,
+    ideas,
+    draft.visible,
+    today,
+    data.entries,
+    putEntry,
+  ]);
   const prefill = tomorrowPrefill(data, today);
   const due = rhythmDue(data, now);
 
@@ -347,6 +453,20 @@ function Today() {
   }, [ready, data, params, session?.user.id, update]);
 
   const pick = (idea: TodayIdea) => {
+    const mission =
+      MISSIONS.find((item) => item.id === idea.pending.missionId) ||
+      idea.pending.missionSnapshot;
+    if (mission && session?.user.id) {
+      const observation = missionFeedbackEntry(
+        mission,
+        "picked",
+        today,
+        "today",
+        session.user.id,
+      );
+      if (!data.entries.some((entry) => entry.id === observation.id))
+        void putEntry(observation).catch(() => {});
+    }
     const text =
       idea.pending.source === "suggested"
         ? idea.text
@@ -369,6 +489,19 @@ function Today() {
           state: "released",
           meta: { ...entry.meta, status: "released" },
         });
+      const mission =
+        MISSIONS.find((item) => item.id === idea.pending.missionId) ||
+        idea.pending.missionSnapshot;
+      if (mission && session?.user.id)
+        await putEntry(
+          missionFeedbackEntry(
+            mission,
+            "passed",
+            today,
+            "today",
+            session.user.id,
+          ),
+        );
     });
   const setFocus = () => {
     if (!draft.text.trim()) return;
@@ -450,7 +583,11 @@ function Today() {
         editing: false,
         sourceEntryId: "",
       });
-      setNotice("");
+      setNotice(
+        !data.intentions.length && onboardingSchedule(data)
+          ? "Tonight I'll ask how it went, and each time I'll know you a bit better."
+          : "",
+      );
       if (pending.source === "typed")
         void supabase.functions
           .invoke("chloe", { body: { action: "round2_tag_focus", day: today } })
@@ -671,11 +808,19 @@ function Today() {
         </>
       ) : (
         <>
+          <FirstTodayIntro />
           {(evening || !current || draft.editing || draft.pending) && (
             <Title style={{ fontSize: 32, lineHeight: 38 }}>
-              {evening
-                ? "How did today go?"
-                : "Who will you be today, and for whom?"}
+              {evening ? (
+                <>
+                  How did <Text style={{ color: C.gold }}>today</Text> go?
+                </>
+              ) : (
+                <>
+                  Who will you be <Text style={{ color: C.gold }}>today</Text>,
+                  and for whom?
+                </>
+              )}
             </Title>
           )}
           {current && !draft.editing && !draft.pending ? (
@@ -854,7 +999,12 @@ function Today() {
                 style={[s.card, { borderRadius: 24, padding: 18, gap: 12 }]}
               >
                 <Body
-                  style={{ color: C.gold, fontFamily: F.bold, fontSize: 13 }}
+                  style={{
+                    color: C.gold,
+                    fontFamily: F.bold,
+                    fontSize: 28,
+                    lineHeight: 36,
+                  }}
                 >
                   I will
                 </Body>
