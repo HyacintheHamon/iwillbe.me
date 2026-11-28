@@ -878,29 +878,15 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
             ? entry.id === intention.value_id
             : entry.title === intention.value),
       );
-      const linkedIntentions = new Set(
-        current.current.intentions
-          .filter((i) =>
-            i.value_id && existingValue
-              ? i.value_id === existingValue.id
-              : i.value === intention.value,
-          )
-          .map((i) => i.id),
-      );
-      const keptChoices = current.current.checkIns.filter(
-        (c) =>
-          linkedIntentions.has(c.intention_id) &&
-          c.outcome !== "not_yet" &&
-          c.value_choice === "yes",
-      ).length;
       const nextState =
         input.value_choice === "not_mine"
           ? "let_go"
           : input.value_choice === "not_sure"
             ? "trying"
-            : keptChoices >= 2
-              ? "mine"
-              : "trying";
+            : existingValue &&
+                ["mine", "important"].includes(existingValue.state)
+              ? existingValue.state
+              : "working_on";
       const now = new Date().toISOString();
       const chosenValue: Entry = {
         ...(existingValue ||

@@ -20,6 +20,12 @@ import {
 } from "./round2";
 import { missionUnavailableReason } from "./mission-selection";
 import { localHour, pendingFromMission, type PendingFocus } from "./today-flow";
+import { missionSignals, missionRecommendationPool } from "./mission-feedback";
+import {
+  recommendationProfile,
+  recommendationRank,
+  suggestionHash,
+} from "../supabase/functions/_shared/mission-recommendations";
 
 export const OBSTACLES = [
   {
@@ -236,7 +242,31 @@ export function todayIdeas(
         });
     }
   }
-  const priorities = priorityOptions(practice);
+  const preferences = recommendationProfile(
+    missionSignals(practice),
+    missionRecommendationPool(practice, MISSIONS),
+    day,
+  );
+  const priorities = priorityOptions(practice).sort(
+    (a, b) =>
+      suggestionHash(`${day}:priority:${a}`) -
+      suggestionHash(`${day}:priority:${b}`),
+  );
+  const orderedPlaces = places
+    .slice()
+    .sort(
+      (a, b) =>
+        recommendationRank(
+          a.label,
+          day,
+          -(preferences.recentPlaces.get(a.label.toLowerCase()) || 0),
+        ) -
+        recommendationRank(
+          b.label,
+          day,
+          -(preferences.recentPlaces.get(b.label.toLowerCase()) || 0),
+        ),
+    );
   const interests = practice.entries
     .filter(
       (entry) =>
@@ -245,14 +275,16 @@ export function todayIdeas(
     )
     .sort(
       (a, b) =>
-        Number(
-          b.state === "want_to_try" &&
-            b.created_at.slice(0, 10) >= shiftDay(day, -7),
+        recommendationRank(
+          a.title,
+          day,
+          preferences.interest.get(a.title.toLowerCase()) || 0,
         ) -
-          Number(
-            a.state === "want_to_try" &&
-              a.created_at.slice(0, 10) >= shiftDay(day, -7),
-          ) || b.updated_at.localeCompare(a.updated_at),
+        recommendationRank(
+          b.title,
+          day,
+          preferences.interest.get(b.title.toLowerCase()) || 0,
+        ),
     );
   const contexts: { priority: string; interest: string; stage: string }[] = [];
   for (
@@ -283,7 +315,8 @@ export function todayIdeas(
     if (libraryCount >= 9) break;
     const place = context.interest
       ? ""
-      : places[libraryCount % Math.max(1, places.length)]?.label || "";
+      : orderedPlaces[libraryCount % Math.max(1, orderedPlaces.length)]
+          ?.label || "";
     let selection = selectMission(practice, {
       priority: context.priority,
       where: context.interest || place || "anywhere",

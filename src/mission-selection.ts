@@ -1,11 +1,18 @@
 import type { Practice } from "./domain";
 import type { FocusType, Level, Round2Mission, Someday } from "./round2";
 import { priorityName } from "./priorities";
-import catalogue from "../data/round4/missions.json";
+import catalogue from "../data/round5/missions.json";
+import { missionSignals, missionRecommendationPool } from "./mission-feedback";
+import {
+  missionAffinity,
+  recentMissionFamilies,
+  recommendationProfile,
+  recommendationRank,
+} from "../supabase/functions/_shared/mission-recommendations";
 
 const LEVELS: Level[] = ["easy", "normal", "stretch"];
 const normalise = (value: string) => value.trim().toLowerCase();
-export const KIDS_AGES = ["under 6", "6–12", "teens"] as const;
+export const KIDS_AGES = ["under 6", "6–12", "teens", "adults"] as const;
 export const HEALTH_THEMES = [
   "moving",
   "eating well",
@@ -25,6 +32,8 @@ export type MissionSelectionOptions = {
   now?: Date;
   day?: string;
   familyId?: string;
+  /** Only a person explicitly requesting the same idea may bypass its 28-day cooldown. */
+  allowRepeat?: boolean;
   /** Independent Round 4 wheels. Explicit choices are never silently cleared. */
   interest?: string;
   place?: string;
@@ -150,6 +159,13 @@ function unavailableAt(
   ages: string[],
   moment: Moment,
 ): string | undefined {
+  if (
+    ages.length === 1 &&
+    ages[0] === "adults" &&
+    !mission.ages?.length &&
+    mission.places.some((place) => normalise(place) === "with my kids")
+  )
+    return "Choose a step for grown kids.";
   if (mission.ages?.length && !mission.ages.some((age) => ages.includes(age)))
     return ages.length
       ? "For a different age group."
@@ -241,9 +257,8 @@ export function themeWeights(
       (c) => c.intention_id === intention.id,
     );
     if (check?.outcome === "yes") weights[theme] += 2;
-    if (check?.energy === "lit" && check.outcome !== "not_yet")
-      weights[theme] += 2;
-    if (check?.outcome === "not_yet") weights[theme] -= 3;
+    if (check?.energy === "lit") weights[theme] += 2;
+    if (check?.energy === "drained") weights[theme] -= 4;
   }
   for (const entry of practice.entries) {
     if (
@@ -346,6 +361,13 @@ function chooseFamily(
   const now = options.now || new Date();
   const moment = missionLocalMoment(practice, now, options.day);
   const { day, weekend } = moment;
+  const signals = missionSignals(practice);
+  const recent = recentMissionFamilies(signals, day, pool);
+  const preferences = recommendationProfile(
+    signals,
+    missionRecommendationPool(practice, pool),
+    day,
+  );
   const ages = savedKidsAges(practice);
   const reasons = new Map<string, string | undefined>();
   const reasonFor = (mission: Round2Mission) => {
@@ -365,7 +387,7 @@ function chooseFamily(
         (e) =>
           e.kind === "event" &&
           e.state === "let_go" &&
-          dayNumber(day) - dayNumber(e.created_at.slice(0, 10)) < 14,
+          dayNumber(day) - dayNumber(e.created_at.slice(0, 10)) < 28,
       )
       .flatMap((e) => [
         ...e.source_ids,
@@ -401,7 +423,9 @@ function chooseFamily(
       m.active !== false &&
       m.type === (options.type || "do") &&
       !options.excludedFamilyIds?.includes(missionFamilyId(m)) &&
-      !released.has(m.id) &&
+      (options.allowRepeat ||
+        options.familyId === missionFamilyId(m) ||
+        (!released.has(m.id) && !recent.has(missionFamilyId(m)))) &&
       (!priority || m.priorities.some((p) => priorityName(p) === priority)),
   );
   const whereMatches = (m: Round2Mission) =>
@@ -499,10 +523,24 @@ function chooseFamily(
       const normalB = b.find((m) => m.level === "normal" && available(m));
       const fitA = normalA ? (weekend || normalA.minutes >= 20 ? 0 : 1) : 2;
       const fitB = normalB ? (weekend || normalB.minutes >= 20 ? 0 : 1) : 2;
+      const feedbackOrder = signals.length
+        ? recommendationRank(
+            idA,
+            day,
+            missionAffinity(firstA, preferences),
+            distanceA,
+          ) -
+          recommendationRank(
+            idB,
+            day,
+            missionAffinity(firstB, preferences),
+            distanceB,
+          )
+        : distanceA - distanceB;
       return (
         fitA - fitB ||
         b.filter(available).length - a.filter(available).length ||
-        distanceA - distanceB ||
+        feedbackOrder ||
         hash(`${day}:${idA}`) - hash(`${day}:${idB}`)
       );
     });

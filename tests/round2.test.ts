@@ -27,11 +27,11 @@ const entry = (
   updated_at: "2026-11-01T12:00:00Z",
 });
 test("current workbook is imported completely with stable IDs and required tags", () => {
-  assert.equal(MISSIONS.length, 1257);
-  assert.equal(new Set(MISSIONS.map((m) => m.id)).size, 1257);
-  assert.equal(MISSIONS.filter((m) => m.type === "learn").length, 180);
+  assert.equal(MISSIONS.length, 1284);
+  assert.equal(new Set(MISSIONS.map((m) => m.id)).size, 1284);
+  assert.equal(MISSIONS.filter((m) => m.type === "learn").length, 183);
   assert.equal(MISSIONS.filter((m) => m.id.startsWith("SD-")).length, 15);
-  assert.equal(LEARNING_SHELF.length, 57);
+  assert.equal(LEARNING_SHELF.length, 59);
   assert.equal(INTEREST_LINKS.length, 44);
   assert.ok(
     MISSIONS.every(

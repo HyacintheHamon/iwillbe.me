@@ -8,6 +8,12 @@ import { BatteryLowIcon } from "phosphor-react-native/src/icons/BatteryLow";
 import { NightSummary } from "../src/night-summary";
 import { NightThought } from "../src/night-thought";
 import { nightCompletionMarker } from "../src/night-completion";
+import { NightFollowupCard } from "../src/night-followup";
+import {
+  followupInput,
+  nightFollowup,
+  onboardingSchedule,
+} from "../src/onboarding-followups";
 import { supportLevel } from "../supabase/functions/_shared/safety";
 import { withAccount } from "../src/access-gate";
 import { supabase } from "../src/supabase";
@@ -130,6 +136,7 @@ function NightForm({
   const action = useAction();
   const [done, setDone] = useState(false);
   const [skipped, setSkipped] = useState(false);
+  const [mapQuestionAlreadyShown, setMapQuestionAlreadyShown] = useState(false);
   const [markerError, setMarkerError] = useState("");
   const [tomorrowChoice, setTomorrowChoice] = useState<
     "keep" | "morning" | null
@@ -140,13 +147,32 @@ function NightForm({
   const savedCheck = useRef("");
   const quietNight = isHardDay(draft.note) || supportLevel(draft.note) > 0;
   const growthAllowed = !quietNight && intention?.day === today && !skipped;
+  const followup = nightFollowup(data, today, intention, draft.note);
+  const completedDay = onboardingSchedule(data)?.meta.completed_day;
+  const inFirstTwoWeeks =
+    !!completedDay &&
+    Date.parse(today) - Date.parse(completedDay) < 14 * 86400000;
+  const followupNight =
+    !!followup ||
+    data.entries.some(
+      (entry) =>
+        entry.kind === "preferences" &&
+        entry.title === "Onboarding follow-up" &&
+        entry.meta.asked_day === today &&
+        !entry.meta.followup_key?.startsWith("sunday:"),
+    );
   const obstacleEligible =
     !!intention &&
     growthAllowed &&
+    !followupNight &&
     shouldAskObstacle(data, intention, draft.outcome, today, draft.note);
   const showObstacle = obstacleEligible && !done;
+  // A reservation prevents a new question. An obstacle already saved for this
+  // exact focus still owns its smaller step, including after leaving and returning.
+  const keepObstaclePlan =
+    growthAllowed && !!priorEvent && !!draft.outcome && draft.outcome !== "yes";
   const plan =
-    obstacleEligible && intention && draft.obstacleReason
+    (obstacleEligible || keepObstaclePlan) && intention && draft.obstacleReason
       ? obstaclePlan(
           data,
           intention,
@@ -161,10 +187,15 @@ function NightForm({
   const reviewPriority =
     !!intention &&
     growthAllowed &&
+    !followupNight &&
     draft.outcome !== "not_yet" &&
     priorityReviewDue(data, intention);
   const newInterest =
-    growthAllowed && intention && draft.outcome && draft.outcome !== "not_yet"
+    growthAllowed &&
+    !followupNight &&
+    intention &&
+    draft.outcome &&
+    draft.outcome !== "not_yet"
       ? inferredInterest(data, intention)
       : "";
 
@@ -196,6 +227,11 @@ function NightForm({
   const save = () =>
     action.run(async () => {
       if (!draft.outcome) return;
+      // Saving the fifth Keep it can make a promotion eligible immediately.
+      // Defer that new question when this check-in already asked a map question.
+      setMapQuestionAlreadyShown(
+        showObstacle || reviewPriority || !!newInterest,
+      );
       if (intention) {
         const input = {
           intention_id: intention.id,
@@ -340,6 +376,16 @@ function NightForm({
             item.meta.commitment_day === intention.day,
         ))
           await putEntry({ ...entry, state: "done" });
+      if (showObstacle || reviewPriority || newInterest)
+        await putEntry(
+          followupInput(
+            data,
+            `night-map:${today}`,
+            "Tonight's map question",
+            today,
+            "answered",
+          ),
+        );
       if (supportLevel(draft.note) < 2)
         await putEntry(nightCompletionMarker(data, intention?.day || today));
       await clear();
@@ -421,7 +467,12 @@ function NightForm({
               <Body>That&apos;s enough for tonight.</Body>
             </View>
           ) : (
-            <NightSummary reflection={draft.note} />
+            <NightSummary
+              reflection={draft.note}
+              allowDiscovery={
+                !inFirstTwoWeeks && !followupNight && !mapQuestionAlreadyShown
+              }
+            />
           )}
           {!!plan?.text && !released && !skipped && (
             <View style={[s.card, { gap: 10 }]}>
@@ -460,6 +511,18 @@ function NightForm({
               />
             </View>
           )}
+          {!skipped &&
+            !quietNight &&
+            !mapQuestionAlreadyShown &&
+            (!intention || intention.day === today) &&
+            !showObstacle &&
+            !newInterest && (
+              <NightFollowupCard
+                day={today}
+                focus={intention}
+                reflection={draft.note}
+              />
+            )}
           <NightThought reflection={skipped ? "" : draft.note} />
           <Notice text={action.error} tone="error" />
           <Button label="Goodnight" onPress={() => router.replace("/")} />

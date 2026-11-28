@@ -44,6 +44,7 @@ export const PRIORITY_GROUPS = {
     "close to nature",
     "guided by faith",
     "seeing beauty",
+    "joyful",
   ],
 } as const;
 export const PRIORITY_WORDS = Object.entries(PRIORITY_GROUPS).flatMap(

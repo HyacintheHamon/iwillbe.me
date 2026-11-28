@@ -46,6 +46,7 @@ import { BrandHeader } from "../src/brand-header";
 import { ScrollWheel } from "../src/scroll-wheel";
 import { MapDrawing } from "../src/map-drawings";
 import { recordScreenVisit } from "../src/usage";
+import { missionFeedbackEntry } from "../src/mission-feedback";
 
 const tileStyle: ViewStyle = {
   borderWidth: 1,
@@ -114,7 +115,9 @@ function MyMap() {
   const [growingChoice, setGrowingChoice] = useState("");
   const [level, setLevel] = useState<Level>("easy");
   const [familyId, setFamilyId] = useState<string>();
+  const [familyContext, setFamilyContext] = useState("");
   const [excluded, setExcluded] = useState<string[]>([]);
+  const observedMissions = useRef(new Set<string>());
   const [name, setName] = useState("");
   const [addingPriority, setAddingPriority] = useState(false);
   const [notice, setNotice] = useState("");
@@ -155,6 +158,13 @@ function MyMap() {
   const growing =
     interests.find((entry) => entry.id === growingChoice) || interests[0];
   const growingStage = growing ? interestState(data, growing) : "Want to try";
+  const builderContext = JSON.stringify([
+    session?.user.id,
+    today,
+    priority,
+    interest,
+    place,
+  ]);
   const selection = selectMission(data, {
     priority,
     interest,
@@ -164,10 +174,50 @@ function MyMap() {
     level,
     day: today,
     now,
-    familyId,
-    excludedFamilyIds: excluded,
+    familyId: familyContext === builderContext ? familyId : undefined,
+    excludedFamilyIds: familyContext === builderContext ? excluded : [],
   });
   const mission = selection.mission;
+  if (
+    screen === "build" &&
+    selection.familyId &&
+    (familyContext !== builderContext || familyId !== selection.familyId)
+  ) {
+    // Derive the visible family once per choice before an impression updates history.
+    if (familyContext !== builderContext) setExcluded([]);
+    setFamilyContext(builderContext);
+    setFamilyId(selection.familyId);
+  }
+  useEffect(() => {
+    const ownerId = session?.user.id;
+    if (screen !== "build" || !mission || !selection.familyId || !ownerId)
+      return;
+    const entry = missionFeedbackEntry(
+      mission,
+      "shown",
+      today,
+      "build_action",
+      ownerId,
+    );
+    const id = entry.id!;
+    if (
+      observedMissions.current.has(id) ||
+      data.entries.some((item) => item.id === id)
+    )
+      return;
+    observedMissions.current.add(id);
+    void putEntry(entry).catch(() => observedMissions.current.delete(id));
+  }, [
+    screen,
+    mission,
+    selection.familyId,
+    session?.user.id,
+    today,
+    builderContext,
+    familyContext,
+    data.entries,
+    putEntry,
+  ]);
   const nextLevel = LEVELS.find(
     (candidate) =>
       LEVELS.indexOf(candidate) > LEVELS.indexOf(level) &&
@@ -189,6 +239,7 @@ function MyMap() {
   const resetIdea = () => {
     setLevel("easy");
     setFamilyId(undefined);
+    setFamilyContext("");
     setExcluded([]);
     setNotice("");
   };
@@ -232,6 +283,7 @@ function MyMap() {
       }
       setLevel("easy");
       setFamilyId(undefined);
+      setFamilyContext("");
       setExcluded([]);
       setScreen("build");
     }
@@ -240,24 +292,19 @@ function MyMap() {
     if (params.build === "1") router.setParams({ build: "", interest: "" });
   }, [params.build, params.interest]);
 
-  const another = () => {
-    if (!selection.familyId) return;
-    const allPassed = [...excluded, selection.familyId];
-    let next = selectMission(data, {
-      priority,
-      interest,
-      place,
-      where: "anywhere",
-      kind: "anywhere",
-      level: "easy",
-      day: today,
-      now,
-      excludedFamilyIds: allPassed,
-    });
-    let nextExcluded = allPassed;
-    if (!next.mission) {
-      nextExcluded = [selection.familyId];
-      next = selectMission(data, {
+  const another = () =>
+    action.run(async () => {
+      const ownerId = session?.user.id;
+      if (!selection.familyId || !mission || !ownerId) return;
+      await putEntry(
+        missionFeedbackEntry(mission, "passed", today, "build_action", ownerId),
+      );
+      if (live.current.owner !== ownerId) return;
+      const allPassed = [
+        ...(familyContext === builderContext ? excluded : []),
+        selection.familyId,
+      ];
+      const next = selectMission(data, {
         priority,
         interest,
         place,
@@ -266,44 +313,59 @@ function MyMap() {
         level: "easy",
         day: today,
         now,
-        excludedFamilyIds: nextExcluded,
+        excludedFamilyIds: allPassed,
       });
-    }
-    if (!next.mission) {
-      setNotice(
-        "That's the only idea that fits all three choices right now. Try another word on a wheel.",
-      );
-      return;
-    }
-    setExcluded(nextExcluded);
-    setFamilyId(next.familyId);
-    setLevel("easy");
-    setNotice("");
-  };
-  const accept = () => {
-    if (!mission) return;
-    const unavailable = missionUnavailableReason(mission, data, new Date());
-    if (unavailable) {
-      setNotice(unavailable);
-      return;
-    }
-    router.push({
-      pathname: "/",
-      params: {
-        missionId: mission.id,
-        missionText: mission.mission_text,
-        missionLevel: level,
-        missionType: mission.type,
-        missionStep: String(mission.ladder_step),
-        priority,
-        interest,
-        place,
-      },
+      if (!next.mission) {
+        setNotice(
+          "No new ideas fit all three choices right now. Try another word on a wheel.",
+        );
+        return;
+      }
+      setExcluded(allPassed);
+      setFamilyContext(builderContext);
+      setFamilyId(next.familyId);
+      setLevel("easy");
+      setNotice("");
     });
-  };
+  const accept = () =>
+    action.run(async () => {
+      const ownerId = session?.user.id;
+      if (!mission || !ownerId) return;
+      const unavailable = missionUnavailableReason(mission, data, new Date());
+      if (unavailable) {
+        setNotice(unavailable);
+        return;
+      }
+      await putEntry(
+        missionFeedbackEntry(mission, "picked", today, "build_action", ownerId),
+      );
+      if (live.current.owner !== ownerId) return;
+      router.push({
+        pathname: "/",
+        params: {
+          missionId: mission.id,
+          missionText: mission.mission_text,
+          missionLevel: level,
+          missionType: mission.type,
+          missionStep: String(mission.ladder_step),
+          priority,
+          interest,
+          place,
+        },
+      });
+    });
   const saveReminder = () =>
     action.run(async () => {
-      if (!mission || reminder) return;
+      if (!mission || reminder || !session?.user.id) return;
+      await putEntry(
+        missionFeedbackEntry(
+          mission,
+          "picked",
+          today,
+          "build_action",
+          session.user.id,
+        ),
+      );
       await putEntry(
         entryInput("preferences", "Action reminder", {
           body: mission.mission_text,
@@ -591,6 +653,9 @@ function MyMap() {
               </Body>
             </View>
           </Tile>
+          {data.entries.some((entry) => entry.kind === "question" && !["answered", "stopped"].includes(entry.state)) && (
+            <TextButton label="Open Questions" onPress={() => router.push("/questions")} />
+          )}
         </>
       )}
 

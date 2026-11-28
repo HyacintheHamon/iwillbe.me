@@ -36,6 +36,11 @@ import {
 import { supabase } from "../src/supabase";
 import { recordScreenVisit } from "../src/usage";
 import { InterestDiscovery } from "../src/interest-discovery";
+import { SundayOnboarding } from "../src/sunday-onboarding";
+import {
+  isShortOnboardingSunday,
+  sundayOnboardingPhase,
+} from "../src/onboarding-followups";
 type Review = {
   intro: string;
   pattern: string;
@@ -49,7 +54,14 @@ function ReviewRhythm({ mode }: { mode: "weekly" | "monthly" }) {
   const extra = useRound2();
   const today = useToday();
   const action = useAction();
-  const [step, setStep] = useState(0),
+  const [onboardingPhase] = useState(() =>
+    mode === "weekly" ? sundayOnboardingPhase(data, today) : null,
+  );
+  const [onboardingDone, setOnboardingDone] = useState(false);
+  const shortSunday = mode === "weekly" && isShortOnboardingSunday(data, today);
+  const [step, setStep] = useState(() =>
+      shortSunday && !onboardingPhase ? 5 : 0,
+    ),
     [review, setReview] = useState<Review | null>(null),
     [note, setNote] = useState(""),
     [focus, setFocus] = useState(""),
@@ -95,7 +107,7 @@ function ReviewRhythm({ mode }: { mode: "weekly" | "monthly" }) {
     : undefined;
   useEffect(() => {
     let active = true;
-    if (mode === "weekly")
+    if (mode === "weekly" && !shortSunday)
       void supabase.functions
         .invoke("chloe", { body: { action: "round2_review", day: today } })
         .then((r) => {
@@ -109,7 +121,7 @@ function ReviewRhythm({ mode }: { mode: "weekly" | "monthly" }) {
     return () => {
       active = false;
     };
-  }, [mode, today]);
+  }, [mode, today, shortSunday]);
   const done = () =>
     action.run(async () => {
       const old = data.entries.find(
@@ -159,6 +171,17 @@ function ReviewRhythm({ mode }: { mode: "weekly" | "monthly" }) {
     !!data.profile.joined_at &&
     today.slice(5, 7) === data.profile.joined_at.slice(5, 7) &&
     Number(today.slice(0, 4)) > Number(data.profile.joined_at.slice(0, 4));
+  if (onboardingPhase && !onboardingDone)
+    return (
+      <SundayOnboarding
+        phase={onboardingPhase}
+        day={today}
+        onDone={() => {
+          setOnboardingDone(true);
+          setStep(5);
+        }}
+      />
+    );
   return (
     <Page
       header={

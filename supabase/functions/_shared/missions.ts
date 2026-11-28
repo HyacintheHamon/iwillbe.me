@@ -16,6 +16,10 @@ export type Mission = {
   safety_note: string;
   user_id?: string | null;
   provenance?: string;
+  ladder?: string;
+  family_id?: string;
+  interests?: string[];
+  places?: string[];
 };
 export const normalizeTag = (value: string) =>
   value
@@ -215,6 +219,7 @@ const priorityActions: Record<string, string> = {
   "close to nature": "spend time outside noticing what is growing nearby",
   "guided by faith": "make room for a practice from your own tradition",
   "seeing beauty": "notice and describe one beautiful detail around you",
+  joyful: "make room for one small thing that brings you joy",
 };
 export const STARTER_MISSIONS: Mission[] = [
   ...starters.flatMap(([tag, area, ...actions]) =>

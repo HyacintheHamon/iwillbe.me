@@ -1,27 +1,42 @@
-import React, { useRef, useEffect } from "react";
-import { View, Text } from "react-native";
-import { router } from "expo-router";
+import React, { useEffect, useRef } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
+import { Redirect, router } from "expo-router";
+import * as Crypto from "expo-crypto";
 import { withAccount } from "../src/access-gate";
 import { usePractice } from "../src/practice";
-import { useRound2 } from "../src/round2-store";
 import { useAction } from "../src/use-action";
 import { draftKey, useDraft } from "../src/drafts";
 import {
+  dayInZone,
   entryInput,
-  REVIEW_QUESTIONS,
   type Entry,
   type EntryInput,
 } from "../src/journey";
-import { AI_DISCLOSURE, CHLOE_INTRO } from "../src/today-flow";
 import { KIDS_AGES, type KidsAge } from "../src/round3-preference-rules";
 import {
   PRIORITY_WORDS,
   QUICK_PICKS,
   FAITH_TRADITIONS,
-  priorityName,
 } from "../src/priorities";
-import { strengthMatches } from "../src/round2";
-import { recordQuickPicks } from "../src/onboarding-catalogue";
+import {
+  ONBOARDING_PEOPLE,
+  ONBOARDING_PRIORITY_COUNT,
+  ONBOARDING_STEP_NAMES,
+  ONBOARDING_VERSION,
+  onboardingEntriesToRemove,
+  onboardingEntryPlan,
+  selectedOnboardingPlaces,
+  toggleOnboardingPick,
+  validFirstWhy,
+  validOnboardingPriorities,
+  type OneMinuteOnboardingDraft,
+} from "../src/one-minute-onboarding";
 import {
   Body,
   Button,
@@ -30,98 +45,50 @@ import {
   F,
   Field,
   Notice,
-  Page,
-  TextButton,
   Title,
   TopBar,
   s,
 } from "../src/ui";
 import { supabase } from "../src/supabase";
-const WHO = [
-  ["my kids", "with my kids"],
-  ["my partner", "with my partner"],
-  ["my parents", "with my parents"],
-  ["friends", "with friends"],
-  ["my team", "with my team"],
-  ["my community", "in my community"],
-  ["myself", "for myself"],
-];
-const WHERE = ["at home", "at work", "at school", "outdoors", "on the road"];
-const PICK_STATE = {
-  love: "into_it",
-  like: "from_time_to_time",
-  open: "want_to_try",
-};
-const STEP_NAMES = [
-  "Introduction",
-  "Strengths",
-  "Who comes to you",
-  "Ten priorities",
-  "Three priorities to work on",
-  "Faith tradition",
-  "Childhood interests",
-  "Quick picks",
-  "Something to grow into",
-  "People",
-  "Places",
-  "Check-in anchors",
-  "First why",
-  "Starting point",
-  "Completed",
-];
+
 function Onboarding() {
   const { data, session, saveProfile, putEntry, removeEntry } = usePractice();
-  const extra = useRound2();
   const action = useAction();
   const latest = useRef(data);
+  const activeOwner = useRef(session?.user.id);
+  const savedEntries = useRef(new Map<string, Entry>());
   useEffect(() => {
     latest.current = data;
-  }, [data]);
-  const { draft, update, ready, draftError } = useDraft(
-    draftKey("onboarding.round2", session?.user.id),
-    {
-      step: 0,
-      strength: "",
-      help: "",
-      important: [] as string[],
-      working: [] as string[],
-      faith: "",
-      kid: "",
-      cursor: 0,
-      picks: {} as Record<string, string>,
-      growth: "",
-      who: [] as string[],
-      where: [] as string[],
-      customWho: "",
-      customWhere: "",
-      kidsAges: (data.entries.find(
-        (e) => e.kind === "preferences" && e.title === "Kids ages",
-      )?.meta.ages || []) as KidsAge[],
-      morning: "",
-      night: "",
-      why: "",
-      baseline: [null, null, null] as (number | null)[],
-      baselineIndex: 0,
-    },
-  );
+    activeOwner.current = session?.user.id;
+  }, [data, session?.user.id]);
+  const { draft, update, clear, ready, draftError } =
+    useDraft<OneMinuteOnboardingDraft>(
+      draftKey("onboarding.one-minute", session?.user.id),
+      {
+        step: 0,
+        priorities: [],
+        interests: [],
+        customInterests: "",
+        who: [],
+        customWho: "",
+        kidsAges: (data.entries.find(
+          (entry) =>
+            entry.kind === "preferences" && entry.title === "Kids ages",
+        )?.meta.ages || []) as KidsAge[],
+        faith: data.profile.faith_tradition || "",
+        why: "",
+        entryIds: {},
+        createdPlaceIds: {},
+      },
+    );
   const progressQueue = useRef(Promise.resolve());
   const progressEntry = useRef<Entry | undefined>(undefined);
   const progressKey = useRef("");
   useEffect(() => {
     if (!ready || !session?.user.id || data.profile.onboarded) return;
-    const key = [
-      session.user.id,
-      draft.step,
-      draft.cursor,
-      draft.baselineIndex,
-    ].join(":");
+    const key = `${session.user.id}:${draft.step}`;
     if (progressKey.current === key) return;
     progressKey.current = key;
-    const snapshot = {
-      step: draft.step,
-      onboarding_step: STEP_NAMES[draft.step] || "In progress",
-      cursor: draft.cursor,
-    };
     progressQueue.current = progressQueue.current
       .catch(() => {})
       .then(async () => {
@@ -137,534 +104,422 @@ function Onboarding() {
             id: existing?.id,
             revision: existing?.revision,
             source: "Start your map progress",
-            meta: snapshot,
+            meta: {
+              version: ONBOARDING_VERSION,
+              step: draft.step,
+              onboarding_step: ONBOARDING_STEP_NAMES[draft.step] || "Welcome",
+            },
           }),
         );
       })
       .catch(() => {});
-  }, [
-    ready,
-    session?.user.id,
-    data.profile.onboarded,
-    draft.step,
-    draft.cursor,
-    draft.baselineIndex,
-    putEntry,
-  ]);
-  const persist = async (input: EntryInput) => {
-    const old = latest.current.entries.find(
-      (e) => e.kind === input.kind && e.title === input.title,
+  }, [ready, session?.user.id, data.profile.onboarded, draft.step, putEntry]);
+
+  const knownEntries = () => {
+    const known = new Map(
+      latest.current.entries.map((entry) => [entry.id, entry]),
     );
-    return putEntry({ ...input, id: old?.id, revision: old?.revision });
+    for (const [id, entry] of savedEntries.current) {
+      const saved = known.get(id);
+      if (!saved || (saved.revision || 0) < (entry.revision || 0))
+        known.set(id, entry);
+    }
+    return [...known.values()];
   };
-  const go = (step = draft.step + 1) => update({ step });
-  const proposed = PRIORITY_WORDS.find(
-    (p) =>
-      priorityName(
-        draft.growth.replace(/^(being |be |more |being more )+/gi, ""),
-      ) === p.name,
-  )?.name;
-  const saveInterests = async (text: string, kind: "kid" | "growth") => {
-    if (!text.trim()) return;
-    await persist(
-      entryInput(
-        "story",
-        kind === "kid"
-          ? "What did you love doing as a kid?"
-          : "Is there something you’d like to get better at?",
-        { body: text, source: "Start your map · in your words" },
-      ),
-    );
-    const result = await supabase.functions.invoke("chloe", {
-      body: { action: "round2_onboarding", kind, text },
+  const persist = async (input: EntryInput) => {
+    const existing = input.id
+      ? knownEntries().find((entry) => entry.id === input.id)
+      : knownEntries().find(
+          (entry) => entry.kind === input.kind && entry.title === input.title,
+        );
+    const saved = await putEntry({
+      ...input,
+      id: existing?.id || input.id,
+      revision: existing?.revision ?? input.revision,
     });
-    let names: string[] = result.data?.interests || [];
-    if (!names.length)
-      names = QUICK_PICKS.filter(
-        (p) =>
-          text.toLowerCase().includes(p.title) ||
-          text.toLowerCase().includes(p.title.split(" ")[0]),
-      )
-        .map((p) => p.title)
-        .slice(0, 2);
-    if (!names.length && text.trim().split(/\s+/).length <= 5)
-      names = [text.trim().toLowerCase()];
-    for (const name of names.slice(0, 2))
+    savedEntries.current.set(saved.id, saved);
+    return saved;
+  };
+  const finish = async () => {
+    if (!validOnboardingPriorities(draft.priorities)) {
+      update({ step: 1 });
+      throw new Error("Choose exactly seven priorities to begin.");
+    }
+    if (!validFirstWhy(draft.why))
+      throw new Error("Write at least three words for your first why.");
+    const owner = session?.user.id;
+    if (!owner) throw new Error("Sign in to save your map.");
+    const assertOwner = () => {
+      if (activeOwner.current !== owner)
+        throw new Error("Your account changed. Please reopen your map.");
+    };
+    await progressQueue.current;
+    assertOwner();
+    // Stable identities make a partial save retryable without duplicates.
+    const entryIds = { ...draft.entryIds };
+    let plan = onboardingEntryPlan(draft, knownEntries());
+    for (const entry of plan) {
+      const key = entry.meta.onboarding_key;
+      if (!entry.id && key) entryIds[key] ||= Crypto.randomUUID();
+    }
+    update({ entryIds });
+    plan = onboardingEntryPlan({ ...draft, entryIds }, knownEntries());
+    for (const input of plan) {
+      assertOwner();
+      await persist(input);
+    }
+    for (const entry of onboardingEntriesToRemove(knownEntries(), plan)) {
+      assertOwner();
+      await removeEntry(entry.id, entry.revision);
+      savedEntries.current.delete(entry.id);
+    }
+    // Read identity before adding people. A back/untick/retry can only remove
+    // places this onboarding created, never a person from an existing map.
+    const result = await supabase
+      .from("places")
+      .select("id,label,sort_order")
+      .eq("user_id", owner);
+    if (result.error)
+      throw new Error(
+        "Your people could not load. Your choices are still here; please try again.",
+      );
+    assertOwner();
+    const people = selectedOnboardingPlaces(draft);
+    const createdPlaceIds = { ...draft.createdPlaceIds };
+    const existingPlaces = result.data || [];
+    let sortOrder =
+      Math.max(-1, ...existingPlaces.map((place) => place.sort_order)) + 1;
+    for (const label of people) {
       if (
-        !latest.current.entries.some(
-          (e) => e.kind === "interest" && e.title === name,
+        existingPlaces.some(
+          (place) => place.label.toLowerCase() === label.toLowerCase(),
         )
       )
-        await persist(
-          entryInput("interest", name, {
-            state: "want_to_try",
-            source: "Start your map · chosen by you",
-          }),
+        continue;
+      createdPlaceIds[label] ||= Crypto.randomUUID();
+      update({ createdPlaceIds: { ...createdPlaceIds } });
+      const saved = await supabase.from("places").upsert(
+        {
+          id: createdPlaceIds[label],
+          user_id: owner,
+          label,
+          sort_order: sortOrder++,
+        },
+        { onConflict: "user_id,label", ignoreDuplicates: true },
+      );
+      if (saved.error)
+        throw new Error(
+          "Your people could not finish saving. Please try again; your choices are still here.",
         );
+      assertOwner();
+    }
+    for (const [label, id] of Object.entries(createdPlaceIds)) {
+      if (people.some((person) => person.toLowerCase() === label.toLowerCase()))
+        continue;
+      const removed = await supabase
+        .from("places")
+        .delete()
+        .eq("user_id", owner)
+        .eq("id", id);
+      if (removed.error)
+        throw new Error(
+          "Your people could not finish updating. Please try again.",
+        );
+      assertOwner();
+      delete createdPlaceIds[label];
+    }
+    update({ createdPlaceIds });
+    const existingSchedule = knownEntries().find(
+      (entry) =>
+        entry.kind === "preferences" && entry.title === "Onboarding schedule",
+    );
+    const completedAt = new Date().toISOString();
+    await persist(
+      entryInput("preferences", "Onboarding schedule", {
+        id: existingSchedule?.id,
+        revision: existingSchedule?.revision,
+        source: "Start your map completed",
+        meta: {
+          ...existingSchedule?.meta,
+          version: ONBOARDING_VERSION,
+          completed_at: completedAt,
+          completed_day: dayInZone(
+            latest.current.profile.timezone,
+            new Date(completedAt),
+          ),
+        },
+      }),
+    );
+    await persist(
+      entryInput("preferences", "Onboarding progress", {
+        id: progressEntry.current?.id,
+        revision: progressEntry.current?.revision,
+        source: "Start your map progress",
+        meta: {
+          version: ONBOARDING_VERSION,
+          step: 5,
+          onboarding_step: "Completed",
+        },
+      }),
+    );
+    assertOwner();
+    await saveProfile({
+      ...latest.current.profile,
+      onboarded: true,
+      values: [...draft.priorities],
+      faith_tradition: draft.priorities.includes("guided by faith")
+        ? draft.faith || null
+        : latest.current.profile.faith_tradition || null,
+    });
+    assertOwner();
+    // Account completion remains valid if only device-cache cleanup fails.
+    await clear().catch(() => {});
+    router.replace("/");
   };
   const next = () =>
     action.run(async () => {
-      if (draft.step === 1 && draft.strength.trim())
-        await persist(
-          entryInput("story", "What do people often tell you you're good at?", {
-            body: draft.strength,
-            source: "Start your map · in your words",
-          }),
-        );
-      if (draft.step === 2) {
-        if (draft.help.trim())
-          await persist(
-            entryInput("story", "Who comes to you for help, and with what?", {
-              body: draft.help,
-              source: "Start your map · in your words",
-            }),
-          );
-        let matches = strengthMatches(
-          `${draft.strength} ${draft.help}`,
-          PRIORITY_WORDS.map((p) => p.name),
-        );
-        const response = await supabase.functions.invoke("chloe", {
-          body: {
-            action: "round2_onboarding",
-            kind: "strengths",
-            text: `${draft.strength}\n${draft.help}`,
-          },
-        });
-        if (Array.isArray(response.data?.priorities))
-          matches = response.data.priorities
-            .filter((p: string) => PRIORITY_WORDS.some((w) => w.name === p))
-            .slice(0, 4);
-        update({
-          step: 3,
-          important: draft.important.length ? draft.important : matches,
-        });
+      if (draft.step === 1 && !validOnboardingPriorities(draft.priorities))
         return;
-      }
-      if (draft.step === 4) {
-        for (const name of draft.important)
-          await persist(
-            entryInput("value", name, {
-              state: draft.working.includes(name) ? "working_on" : "important",
-              source: "Chosen in Start your map",
-            }),
-          );
-        go(draft.important.includes("guided by faith") ? 5 : 6);
-        return;
-      }
-      if (draft.step === 5)
-        await saveProfile({
-          ...latest.current.profile,
-          faith_tradition: draft.faith || null,
-        });
-      if (draft.step === 6) await saveInterests(draft.kid, "kid");
-      if (draft.step === 8) {
-        if (proposed) {
-          if (!draft.important.includes(proposed))
-            await persist(
-              entryInput("value", proposed, {
-                state: "important",
-                source: "Getting better · confirmed by you",
-              }),
-            );
-        } else await saveInterests(draft.growth, "growth");
-      }
-      if (draft.step === 9) {
-        for (const label of [
-          ...draft.who,
-          ...(draft.customWho.trim() ? [`with ${draft.customWho.trim()}`] : []),
-        ])
-          await extra.addPlace(label);
-        if (draft.who.includes("with my kids")) {
-          const existing = latest.current.entries.find(
-            (e) => e.kind === "preferences" && e.title === "Kids ages",
-          );
-          if (!existing?.meta.asked)
-            await persist(
-              entryInput("preferences", "Kids ages", {
-                body: draft.kidsAges.join(", "),
-                source: draft.kidsAges.length
-                  ? "Chosen in Start your map"
-                  : "Left open in Start your map",
-                meta: { ...existing?.meta, ages: draft.kidsAges, asked: true },
-              }),
-            );
-        }
-      }
-      if (draft.step === 10)
-        for (const label of [
-          ...draft.where,
-          ...(draft.customWhere.trim() ? [draft.customWhere.trim()] : []),
-        ])
-          await extra.addPlace(label);
-      if (draft.step === 11)
-        await persist(
-          entryInput("preferences", "Check-in anchors", {
-            meta: {
-              morning_anchor: draft.morning,
-              evening_anchor: draft.night,
-            },
-            source: "Chosen check-in routine",
-          }),
-        );
-      if (draft.step === 12 && draft.why.trim())
-        await persist(
-          entryInput("why", "My why", {
-            body: draft.why,
-            state: "accepted",
-            source: "Your first draft",
-          }),
-        );
-      if (draft.step === 13) {
-        if (draft.baselineIndex < 2) {
-          update({ baselineIndex: draft.baselineIndex + 1 });
-          return;
-        }
-        await saveProfile({
-          ...latest.current.profile,
-          onboarded: true,
-          values: draft.important,
-          baseline_answers: draft.baseline,
-        });
-        go(14);
-        router.replace("/");
-        return;
-      }
-      go();
-    });
-  const pick = (choice: "love" | "like" | "open" | "pass") =>
-    action.run(async () => {
-      const card = QUICK_PICKS[draft.cursor];
-      const old = latest.current.entries.find(
-        (e) => e.kind === "interest" && e.title === card.title,
-      );
-      if (choice !== "pass")
-        await persist(
-          entryInput("interest", card.title, {
-            state: PICK_STATE[choice],
-            source: "Round 2 quick picks",
-          }),
-        );
-      else if (old?.source === "Round 2 quick picks")
-        await removeEntry(old.id, old.revision);
-      await recordQuickPicks(
-        { [card.id]: choice },
-        "round2-onboarding",
-        QUICK_PICKS,
-      );
-      update({
-        picks: { ...draft.picks, [card.id]: choice },
-        cursor: Math.min(14, draft.cursor + 1),
-        step: draft.cursor === 14 ? 8 : 7,
-      });
+      if (draft.step === 4) await finish();
+      else update({ step: Math.min(4, draft.step + 1) });
     });
   if (!ready) return null;
-  const pinned = draft.step === 3 || draft.step === 4;
-  const label =
-    draft.step === 3
-      ? `${draft.important.length} of 10 chosen`
-      : draft.step === 4
-        ? `${draft.working.length} of 3 chosen`
-        : draft.step === 0
-          ? "Start"
-          : draft.step === 8 && proposed
-            ? "Add this priority"
-            : draft.step === 13 && draft.baselineIndex === 2
-              ? "Go to Today"
-              : "Next";
+  if (data.profile.onboarded) return <Redirect href="/" />;
   const disabled =
     action.busy ||
-    (draft.step === 3 && draft.important.length !== 10) ||
-    (draft.step === 4 && draft.working.length !== 3);
-  const buttons = (
-    <>
-      <Button
-        label={label}
-        disabled={disabled}
-        loading={action.busy}
-        onPress={next}
-      />
-      {![3, 4, 7].includes(draft.step) && draft.step > 0 && (
-        <TextButton
-          label="Skip"
-          onPress={() => {
-            if (draft.step === 2) {
-              void next();
-            } else if (draft.step === 13) {
-              void action.run(async () => {
-                await saveProfile({
-                  ...latest.current.profile,
-                  onboarded: true,
-                  values: draft.important,
-                  baseline_answers: draft.baseline,
-                });
-                router.replace("/");
-              });
-            } else go(draft.step === 5 ? 6 : draft.step + 1);
-          }}
-        />
-      )}
-      <Notice text={action.error || draftError} tone="error" />
-    </>
-  );
-  const toggle = (
-    key: "important" | "working" | "who" | "where",
-    value: string,
-    max = 99,
-  ) => {
-    const arr = draft[key];
-    if (arr.includes(value))
-      update({
-        [key]: arr.filter((v) => v !== value),
-        ...(key === "important"
-          ? { working: draft.working.filter((v) => v !== value) }
-          : {}),
-      });
-    else if (arr.length < max) update({ [key]: [...arr, value] });
-  };
+    (draft.step === 1 && !validOnboardingPriorities(draft.priorities)) ||
+    (draft.step === 4 && !validFirstWhy(draft.why));
+  const buttonLabel =
+    draft.step === 0
+      ? "Let's begin"
+      : draft.step === 1
+        ? `${draft.priorities.length} of 7 chosen`
+        : draft.step === 4
+          ? "Start my first day"
+          : "Next";
   return (
-    <Page
-      header={
-        <>
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: C.paper }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      {draft.step > 0 && (
+        <View style={{ paddingBottom: 8 }}>
           <TopBar
-            title="Start your map"
-            onBack={() =>
-              draft.step ? go(draft.step - 1) : router.replace("/")
-            }
+            title={`${draft.step} of 4`}
+            onBack={() => {
+              if (!action.busy) update({ step: draft.step - 1 });
+            }}
           />
-          <View style={{ height: 3, backgroundColor: C.line }}>
+          <View
+            accessibilityRole="progressbar"
+            accessibilityLabel="Start your map"
+            accessibilityValue={{
+              min: 0,
+              max: 4,
+              now: draft.step,
+              text: `${draft.step} of 4`,
+            }}
+            style={{
+              height: 4,
+              marginHorizontal: 24,
+              borderRadius: 4,
+              backgroundColor: C.line,
+              overflow: "hidden",
+            }}
+          >
             <View
               style={{
-                height: 3,
-                width: `${Math.max(3, (draft.step / 14) * 100)}%`,
+                height: 4,
+                width: `${draft.step * 25}%`,
                 backgroundColor: C.gold,
               }}
             />
           </View>
-        </>
-      }
-      footer={pinned ? buttons : undefined}
-      contentStyle={{ gap: 18 }}
-    >
-      {draft.step === 0 && (
-        <>
-          <Title>Let’s find who you want to be.</Title>
-          <Body style={{ fontSize: 13, color: C.muted }}>{AI_DISCLOSURE}</Body>
-          <View style={{ gap: 5 }}>
-            <Body style={{ fontSize: 12, fontFamily: F.strong, color: C.gold }}>
-              Chloe
-            </Body>
-            <Body>{CHLOE_INTRO}</Body>
-          </View>
-          <Body>
-            Your answers will change over time. You can skip any question except
-            the priority picks.
-          </Body>
-          <Body>
-            Small on purpose. A few minutes a day, for about two months, is when
-            it starts to stick.
-          </Body>
-        </>
+        </View>
       )}
-      {draft.step === 1 && (
-        <>
-          <Title>What do people often tell you you’re good at?</Title>
-          <Body>Even if it feels easy to you.</Body>
-          <Field
-            multiline
-            label="In your words"
-            value={draft.strength}
-            onChangeText={(strength) => update({ strength })}
-            maxLength={1500}
-          />
-        </>
-      )}
-      {draft.step === 2 && (
-        <>
-          <Title>Who comes to you for help, and with what?</Title>
-          <Field
-            multiline
-            label="In your words"
-            value={draft.help}
-            onChangeText={(help) => update({ help })}
-            maxLength={1500}
-          />
-        </>
-      )}
-      {draft.step === 3 && (
-        <>
-          <Title>Choose 10 that matter to you.</Title>
-          <Body>You can change the words already ticked.</Body>
-          <View style={s.wrap}>
-            {[...PRIORITY_WORDS]
-              .sort(
-                (a, b) =>
-                  Number(draft.important.includes(b.name)) -
-                  Number(draft.important.includes(a.name)),
-              )
-              .map((p) => (
-                <Chip
-                  key={p.name}
-                  label={`iwillbe.${p.name}`}
-                  selected={draft.important.includes(p.name)}
-                  onPress={() => toggle("important", p.name, 10)}
-                />
-              ))}
-          </View>
-        </>
-      )}
-      {draft.step === 4 && (
-        <>
-          <Title>Which 3 do you most want to work on?</Title>
-          <View style={s.wrap}>
-            {draft.important.map((p) => (
-              <Chip
-                key={p}
-                label={`iwillbe.${p}`}
-                selected={draft.working.includes(p)}
-                onPress={() => toggle("working", p, 3)}
-              />
-            ))}
-          </View>
-        </>
-      )}
-      {draft.step === 5 && (
-        <>
-          <Title>Which tradition guides you?</Title>
-          <Body>Optional, and private.</Body>
-          <View style={s.wrap}>
-            {FAITH_TRADITIONS.map((p) => (
-              <Chip
-                key={p}
-                label={p}
-                selected={draft.faith === p}
-                onPress={() => update({ faith: p })}
-              />
-            ))}
-          </View>
-        </>
-      )}
-      {draft.step === 6 && (
-        <>
-          <Title>What did you love doing as a kid?</Title>
-          <Field
-            multiline
-            label="What comes to mind?"
-            value={draft.kid}
-            onChangeText={(kid) => update({ kid })}
-            maxLength={1500}
-          />
-        </>
-      )}
-      {draft.step === 7 && (
-        <>
-          <Body>Is this for you, now or someday?</Body>
-          <Body style={{ color: C.muted, fontSize: 13 }}>
-            Tap how it feels. You can change it anytime.
-          </Body>
-          <View
-            style={{
-              minHeight: 170,
-              justifyContent: "center",
-              gap: 6,
-              paddingVertical: 16,
-            }}
-          >
-            <Text style={{ fontFamily: F.bold, fontSize: 28, color: C.navy }}>
-              iwillbe.
-            </Text>
+      <ScrollView
+        key={draft.step}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          padding: 24,
+          paddingTop: draft.step ? 18 : 24,
+          gap: 20,
+          flexGrow: 1,
+        }}
+      >
+        {draft.step === 0 && (
+          <>
             <Text
+              accessibilityLabel="be.me"
               style={{
                 fontFamily: F.bold,
                 fontSize: 28,
-                lineHeight: 35,
-                color: C.gold,
+                color: C.navy,
+                marginBottom: 10,
               }}
             >
-              {QUICK_PICKS[draft.cursor].title}
+              be<Text style={{ color: C.gold }}>.</Text>me
             </Text>
-            <Body>{QUICK_PICKS[draft.cursor].description}</Body>
-          </View>
-          <View style={{ gap: 10 }}>
-            {(["love", "like", "open", "pass"] as const).map((v, i) => (
-              <Button
-                key={v}
-                secondary={i !== 0}
-                label={["Love it", "Like it", "Open to it", "Not now"][i]}
-                loading={action.busy}
-                onPress={() => pick(v)}
-              />
-            ))}
-          </View>
-          <TextButton label="I'm done with quick picks" onPress={() => go(8)} />
-          <Notice text={action.error} tone="error" />
-        </>
-      )}
-      {draft.step === 8 && (
-        <>
-          <Title>Is there something you’d like to get better at?</Title>
-          <Field
-            label="Something to grow into"
-            value={draft.growth}
-            onChangeText={(growth) => update({ growth })}
-            maxLength={500}
-          />
-          {proposed && (
-            <Body>That sounds like “{proposed}”. Add it as a priority?</Body>
-          )}
-        </>
-      )}
-      {(draft.step === 9 || draft.step === 10) && (
-        <>
-          <Title>
-            {draft.step === 9
-              ? "Who do you most want to show up for?"
-              : "Where do you spend most of your day?"}
-          </Title>
-          <View style={s.wrap}>
-            {(draft.step === 9 ? WHO : WHERE.map((x) => [x, x])).map(
-              ([title, value]) => (
+            <Body style={{ color: C.muted, fontStyle: "italic" }}>
+              Okay, let&apos;s start on a light note…
+            </Body>
+            <Title style={{ fontSize: 32, lineHeight: 38 }}>
+              Picture the last day of your life.
+            </Title>
+            <Body style={{ fontSize: 19, lineHeight: 28, color: C.muted }}>
+              You&apos;re smiling.
+            </Body>
+            <Body
+              style={{ fontSize: 25, lineHeight: 33, fontFamily: F.strong }}
+            >
+              What did you live, give and become to leave with that smile?
+            </Body>
+            <View style={{ height: 1, backgroundColor: C.line }} />
+            <Body>
+              Every day can move you a little closer to the person you want to
+              be in the end. One meaningful action a day.
+            </Body>
+            <View>
+              <Body
+                style={{ fontSize: 24, lineHeight: 33, fontFamily: F.bold }}
+              >
+                Sometimes easy.
+              </Body>
+              <Body
+                style={{ fontSize: 24, lineHeight: 33, fontFamily: F.bold }}
+              >
+                Sometimes hard.
+              </Body>
+              <Body
+                style={{
+                  fontSize: 24,
+                  lineHeight: 33,
+                  fontFamily: F.bold,
+                  color: C.gold,
+                }}
+              >
+                Always forward.
+              </Body>
+            </View>
+          </>
+        )}
+        {draft.step === 1 && (
+          <>
+            <Title style={{ fontSize: 32, lineHeight: 38 }}>
+              Who do you want to be?
+            </Title>
+            <Body style={{ color: C.muted }}>
+              Choose the 7 that matter most to you right now.
+            </Body>
+            <IWillBeLabel />
+            <View style={s.wrap}>
+              {PRIORITY_WORDS.map(({ name }) => (
                 <Chip
-                  key={value}
-                  label={title}
-                  selected={(draft.step === 9
-                    ? draft.who
-                    : draft.where
-                  ).includes(value)}
+                  key={name}
+                  label={name}
+                  selected={draft.priorities.includes(name)}
+                  disabled={action.busy}
                   onPress={() =>
-                    toggle(draft.step === 9 ? "who" : "where", value)
+                    update({
+                      priorities: toggleOnboardingPick(
+                        draft.priorities,
+                        name,
+                        ONBOARDING_PRIORITY_COUNT,
+                      ),
+                    })
                   }
                 />
-              ),
-            )}
-          </View>
-          <Field
-            label="Add your own"
-            value={draft.step === 9 ? draft.customWho : draft.customWhere}
-            onChangeText={(value) =>
-              update(
-                draft.step === 9
-                  ? { customWho: value }
-                  : { customWhere: value },
-              )
-            }
-            maxLength={100}
-          />
-          {draft.step === 9 &&
-            draft.who.includes("with my kids") &&
-            !data.entries.some(
-              (e) =>
-                e.kind === "preferences" &&
-                e.title === "Kids ages" &&
-                e.meta.asked,
-            ) && (
-              <View style={{ gap: 10, paddingTop: 6 }}>
-                <Body
-                  style={{ color: C.gold, fontFamily: F.strong, fontSize: 12 }}
-                >
+              ))}
+            </View>
+            {draft.priorities.includes("guided by faith") && (
+              <View style={cardStyle}>
+                <Body style={{ fontFamily: F.strong, color: C.gold }}>
                   Chloe
                 </Body>
-                <Body>How old are your kids?</Body>
-                <Body style={{ color: C.muted, fontSize: 13 }}>
+                <Body style={{ fontSize: 19, fontFamily: F.strong }}>
+                  Which tradition guides you?
+                </Body>
+                <Body style={{ color: C.muted }}>Optional, and private.</Body>
+                <View style={s.wrap}>
+                  {FAITH_TRADITIONS.map((tradition) => (
+                    <Chip
+                      key={tradition}
+                      label={tradition}
+                      selected={draft.faith === tradition}
+                      disabled={action.busy}
+                      onPress={() =>
+                        update({
+                          faith: draft.faith === tradition ? "" : tradition,
+                        })
+                      }
+                    />
+                  ))}
+                </View>
+              </View>
+            )}
+          </>
+        )}
+        {draft.step === 2 && (
+          <>
+            <Title style={{ fontSize: 32, lineHeight: 38 }}>
+              What would you love to do more of?
+            </Title>
+            <Body style={{ color: C.muted }}>
+              Tap any. Add your own if it&apos;s missing.
+            </Body>
+            <IWillBeLabel />
+            <View style={s.wrap}>
+              {QUICK_PICKS.map(({ title }) => (
+                <Chip
+                  key={title}
+                  label={title}
+                  selected={draft.interests.includes(title)}
+                  disabled={action.busy}
+                  onPress={() =>
+                    update({
+                      interests: toggleOnboardingPick(draft.interests, title),
+                    })
+                  }
+                />
+              ))}
+            </View>
+            <Field
+              label="Add your own"
+              placeholder="e.g. salsa dancing"
+              value={draft.customInterests}
+              maxLength={500}
+              editable={!action.busy}
+              onChangeText={(customInterests) => update({ customInterests })}
+            />
+          </>
+        )}
+        {draft.step === 3 && (
+          <>
+            <Title style={{ fontSize: 32, lineHeight: 38 }}>
+              Who do you most want to show up for?
+            </Title>
+            <Body style={{ color: C.muted }}>Pick all that apply.</Body>
+            <View style={s.wrap}>
+              {ONBOARDING_PEOPLE.map(([label, place]) => (
+                <Chip
+                  key={place}
+                  label={label}
+                  selected={draft.who.includes(place)}
+                  disabled={action.busy}
+                  onPress={() =>
+                    update({ who: toggleOnboardingPick(draft.who, place) })
+                  }
+                />
+              ))}
+            </View>
+            {draft.who.includes("with my kids") && (
+              <View style={cardStyle}>
+                <Body style={{ fontFamily: F.strong, color: C.gold }}>
+                  Chloe
+                </Body>
+                <Body style={{ fontSize: 19 }}>How old are your kids?</Body>
+                <Body style={{ color: C.muted }}>
                   Optional. Pick all that apply.
                 </Body>
                 <View style={s.wrap}>
@@ -673,11 +528,10 @@ function Onboarding() {
                       key={age}
                       label={age}
                       selected={draft.kidsAges.includes(age)}
+                      disabled={action.busy}
                       onPress={() =>
                         update({
-                          kidsAges: draft.kidsAges.includes(age)
-                            ? draft.kidsAges.filter((value) => value !== age)
-                            : [...draft.kidsAges, age],
+                          kidsAges: toggleOnboardingPick(draft.kidsAges, age),
                         })
                       }
                     />
@@ -685,70 +539,88 @@ function Onboarding() {
                 </View>
               </View>
             )}
-        </>
-      )}
-      {draft.step === 11 && (
-        <>
-          <Title>When will you check in?</Title>
-          <Field
-            label="When will you check in each morning?"
-            placeholder="after brushing my teeth"
-            value={draft.morning}
-            onChangeText={(morning) => update({ morning })}
-            maxLength={300}
-          />
-          <Field
-            label="When will you check in each night?"
-            placeholder="after brushing my teeth"
-            value={draft.night}
-            onChangeText={(night) => update({ night })}
-            maxLength={300}
-          />
-          <Body style={{ fontSize: 13, color: C.muted }}>
-            You can set a reminder time in Me.
+            <Field
+              label="Add your own"
+              placeholder="e.g. my students"
+              value={draft.customWho}
+              maxLength={250}
+              editable={!action.busy}
+              onChangeText={(customWho) => update({ customWho })}
+            />
+          </>
+        )}
+        {draft.step === 4 && (
+          <>
+            <Body style={{ color: C.gold }}>
+              Back to that last day, smiling.
+            </Body>
+            <Title style={{ fontSize: 32, lineHeight: 38 }}>
+              Who do you want to be remembered as?
+            </Title>
+            <Body style={{ color: C.muted }}>
+              A first draft, in your words. You&apos;ll shape it over time.
+            </Body>
+            <Field
+              multiline
+              label="My why"
+              value={draft.why}
+              placeholder="Someone who made the people around them laugh, and never stopped learning."
+              onChangeText={(why) => update({ why })}
+              maxLength={6000}
+              editable={!action.busy}
+              style={{ minHeight: 180, borderColor: C.gold, borderRadius: 20 }}
+            />
+            {!validFirstWhy(draft.why) && (
+              <Body style={{ color: C.muted, fontSize: 13, lineHeight: 19 }}>
+                Write at least three words to begin.
+              </Body>
+            )}
+            <Body style={{ color: C.muted }}>
+              This is the heart of everything. Each day&apos;s one action moves
+              you toward it.
+            </Body>
+          </>
+        )}
+      </ScrollView>
+      <View
+        style={{
+          paddingHorizontal: 24,
+          paddingBottom: 16,
+          paddingTop: 12,
+          gap: 10,
+          backgroundColor: C.paper,
+        }}
+      >
+        {draft.step === 0 && (
+          <Body style={{ color: C.muted, fontSize: 14, lineHeight: 20 }}>
+            Let&apos;s start with four quick steps. About a minute.
           </Body>
-        </>
-      )}
-      {draft.step === 12 && (
-        <>
-          <Title>Who do you want to be remembered as?</Title>
-          <Body>A first draft, in your words. You can shape it over time.</Body>
-          <Field
-            multiline
-            label="My why"
-            value={draft.why}
-            onChangeText={(why) => update({ why })}
-            maxLength={3000}
-          />
-        </>
-      )}
-      {draft.step === 13 && (
-        <>
-          <Title>A starting point</Title>
-          <Body>{REVIEW_QUESTIONS[draft.baselineIndex]}</Body>
-          <View style={s.wrap}>
-            {Array.from({ length: 11 }, (_, n) => (
-              <Chip
-                key={n}
-                label={String(n)}
-                selected={draft.baseline[draft.baselineIndex] === n}
-                onPress={() =>
-                  update({
-                    baseline: draft.baseline.map((v, i) =>
-                      i === draft.baselineIndex ? n : v,
-                    ),
-                  })
-                }
-              />
-            ))}
-          </View>
-          <Body style={{ fontSize: 13, color: C.muted }}>
-            0 · Not at all. 10 · Very much. These stay private.
-          </Body>
-        </>
-      )}
-      {!pinned && draft.step !== 7 && buttons}
-    </Page>
+        )}
+        <Notice text={action.error || draftError} tone="error" />
+        <Button
+          label={buttonLabel}
+          disabled={disabled}
+          loading={action.busy}
+          onPress={next}
+          icon
+        />
+      </View>
+    </KeyboardAvoidingView>
   );
 }
+function IWillBeLabel() {
+  return (
+    <Text style={{ fontFamily: F.bold, fontSize: 28, color: C.navy }}>
+      iwillbe<Text style={{ color: C.gold }}>.</Text>
+    </Text>
+  );
+}
+const cardStyle = {
+  backgroundColor: C.white,
+  borderWidth: 1,
+  borderColor: C.line,
+  borderRadius: 20,
+  padding: 18,
+  gap: 12,
+};
 export default withAccount(Onboarding);

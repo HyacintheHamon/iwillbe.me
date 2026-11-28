@@ -1,6 +1,6 @@
 import type { Practice } from "./domain";
 
-export const KIDS_AGES = ["under 6", "6–12", "teens"] as const;
+export const KIDS_AGES = ["under 6", "6–12", "teens", "adults"] as const;
 export type KidsAge = (typeof KIDS_AGES)[number];
 export const HEALTH_THEMES = [
   "moving",

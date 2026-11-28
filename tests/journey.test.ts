@@ -220,7 +220,11 @@ test("completion never invents energy or value conviction, and absence never dim
     c.value_choice = "yes";
   });
   assert.equal(interestState(p, interest), "Want to try");
-  assert.equal(valueState(p, value), "Important to me");
+  assert.equal(valueState(p, value), "Working on");
+  assert.equal(
+    valueState(p, { ...value, state: "important" }),
+    "Important to me",
+  );
   p.checkIns[2].value_choice = "not_mine";
   assert.equal(valueState(p, value), "Let go");
   assert.equal(interestState(p, { ...interest, state: "ember" }), "On pause");

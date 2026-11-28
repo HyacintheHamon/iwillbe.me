@@ -1,0 +1,63 @@
+{
+  "filename": "iwillbe-mission-library-v2.xlsx",
+  "sha256": "51597362aa4685dc142d90128df7a49fefb217e7e933b924a5bed63d82ac92c0",
+  "missions": 1284,
+  "previous_missions": 1257,
+  "added_missions": 27,
+  "changed_missions": 24,
+  "removed_missions": 0,
+  "changed_mission_ids": [
+    "PA-SPO-1a",
+    "PA-SPO-2b",
+    "PE-NEI-5c",
+    "BE-PLA-1a",
+    "BE-PLA-1b",
+    "BE-PLA-1c",
+    "BE-PLA-2a",
+    "BE-PLA-2c",
+    "BE-PLA-3a",
+    "BE-PLA-4c",
+    "BE-PLA-5c",
+    "PA-MUS-2b",
+    "PA-MUS-4b",
+    "PA-ART-4a",
+    "BE-PER-4c",
+    "PA-GAM-1b",
+    "GR-AMB-5a",
+    "PL-PAR-FRI-1c",
+    "PL-PAR-LRN-1c",
+    "PL-PRT-HOP-1b",
+    "PA-MUS-1a2",
+    "IN-SIN-1a",
+    "GR-MNY-2b",
+    "GR-HUM-5a"
+  ],
+  "learning_missions": 183,
+  "someday_starters": 15,
+  "age_tagged_missions": 49,
+  "adult_kid_missions": 9,
+  "priority_count": 39,
+  "joyful_missions": 43,
+  "interest_links": 44,
+  "books": 59,
+  "added_books": 2,
+  "new_ladders": [
+    {
+      "code": "BE-JOY",
+      "name": "Joy",
+      "missions": 15
+    },
+    {
+      "code": "LR-P39",
+      "name": "Learning: joyful",
+      "missions": 3
+    }
+  ],
+  "extended_ladders": [
+    {
+      "code": "KA",
+      "name": "With my kids",
+      "added_missions": 9
+    }
+  ]
+}
