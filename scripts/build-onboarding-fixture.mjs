@@ -15,6 +15,39 @@ if (!html.includes("<head>")) throw new Error("Run npm run build first.");
 await rm(target, { recursive: true, force: true });
 await mkdir(path.dirname(target), { recursive: true });
 await cp(path.join(root, "dist"), target, { recursive: true });
+// Vercel omits files nested under node_modules from a static output directory.
+// Keep the exported URLs intact and serve every bundled font/icon via this alias.
+await cp(
+  path.join(target, "assets/node_modules"),
+  path.join(target, "vendor-assets"),
+  { recursive: true },
+);
+await writeFile(
+  path.join(target, "vercel.json"),
+  JSON.stringify(
+    {
+      framework: null,
+      installCommand: "",
+      buildCommand: "",
+      outputDirectory: ".",
+      rewrites: [
+        {
+          source: "/assets/node_modules/:path*",
+          destination: "/vendor-assets/:path*",
+        },
+        { source: "/(.*)", destination: "/index.html" },
+      ],
+      headers: [
+        {
+          source: "/(.*)",
+          headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+        },
+      ],
+    },
+    null,
+    2,
+  ) + "\n",
+);
 const load = async (name) =>
   JSON.parse(
     await readFile(path.join(root, `data/round5/${name}.json`), "utf8"),
